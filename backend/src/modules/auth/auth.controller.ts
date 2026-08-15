@@ -1,0 +1,40 @@
+import type { Request, Response } from 'express';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { registerSchema, loginSchema } from './auth.validation';
+import { registerUser, loginUser, getUserById } from './auth.service';
+
+const sanitizeUser = (user: Record<string, unknown>) => {
+  const { passwordHash, ...safe } = user;
+  return safe;
+};
+
+export const register = asyncHandler(async (req: Request, res: Response) => {
+  const input = registerSchema.parse(req.body);
+  const { user, token } = await registerUser(input);
+  res.status(201).json({ user: sanitizeUser(user), token });
+});
+
+// export const me = asyncHandler(async (req: Request, res: Response) => {
+//   if (!req.user) {
+//     res.status(401).json({ message: 'Not authenticated' });
+//     return;
+//   }
+//   const user = await getUserById(req.user.id);
+//   res.status(200).json({ user: sanitizeUser(user) });
+// });
+
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const input = loginSchema.parse(req.body);
+  const { user, token } = await loginUser(input);
+  res.status(200).json({ user: sanitizeUser(user), token });
+});
+
+export const me = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as Request & { user?: { id: string } }).user?.id;
+  if (!userId) { 
+    res.status(401).json({ message: 'Not authenticated' });
+    return;
+  }
+  const user = await getUserById(userId);
+  res.status(200).json({ user: sanitizeUser(user) });
+});

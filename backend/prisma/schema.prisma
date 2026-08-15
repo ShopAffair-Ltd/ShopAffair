@@ -1,0 +1,545 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  buyer
+  seller
+  admin
+  ai
+}
+
+enum VerificationStatus {
+  GUEST
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum TradeType {
+  SUPPLY
+  REQUEST
+}
+
+enum TradeCategory {
+  PHYSICAL
+  DIGITAL
+  SERVICE
+}
+
+enum EscrowStatus {
+  DRAFT
+  PENDING
+  FUNDED
+  DELIVERED
+  COMPLETED
+  DISPUTED
+  REFUNDED
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  GENTLY_USED
+  FAIR
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ALERT
+}
+
+enum PaymentProvider {
+  MANUAL
+  PAYSTACK
+  KUDA
+}
+
+enum TransactionType {
+  FUNDING
+  WITHDRAWAL
+  ESCROW_LOCK
+  ESCROW_RELEASE
+  REFUND
+  SUBSCRIPTION
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum ChatRoomType {
+  DIRECT
+  GROUP
+  COMMUNITY
+}
+
+enum ParticipantRole {
+  ADMIN
+  MEMBER
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id                        String              @id @default(uuid())
+  tempId                    String              @unique
+  name                      String
+  username                  String              @unique
+  email                     String              @unique
+  passwordHash              String
+  role                      UserRole            @default(buyer)
+  verificationStatus        VerificationStatus  @default(UNVERIFIED)
+  rejectionReason           String?
+  isFrozen                  Boolean             @default(false)
+  frozenReason              String?
+  frozenAt                  DateTime?
+  frozenById                String?
+  frozenBy                  User?               @relation("UserFreezer", fields: [frozenById], references: [id])
+  frozenUsers               User[]              @relation("UserFreezer")
+  bankName                  String?
+  accountNumber             String?
+  paystackCustomerCode      String?
+  withdrawalBankName        String?
+  withdrawalBankCode        String?
+  withdrawalAccountNumber   String?
+  withdrawalAccountName     String?
+  paystackRecipientCode     String?
+  walletBalance             Decimal             @default(0) @db.Decimal(14, 2)
+  isPro                     Boolean             @default(false)
+  avatarColor               String?
+  phoneNumber               String?
+  profilePicture            String?
+  totalTrades               Int?
+  completedTrades           Int?
+  completionRate            Float?
+  tier                      Int?
+  deliveryAddress           String?
+  verificationDocumentName  String?
+  verificationSubmittedAt   DateTime?
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+  storeName                 String?
+  bio                       String?
+  location                  String?
+  storeCategory             String?
+  coverImage                String?
+  lastSeenAt                DateTime?
+  rating                    Float               @default(0)
+  reviewsCount              Int                 @default(0)
+  totalSales                Int                 @default(0)
+
+  products             Product[]
+  tradesCreated        Trade[]              @relation("TradeCreator")
+  tradesBought         Trade[]              @relation("TradeBuyer")
+  buyerOrders          Order[]              @relation("BuyerOrders")
+  sellerOrders         Order[]              @relation("SellerOrders")
+  chatRoomsInitiated   ChatRoom[]           @relation("ChatInitiator")
+  chatRoomsJoined      ChatRoom[]           @relation("ChatParticipant")
+  chatRoomsCreated     ChatRoom[]           @relation("ChatRoomCreator")
+  chatMessages         ChatMessage[]
+  notifications        Notification[]
+  auditLogsActedBy     AuditLog[]           @relation("AuditActor")
+  auditLogsAbout       AuditLog[]           @relation("AuditTarget")
+  walletTransactions   WalletTransaction[]
+  subscriptions        Subscription[]
+  followedBy           Follow[]             @relation("Followed")
+  following            Follow[]             @relation("Follower")
+  reviewsGiven         Review[]             @relation("Reviewer")
+  reviewsReceived      Review[]             @relation("SellerReviews")
+  reviewHelpfulVotes   ReviewHelpful[]
+  wallPosts            WallPost[]           @relation("SellerWallPosts")
+  wallPostLikes        WallPostLike[]       @relation("WallPostLikes")
+  wallPostComments     WallPostComment[]    @relation("WallPostComments")
+  chatParticipants     ChatRoomParticipant[]
+  chatInvites          ChatInvite[]         @relation("ChatInviteCreator")
+  communitiesApproved  ChatRoom[]           @relation("CommunityApprover")
+  supportTickets       SupportTicket[]
+  supportReplies       SupportTicketReply[]
+  platformSettingsEdited PlatformSetting[]
+  promoCodesCreated    PromoCode[]          @relation("PromoCreator")
+  blockedBy            Block[]              @relation("Blocked")
+  blocking             Block[]              @relation("Blocker")
+}
+
+model Follow {
+  id           String   @id @default(uuid())
+  followerId   String
+  follower     User     @relation("Follower", fields: [followerId], references: [id])
+  followingId  String
+  followedUser User     @relation("Followed", fields: [followingId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  reviewerId   String
+  reviewer     User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  sellerId     String
+  seller       User     @relation("SellerReviews", fields: [sellerId], references: [id])
+  rating       Int      @default(5)
+  content      String
+  orderId      String?
+  helpfulCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  helpfulVotes ReviewHelpful[]
+
+  @@index([sellerId])
+  @@index([reviewerId])
+  @@unique([reviewerId, sellerId, orderId])
+}
+
+model ReviewHelpful {
+  id         String   @id @default(uuid())
+  reviewId   String
+  review     Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
+}
+
+model Product {
+  id            String            @id @default(uuid())
+  title         String
+  price         Decimal           @db.Decimal(14, 2)
+  sellerId      String
+  seller        User              @relation(fields: [sellerId], references: [id])
+  rating        Float             @default(0)
+  salesCount    Int               @default(0)
+  reviewsCount  Int               @default(0)
+  image         String
+  category      String
+  condition     ProductCondition
+  specs         Json?
+  description   String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  orders        Order[]
+}
+
+model Trade {
+  id                String         @id @default(uuid())
+  title             String
+  creatorId         String
+  creator           User           @relation("TradeCreator", fields: [creatorId], references: [id])
+  buyerId           String?
+  buyer             User?          @relation("TradeBuyer", fields: [buyerId], references: [id])
+  amount            Decimal        @db.Decimal(14, 2)
+  status            EscrowStatus   @default(DRAFT)
+  type              TradeType
+  category          TradeCategory
+  condition         String?
+  specs             Json?
+  accountNumber     String?
+  deliveryFee       Decimal        @default(0) @db.Decimal(14, 2)
+  deliveryTime      String
+  takeOffLocation   String?
+  deliveryLocation  String?
+  image             String?
+  description       String?
+  pickupCode        String?
+  pickupAttempts    Int            @default(0)
+  pausedByFreeze    Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  chatRoom           ChatRoom?
+  sharedInMessages   ChatMessage[]
+  walletTransactions WalletTransaction[]
+  order              Order?
+}
+
+model Order {
+  id             String       @id @default(uuid())
+  orderRef       String
+  productId      String
+  product        Product      @relation(fields: [productId], references: [id])
+  price          Decimal      @db.Decimal(14, 2)
+  quantity       Int          @default(1)
+  buyerId        String
+  buyer          User         @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId       String
+  seller         User         @relation("SellerOrders", fields: [sellerId], references: [id])
+  status         OrderStatus  @default(PENDING)
+  deliveryFee    Decimal      @default(0) @db.Decimal(14, 2)
+  fullName       String?
+  address        String?
+  city           String?
+  state          String?
+  phone          String?
+  tradeId        String?      @unique
+  trade          Trade?       @relation(fields: [tradeId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([orderRef])
+}
+
+model ChatRoom {
+  id                  String        @id @default(uuid())
+  type                ChatRoomType  @default(DIRECT)
+  name                String?
+  description         String?
+  avatar              String?
+  initiatorId         String?
+  initiator           User?         @relation("ChatInitiator", fields: [initiatorId], references: [id])
+  participantId       String?
+  participant         User?         @relation("ChatParticipant", fields: [participantId], references: [id])
+  creatorId           String
+  creator             User          @relation("ChatRoomCreator", fields: [creatorId], references: [id])
+  associatedTradeId   String?       @unique
+  associatedTrade     Trade?        @relation(fields: [associatedTradeId], references: [id])
+  lastMessage         String?
+  lastMessageAt       DateTime?
+  settings            Json?
+  approvalStatus      ApprovalStatus @default(APPROVED)
+  approvedById        String?
+  approvedBy          User?          @relation("CommunityApprover", fields: [approvedById], references: [id])
+  approvedAt          DateTime?
+  rejectionReason     String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  messages            ChatMessage[]
+  participants        ChatRoomParticipant[]
+  invites             ChatInvite[]
+
+  @@unique([initiatorId, participantId])
+}
+
+model ChatRoomParticipant {
+  id          String            @id @default(uuid())
+  chatRoomId  String
+  chatRoom    ChatRoom          @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  role        ParticipantRole   @default(MEMBER)
+  isPinned    Boolean           @default(false)
+  lastReadAt  DateTime          @default(now())
+  joinedAt    DateTime          @default(now())
+  leftAt      DateTime?
+
+  @@unique([chatRoomId, userId])
+  @@index([userId])
+  @@index([chatRoomId])
+}
+
+model ChatMessage {
+  id              String    @id @default(uuid())
+  chatRoomId      String
+  chatRoom        ChatRoom  @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  senderId        String?
+  sender          User?     @relation(fields: [senderId], references: [id])
+  content         String
+  attachmentName  String?
+  isRead          Boolean   @default(false)
+  isDeleted       Boolean   @default(false)
+  deletedAt       DateTime?
+  isSystem        Boolean   @default(false)
+  sharedTradeId   String?
+  sharedTrade     Trade?    @relation(fields: [sharedTradeId], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([chatRoomId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model ChatInvite {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  chatRoomId  String
+  chatRoom    ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User     @relation("ChatInviteCreator", fields: [createdById], references: [id])
+  maxUses     Int      @default(1)
+  usedCount   Int      @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([code])
+  @@index([chatRoomId])
+}
+
+model Block {
+  id          String   @id @default(uuid())
+  blockerId   String
+  blocker     User     @relation("Blocker", fields: [blockerId], references: [id])
+  blockedId   String
+  blocked     User     @relation("Blocked", fields: [blockedId], references: [id])
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model Notification {
+  id         String            @id @default(uuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  title      String
+  message    String
+  type       NotificationType  @default(INFO)
+  read       Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+}
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  action        String
+  actorId       String
+  actor         User      @relation("AuditActor", fields: [actorId], references: [id])
+  targetUserId  String?
+  targetUser    User?     @relation("AuditTarget", fields: [targetUserId], references: [id])
+  details       String
+  createdAt     DateTime  @default(now())
+}
+
+model WallPost {
+  id         String    @id @default(uuid())
+  sellerId   String
+  seller     User      @relation("SellerWallPosts", fields: [sellerId], references: [id])
+  content    String
+  isPinned   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  likes      WallPostLike[]
+  comments   WallPostComment[]
+}
+
+model WallPostLike {
+  id         String    @id @default(uuid())
+  postId     String
+  post       WallPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation("WallPostLikes", fields: [userId], references: [id])
+  createdAt  DateTime  @default(now())
+
+  @@unique([postId, userId])
+}
+
+model WallPostComment {
+  id         String    @id @default(uuid())
+  postId     String
+  post       WallPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User      @relation("WallPostComments", fields: [authorId], references: [id])
+  content    String
+  createdAt  DateTime  @default(now())
+}
+
+model Subscription {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  plan        String    @default("SELLER_PRO")
+  amount      Decimal   @db.Decimal(14, 2)
+  expiresAt   DateTime?
+  active      Boolean   @default(true)
+  reference   String    @unique
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model WalletTransaction {
+  id          String              @id @default(uuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id])
+  type        TransactionType
+  provider    PaymentProvider
+  amount      Decimal             @db.Decimal(14, 2)
+  status      TransactionStatus   @default(PENDING)
+  reference   String?             @unique
+  tradeId     String?
+  trade       Trade?              @relation(fields: [tradeId], references: [id])
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model SupportTicket {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  subject     String
+  message     String
+  status      TicketStatus  @default(OPEN)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  replies     SupportTicketReply[]
+}
+
+model SupportTicketReply {
+  id          String        @id @default(uuid())
+  ticketId    String
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User          @relation(fields: [authorId], references: [id])
+  isAdminReply Boolean      @default(false)
+  content     String
+  createdAt   DateTime      @default(now())
+}
+
+model PlatformSetting {
+  key         String   @id
+  value       String
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+  updatedBy   User?    @relation(fields: [updatedById], references: [id])
+}
+
+model PromoCode {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  discountPct Int
+  active      Boolean   @default(true)
+  createdById String
+  createdBy   User      @relation("PromoCreator", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+}

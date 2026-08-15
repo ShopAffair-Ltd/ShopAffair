@@ -1,0 +1,6 @@
+{
+  "name": "ShopFair - Secure Trade Escrow",
+  "description": "High-fidelity secure multi-sig escrow trading client centering physical and digital marketplaces with live compliance desks and wallet clearing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
