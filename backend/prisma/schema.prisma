@@ -120,6 +120,8 @@ model User {
   verificationStatus        VerificationStatus  @default(UNVERIFIED)
   rejectionReason           String?
   isFrozen                  Boolean             @default(false)
+  isDraft                   Boolean             @default(false)
+  draftExpiresAt            DateTime?
   frozenReason              String?
   frozenAt                  DateTime?
   frozenById                String?

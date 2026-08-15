@@ -59,6 +59,28 @@ export const registerUser = async (payload: RegisterPayload): Promise<UserProfil
   return mapToUserProfile(data.user);
 };
 
+export const startDraftRegistration = async (payload: RegisterPayload): Promise<UserProfile> => {
+  const { data } = await api.post<{ user: Record<string, unknown> }>('/auth/register/start', payload);
+  return mapToUserProfile(data.user);
+};
+
+export const updateDraftRegistration = async (
+  draftId: string,
+  payload: Partial<RegisterPayload>
+): Promise<UserProfile> => {
+  const { data } = await api.post<{ user: Record<string, unknown> }>('/auth/register/update', {
+    draftId,
+    ...payload
+  });
+  return mapToUserProfile(data.user);
+};
+
+export const confirmDraftRegistration = async (draftId: string): Promise<UserProfile> => {
+  const { data } = await api.post<AuthResponse>('/auth/register/confirm', { draftId });
+  localStorage.setItem('shopfair_token', data.token);
+  return mapToUserProfile(data.user);
+};
+
 export const loginUser = async (payload: LoginPayload): Promise<UserProfile> => {
   const { data } = await api.post<AuthResponse>('/auth/login', payload);
   localStorage.setItem('shopfair_token', data.token);

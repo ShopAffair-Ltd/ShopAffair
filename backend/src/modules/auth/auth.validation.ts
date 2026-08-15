@@ -13,6 +13,14 @@ export const registerSchema = z.object({
   role: z.enum(['buyer', 'seller']).default('buyer')
 });
 
+export const updateDraftSchema = registerSchema.partial().extend({
+  draftId: z.string().uuid()
+});
+
+export const confirmDraftSchema = z.object({
+  draftId: z.string().uuid()
+});
+
 export const loginSchema = z.object({
   email: z.email(),
   password: z.string().min(1)

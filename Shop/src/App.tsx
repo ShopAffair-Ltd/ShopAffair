@@ -21,7 +21,6 @@ import BottomNav from './components/layout/BottomNav';
 import AppHeader from './components/layout/AppHeader';
 import VerificationGate from './components/layout/VerificationGate';
 import AuthModal from './components/AuthModal';
-import AccountCreatedModal from './components/AccountCreatedModal';
 import MarketView from './components/MarketView';
 import HomeView from './components/HomeView';
 import TradeView from './components/TradeView';
@@ -343,7 +342,7 @@ export default function App() {
   const [isPreloaderActive, setIsPreloaderActive] = useState(true);
   const [showLanding, setShowLanding] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
-  const { openLogin, openRegister, newAccount, clearNewAccount } = useAuthModal();
+  const { openLogin, openRegister } = useAuthModal();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -362,14 +361,6 @@ export default function App() {
   return (
     <>
       <AuthModal />
-      {newAccount && (
-        <AccountCreatedModal
-          isOpen={!!newAccount}
-          onClose={clearNewAccount}
-          accountNumber={newAccount.accountNumber}
-          bankName={newAccount.bankName}
-        />
-      )}
 
       {showLanding ? (
         <LandingPage

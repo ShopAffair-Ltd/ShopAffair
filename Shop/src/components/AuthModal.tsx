@@ -1,24 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShieldCheck, User } from 'lucide-react';
+import { X, ShieldCheck, User, ArrowLeft, Landmark, Loader2 } from 'lucide-react';
 import { UserProfile } from '../types';
-import { registerUser, loginUser, getApiErrorMessage } from '../services/authService';
+import {
+  loginUser,
+  startDraftRegistration,
+  updateDraftRegistration,
+  confirmDraftRegistration,
+  getApiErrorMessage
+} from '../services/authService';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal() {
-  const { isOpen, mode: initialMode, close, showNewAccount } = useAuthModal();
-  const { user: activeProfile, login, updateUser: onUpdateProfile } = useAuth();
+  const { isOpen, mode: initialMode, close } = useAuthModal();
+  const { login } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode as 'login' | 'register');
+  const [registerStep, setRegisterStep] = useState<'form' | 'confirm'>('form');
+  const [draftProfile, setDraftProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode as 'login' | 'register');
+      setRegisterStep('form');
+      setDraftProfile(null);
     }
   }, [isOpen, initialMode]);
 
   const onClose = close;
-  const onAuthSuccess = (profile: UserProfile) => login(profile);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,7 +68,7 @@ export default function AuthModal() {
 
     try {
       const profile = await loginUser({ email, password });
-      onAuthSuccess(profile);
+      login(profile);
       onClose();
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
@@ -68,7 +77,9 @@ export default function AuthModal() {
     }
   };
 
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
+  // "Next" generates the account (creates a draft user + Paystack DVA) and
+  // moves to the confirmation step, WITHOUT logging the person in yet.
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !username || !password || !fullName || !phoneNumber) return;
 
@@ -76,15 +87,44 @@ export default function AuthModal() {
     setErrorMessage(null);
 
     try {
-      const profile = await registerUser({ name: fullName, username, email, password, phoneNumber, role });
-      onAuthSuccess(profile);
-      onClose();
-
-      if (profile.accountNumber && profile.bankName) {
-        // Registration modal closes immediately; the account-created modal
-        // is a distinct next step, not part of this same dialog.
-        showNewAccount({ accountNumber: profile.accountNumber, bankName: profile.bankName });
+      let profile: UserProfile;
+      if (draftProfile) {
+        profile = await updateDraftRegistration(draftProfile.id, {
+          name: fullName,
+          username,
+          email,
+          password,
+          phoneNumber,
+          role
+        });
+      } else {
+        profile = await startDraftRegistration({ name: fullName, username, email, password, phoneNumber, role });
       }
+      setDraftProfile(profile);
+      setRegisterStep('confirm');
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Back from confirmation returns to the same editable form, values intact.
+  const handleBackToForm = () => {
+    setRegisterStep('form');
+    setErrorMessage(null);
+  };
+
+  const handleConfirm = async () => {
+    if (!draftProfile) return;
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const profile = await confirmDraftRegistration(draftProfile.id);
+      login(profile);
+      onClose();
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
     } finally {
@@ -180,8 +220,8 @@ export default function AuthModal() {
                 </form>
               )}
 
-              {mode === 'register' && (
-                <form onSubmit={handleRegisterSubmit} className="space-y-5">
+              {mode === 'register' && registerStep === 'form' && (
+                <form onSubmit={handleNext} className="space-y-5">
                   <div className="text-center">
                     <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-xl bg-purple-50 text-purple-600 mb-3">
                       <User className="w-6 h-6 stroke-[2]" />
@@ -294,7 +334,7 @@ export default function AuthModal() {
                     disabled={isSubmitting}
                     className="w-full font-sans font-bold text-sm text-white bg-purple-600 hover:bg-purple-700 py-3.5 rounded-xl transition-all shadow-md shadow-purple-100 flex items-center justify-center cursor-pointer disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Setting up your account...' : 'Register'}
+                    {isSubmitting ? 'Setting up your account...' : 'Next'}
                   </button>
 
                   <div className="text-center pt-2">
@@ -307,6 +347,67 @@ export default function AuthModal() {
                     </button>
                   </div>
                 </form>
+              )}
+
+              {mode === 'register' && registerStep === 'confirm' && draftProfile && (
+                <div className="space-y-5">
+                  <div className="text-center">
+                    <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-xl bg-purple-50 text-purple-600 mb-3">
+                      <Landmark className="w-6 h-6 stroke-[2]" />
+                    </div>
+                    <h3 className="text-2xl font-display font-bold text-slate-900">Your Account Number</h3>
+                    <p className="text-sm font-sans text-slate-500 mt-1">
+                      This is your personal deposit account. Confirm your details to finish creating your account.
+                    </p>
+                  </div>
+
+                  {errorMessage && (
+                    <div className="p-3 bg-red-50 text-red-700 text-xs font-sans font-semibold rounded-xl border border-red-100">
+                      {errorMessage}
+                    </div>
+                  )}
+
+                  {draftProfile.accountNumber && draftProfile.bankName ? (
+                    <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100 flex items-center gap-3 text-left">
+                      <Landmark className="w-5 h-5 text-purple-600 shrink-0" />
+                      <div>
+                        <span className="block text-[10px] font-bold text-purple-400 uppercase">{draftProfile.bankName}</span>
+                        <strong className="font-mono text-lg text-purple-800 tracking-wide">{draftProfile.accountNumber}</strong>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-amber-50 text-amber-700 text-xs font-sans font-semibold rounded-xl border border-amber-100">
+                      We couldn't generate your account number just now. You can still continue and try again later from your wallet.
+                    </div>
+                  )}
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5 text-xs font-sans text-left">
+                    <p><span className="text-slate-400">Name:</span> <span className="font-semibold text-slate-700">{fullName}</span></p>
+                    <p><span className="text-slate-400">Username:</span> <span className="font-semibold text-slate-700">@{username}</span></p>
+                    <p><span className="text-slate-400">Email:</span> <span className="font-semibold text-slate-700">{email}</span></p>
+                    <p><span className="text-slate-400">Phone:</span> <span className="font-semibold text-slate-700">{phoneNumber}</span></p>
+                    <p><span className="text-slate-400">Role:</span> <span className="font-semibold text-slate-700 capitalize">{role}</span></p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleConfirm}
+                      disabled={isSubmitting}
+                      className="w-full font-sans font-bold text-sm text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-3.5 rounded-xl transition-all shadow-md shadow-purple-100 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                      {isSubmitting ? 'Creating account...' : 'Confirm & Continue'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBackToForm}
+                      disabled={isSubmitting}
+                      className="w-full font-sans font-semibold text-sm text-slate-500 hover:text-slate-700 py-2.5 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> Edit details
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>

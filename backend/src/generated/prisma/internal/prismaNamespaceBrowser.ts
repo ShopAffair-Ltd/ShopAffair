@@ -103,6 +103,8 @@ export const UserScalarFieldEnum = {
   verificationStatus: 'verificationStatus',
   rejectionReason: 'rejectionReason',
   isFrozen: 'isFrozen',
+  isDraft: 'isDraft',
+  draftExpiresAt: 'draftExpiresAt',
   frozenReason: 'frozenReason',
   frozenAt: 'frozenAt',
   frozenById: 'frozenById',

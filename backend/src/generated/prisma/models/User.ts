@@ -59,6 +59,8 @@ export type UserMinAggregateOutputType = {
   verificationStatus: $Enums.VerificationStatus | null
   rejectionReason: string | null
   isFrozen: boolean | null
+  isDraft: boolean | null
+  draftExpiresAt: Date | null
   frozenReason: string | null
   frozenAt: Date | null
   frozenById: string | null
@@ -106,6 +108,8 @@ export type UserMaxAggregateOutputType = {
   verificationStatus: $Enums.VerificationStatus | null
   rejectionReason: string | null
   isFrozen: boolean | null
+  isDraft: boolean | null
+  draftExpiresAt: Date | null
   frozenReason: string | null
   frozenAt: Date | null
   frozenById: string | null
@@ -153,6 +157,8 @@ export type UserCountAggregateOutputType = {
   verificationStatus: number
   rejectionReason: number
   isFrozen: number
+  isDraft: number
+  draftExpiresAt: number
   frozenReason: number
   frozenAt: number
   frozenById: number
@@ -224,6 +230,8 @@ export type UserMinAggregateInputType = {
   verificationStatus?: true
   rejectionReason?: true
   isFrozen?: true
+  isDraft?: true
+  draftExpiresAt?: true
   frozenReason?: true
   frozenAt?: true
   frozenById?: true
@@ -271,6 +279,8 @@ export type UserMaxAggregateInputType = {
   verificationStatus?: true
   rejectionReason?: true
   isFrozen?: true
+  isDraft?: true
+  draftExpiresAt?: true
   frozenReason?: true
   frozenAt?: true
   frozenById?: true
@@ -318,6 +328,8 @@ export type UserCountAggregateInputType = {
   verificationStatus?: true
   rejectionReason?: true
   isFrozen?: true
+  isDraft?: true
+  draftExpiresAt?: true
   frozenReason?: true
   frozenAt?: true
   frozenById?: true
@@ -452,6 +464,8 @@ export type UserGroupByOutputType = {
   verificationStatus: $Enums.VerificationStatus
   rejectionReason: string | null
   isFrozen: boolean
+  isDraft: boolean
+  draftExpiresAt: Date | null
   frozenReason: string | null
   frozenAt: Date | null
   frozenById: string | null
@@ -522,6 +536,8 @@ export type UserWhereInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFilter<"User"> | $Enums.VerificationStatus
   rejectionReason?: Prisma.StringNullableFilter<"User"> | string | null
   isFrozen?: Prisma.BoolFilter<"User"> | boolean
+  isDraft?: Prisma.BoolFilter<"User"> | boolean
+  draftExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   frozenReason?: Prisma.StringNullableFilter<"User"> | string | null
   frozenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   frozenById?: Prisma.StringNullableFilter<"User"> | string | null
@@ -602,6 +618,8 @@ export type UserOrderByWithRelationInput = {
   verificationStatus?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
+  isDraft?: Prisma.SortOrder
+  draftExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   frozenReason?: Prisma.SortOrderInput | Prisma.SortOrder
   frozenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   frozenById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -685,6 +703,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   verificationStatus?: Prisma.EnumVerificationStatusFilter<"User"> | $Enums.VerificationStatus
   rejectionReason?: Prisma.StringNullableFilter<"User"> | string | null
   isFrozen?: Prisma.BoolFilter<"User"> | boolean
+  isDraft?: Prisma.BoolFilter<"User"> | boolean
+  draftExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   frozenReason?: Prisma.StringNullableFilter<"User"> | string | null
   frozenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   frozenById?: Prisma.StringNullableFilter<"User"> | string | null
@@ -765,6 +785,8 @@ export type UserOrderByWithAggregationInput = {
   verificationStatus?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
+  isDraft?: Prisma.SortOrder
+  draftExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   frozenReason?: Prisma.SortOrderInput | Prisma.SortOrder
   frozenAt?: Prisma.SortOrderInput | Prisma.SortOrder
   frozenById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -820,6 +842,8 @@ export type UserScalarWhereWithAggregatesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusWithAggregatesFilter<"User"> | $Enums.VerificationStatus
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isFrozen?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  isDraft?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  draftExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   frozenReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   frozenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   frozenById?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -867,6 +891,8 @@ export type UserCreateInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -946,6 +972,8 @@ export type UserUncheckedCreateInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -1025,6 +1053,8 @@ export type UserUpdateInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1104,6 +1134,8 @@ export type UserUncheckedUpdateInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1183,6 +1215,8 @@ export type UserCreateManyInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -1230,6 +1264,8 @@ export type UserUpdateManyMutationInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1276,6 +1312,8 @@ export type UserUncheckedUpdateManyInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1338,6 +1376,8 @@ export type UserCountOrderByAggregateInput = {
   verificationStatus?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
+  isDraft?: Prisma.SortOrder
+  draftExpiresAt?: Prisma.SortOrder
   frozenReason?: Prisma.SortOrder
   frozenAt?: Prisma.SortOrder
   frozenById?: Prisma.SortOrder
@@ -1396,6 +1436,8 @@ export type UserMaxOrderByAggregateInput = {
   verificationStatus?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
+  isDraft?: Prisma.SortOrder
+  draftExpiresAt?: Prisma.SortOrder
   frozenReason?: Prisma.SortOrder
   frozenAt?: Prisma.SortOrder
   frozenById?: Prisma.SortOrder
@@ -1443,6 +1485,8 @@ export type UserMinOrderByAggregateInput = {
   verificationStatus?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
+  isDraft?: Prisma.SortOrder
+  draftExpiresAt?: Prisma.SortOrder
   frozenReason?: Prisma.SortOrder
   frozenAt?: Prisma.SortOrder
   frozenById?: Prisma.SortOrder
@@ -2080,6 +2124,8 @@ export type UserCreateWithoutFrozenUsersInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -2158,6 +2204,8 @@ export type UserUncheckedCreateWithoutFrozenUsersInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -2241,6 +2289,8 @@ export type UserCreateWithoutFrozenByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -2319,6 +2369,8 @@ export type UserUncheckedCreateWithoutFrozenByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -2418,6 +2470,8 @@ export type UserUpdateWithoutFrozenUsersInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2496,6 +2550,8 @@ export type UserUncheckedUpdateWithoutFrozenUsersInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2593,6 +2649,8 @@ export type UserScalarWhereInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFilter<"User"> | $Enums.VerificationStatus
   rejectionReason?: Prisma.StringNullableFilter<"User"> | string | null
   isFrozen?: Prisma.BoolFilter<"User"> | boolean
+  isDraft?: Prisma.BoolFilter<"User"> | boolean
+  draftExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   frozenReason?: Prisma.StringNullableFilter<"User"> | string | null
   frozenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   frozenById?: Prisma.StringNullableFilter<"User"> | string | null
@@ -2640,6 +2698,8 @@ export type UserCreateWithoutFollowingInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -2718,6 +2778,8 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -2801,6 +2863,8 @@ export type UserCreateWithoutFollowedByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -2879,6 +2943,8 @@ export type UserUncheckedCreateWithoutFollowedByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -2973,6 +3039,8 @@ export type UserUpdateWithoutFollowingInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3051,6 +3119,8 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3140,6 +3210,8 @@ export type UserUpdateWithoutFollowedByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3218,6 +3290,8 @@ export type UserUncheckedUpdateWithoutFollowedByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3296,6 +3370,8 @@ export type UserCreateWithoutReviewsGivenInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -3374,6 +3450,8 @@ export type UserUncheckedCreateWithoutReviewsGivenInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -3457,6 +3535,8 @@ export type UserCreateWithoutReviewsReceivedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -3535,6 +3615,8 @@ export type UserUncheckedCreateWithoutReviewsReceivedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -3629,6 +3711,8 @@ export type UserUpdateWithoutReviewsGivenInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3707,6 +3791,8 @@ export type UserUncheckedUpdateWithoutReviewsGivenInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3796,6 +3882,8 @@ export type UserUpdateWithoutReviewsReceivedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3874,6 +3962,8 @@ export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3952,6 +4042,8 @@ export type UserCreateWithoutReviewHelpfulVotesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -4030,6 +4122,8 @@ export type UserUncheckedCreateWithoutReviewHelpfulVotesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -4124,6 +4218,8 @@ export type UserUpdateWithoutReviewHelpfulVotesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4202,6 +4298,8 @@ export type UserUncheckedUpdateWithoutReviewHelpfulVotesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4280,6 +4378,8 @@ export type UserCreateWithoutProductsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -4358,6 +4458,8 @@ export type UserUncheckedCreateWithoutProductsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -4452,6 +4554,8 @@ export type UserUpdateWithoutProductsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4530,6 +4634,8 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4608,6 +4714,8 @@ export type UserCreateWithoutTradesCreatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -4686,6 +4794,8 @@ export type UserUncheckedCreateWithoutTradesCreatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -4769,6 +4879,8 @@ export type UserCreateWithoutTradesBoughtInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -4847,6 +4959,8 @@ export type UserUncheckedCreateWithoutTradesBoughtInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -4941,6 +5055,8 @@ export type UserUpdateWithoutTradesCreatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5019,6 +5135,8 @@ export type UserUncheckedUpdateWithoutTradesCreatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5108,6 +5226,8 @@ export type UserUpdateWithoutTradesBoughtInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5186,6 +5306,8 @@ export type UserUncheckedUpdateWithoutTradesBoughtInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5264,6 +5386,8 @@ export type UserCreateWithoutBuyerOrdersInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -5342,6 +5466,8 @@ export type UserUncheckedCreateWithoutBuyerOrdersInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -5425,6 +5551,8 @@ export type UserCreateWithoutSellerOrdersInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -5503,6 +5631,8 @@ export type UserUncheckedCreateWithoutSellerOrdersInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -5597,6 +5727,8 @@ export type UserUpdateWithoutBuyerOrdersInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5675,6 +5807,8 @@ export type UserUncheckedUpdateWithoutBuyerOrdersInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5764,6 +5898,8 @@ export type UserUpdateWithoutSellerOrdersInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5842,6 +5978,8 @@ export type UserUncheckedUpdateWithoutSellerOrdersInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5920,6 +6058,8 @@ export type UserCreateWithoutChatRoomsInitiatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -5998,6 +6138,8 @@ export type UserUncheckedCreateWithoutChatRoomsInitiatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -6081,6 +6223,8 @@ export type UserCreateWithoutChatRoomsJoinedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -6159,6 +6303,8 @@ export type UserUncheckedCreateWithoutChatRoomsJoinedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -6242,6 +6388,8 @@ export type UserCreateWithoutChatRoomsCreatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -6320,6 +6468,8 @@ export type UserUncheckedCreateWithoutChatRoomsCreatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -6403,6 +6553,8 @@ export type UserCreateWithoutCommunitiesApprovedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -6481,6 +6633,8 @@ export type UserUncheckedCreateWithoutCommunitiesApprovedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -6575,6 +6729,8 @@ export type UserUpdateWithoutChatRoomsInitiatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6653,6 +6809,8 @@ export type UserUncheckedUpdateWithoutChatRoomsInitiatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6742,6 +6900,8 @@ export type UserUpdateWithoutChatRoomsJoinedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6820,6 +6980,8 @@ export type UserUncheckedUpdateWithoutChatRoomsJoinedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6909,6 +7071,8 @@ export type UserUpdateWithoutChatRoomsCreatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6987,6 +7151,8 @@ export type UserUncheckedUpdateWithoutChatRoomsCreatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7076,6 +7242,8 @@ export type UserUpdateWithoutCommunitiesApprovedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7154,6 +7322,8 @@ export type UserUncheckedUpdateWithoutCommunitiesApprovedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7232,6 +7402,8 @@ export type UserCreateWithoutChatParticipantsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -7310,6 +7482,8 @@ export type UserUncheckedCreateWithoutChatParticipantsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -7404,6 +7578,8 @@ export type UserUpdateWithoutChatParticipantsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7482,6 +7658,8 @@ export type UserUncheckedUpdateWithoutChatParticipantsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7560,6 +7738,8 @@ export type UserCreateWithoutChatMessagesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -7638,6 +7818,8 @@ export type UserUncheckedCreateWithoutChatMessagesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -7732,6 +7914,8 @@ export type UserUpdateWithoutChatMessagesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7810,6 +7994,8 @@ export type UserUncheckedUpdateWithoutChatMessagesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7888,6 +8074,8 @@ export type UserCreateWithoutChatInvitesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -7966,6 +8154,8 @@ export type UserUncheckedCreateWithoutChatInvitesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -8060,6 +8250,8 @@ export type UserUpdateWithoutChatInvitesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8138,6 +8330,8 @@ export type UserUncheckedUpdateWithoutChatInvitesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8216,6 +8410,8 @@ export type UserCreateWithoutBlockingInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -8294,6 +8490,8 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -8377,6 +8575,8 @@ export type UserCreateWithoutBlockedByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -8455,6 +8655,8 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -8549,6 +8751,8 @@ export type UserUpdateWithoutBlockingInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8627,6 +8831,8 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8716,6 +8922,8 @@ export type UserUpdateWithoutBlockedByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8794,6 +9002,8 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8872,6 +9082,8 @@ export type UserCreateWithoutNotificationsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -8950,6 +9162,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -9044,6 +9258,8 @@ export type UserUpdateWithoutNotificationsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9122,6 +9338,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9200,6 +9418,8 @@ export type UserCreateWithoutAuditLogsActedByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -9278,6 +9498,8 @@ export type UserUncheckedCreateWithoutAuditLogsActedByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -9361,6 +9583,8 @@ export type UserCreateWithoutAuditLogsAboutInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -9439,6 +9663,8 @@ export type UserUncheckedCreateWithoutAuditLogsAboutInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -9533,6 +9759,8 @@ export type UserUpdateWithoutAuditLogsActedByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9611,6 +9839,8 @@ export type UserUncheckedUpdateWithoutAuditLogsActedByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9700,6 +9930,8 @@ export type UserUpdateWithoutAuditLogsAboutInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9778,6 +10010,8 @@ export type UserUncheckedUpdateWithoutAuditLogsAboutInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9856,6 +10090,8 @@ export type UserCreateWithoutWallPostsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -9934,6 +10170,8 @@ export type UserUncheckedCreateWithoutWallPostsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -10028,6 +10266,8 @@ export type UserUpdateWithoutWallPostsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10106,6 +10346,8 @@ export type UserUncheckedUpdateWithoutWallPostsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10184,6 +10426,8 @@ export type UserCreateWithoutWallPostLikesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -10262,6 +10506,8 @@ export type UserUncheckedCreateWithoutWallPostLikesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -10356,6 +10602,8 @@ export type UserUpdateWithoutWallPostLikesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10434,6 +10682,8 @@ export type UserUncheckedUpdateWithoutWallPostLikesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10512,6 +10762,8 @@ export type UserCreateWithoutWallPostCommentsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -10590,6 +10842,8 @@ export type UserUncheckedCreateWithoutWallPostCommentsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -10684,6 +10938,8 @@ export type UserUpdateWithoutWallPostCommentsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10762,6 +11018,8 @@ export type UserUncheckedUpdateWithoutWallPostCommentsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10840,6 +11098,8 @@ export type UserCreateWithoutSubscriptionsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -10918,6 +11178,8 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -11012,6 +11274,8 @@ export type UserUpdateWithoutSubscriptionsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11090,6 +11354,8 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11168,6 +11434,8 @@ export type UserCreateWithoutWalletTransactionsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -11246,6 +11514,8 @@ export type UserUncheckedCreateWithoutWalletTransactionsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -11340,6 +11610,8 @@ export type UserUpdateWithoutWalletTransactionsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11418,6 +11690,8 @@ export type UserUncheckedUpdateWithoutWalletTransactionsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11496,6 +11770,8 @@ export type UserCreateWithoutSupportTicketsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -11574,6 +11850,8 @@ export type UserUncheckedCreateWithoutSupportTicketsInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -11668,6 +11946,8 @@ export type UserUpdateWithoutSupportTicketsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11746,6 +12026,8 @@ export type UserUncheckedUpdateWithoutSupportTicketsInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11824,6 +12106,8 @@ export type UserCreateWithoutSupportRepliesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -11902,6 +12186,8 @@ export type UserUncheckedCreateWithoutSupportRepliesInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -11996,6 +12282,8 @@ export type UserUpdateWithoutSupportRepliesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12074,6 +12362,8 @@ export type UserUncheckedUpdateWithoutSupportRepliesInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12152,6 +12442,8 @@ export type UserCreateWithoutPlatformSettingsEditedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -12230,6 +12522,8 @@ export type UserUncheckedCreateWithoutPlatformSettingsEditedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -12324,6 +12618,8 @@ export type UserUpdateWithoutPlatformSettingsEditedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12402,6 +12698,8 @@ export type UserUncheckedUpdateWithoutPlatformSettingsEditedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12480,6 +12778,8 @@ export type UserCreateWithoutPromoCodesCreatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -12558,6 +12858,8 @@ export type UserUncheckedCreateWithoutPromoCodesCreatedInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   frozenById?: string | null
@@ -12652,6 +12954,8 @@ export type UserUpdateWithoutPromoCodesCreatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12730,6 +13034,8 @@ export type UserUncheckedUpdateWithoutPromoCodesCreatedInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12808,6 +13114,8 @@ export type UserCreateManyFrozenByInput = {
   verificationStatus?: $Enums.VerificationStatus
   rejectionReason?: string | null
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
   frozenReason?: string | null
   frozenAt?: Date | string | null
   bankName?: string | null
@@ -12854,6 +13162,8 @@ export type UserUpdateWithoutFrozenByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12932,6 +13242,8 @@ export type UserUncheckedUpdateWithoutFrozenByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13010,6 +13322,8 @@ export type UserUncheckedUpdateManyWithoutFrozenByInput = {
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13366,6 +13680,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   verificationStatus?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: boolean
   frozenReason?: boolean
   frozenAt?: boolean
   frozenById?: boolean
@@ -13447,6 +13763,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   verificationStatus?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: boolean
   frozenReason?: boolean
   frozenAt?: boolean
   frozenById?: boolean
@@ -13495,6 +13813,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   verificationStatus?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: boolean
   frozenReason?: boolean
   frozenAt?: boolean
   frozenById?: boolean
@@ -13543,6 +13863,8 @@ export type UserSelectScalar = {
   verificationStatus?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: boolean
   frozenReason?: boolean
   frozenAt?: boolean
   frozenById?: boolean
@@ -13579,7 +13901,7 @@ export type UserSelectScalar = {
   totalSales?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tempId" | "name" | "username" | "email" | "passwordHash" | "role" | "verificationStatus" | "rejectionReason" | "isFrozen" | "frozenReason" | "frozenAt" | "frozenById" | "bankName" | "accountNumber" | "paystackCustomerCode" | "withdrawalBankName" | "withdrawalBankCode" | "withdrawalAccountNumber" | "withdrawalAccountName" | "paystackRecipientCode" | "walletBalance" | "isPro" | "avatarColor" | "phoneNumber" | "profilePicture" | "totalTrades" | "completedTrades" | "completionRate" | "tier" | "deliveryAddress" | "verificationDocumentName" | "verificationSubmittedAt" | "createdAt" | "updatedAt" | "storeName" | "bio" | "location" | "storeCategory" | "coverImage" | "lastSeenAt" | "rating" | "reviewsCount" | "totalSales", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tempId" | "name" | "username" | "email" | "passwordHash" | "role" | "verificationStatus" | "rejectionReason" | "isFrozen" | "isDraft" | "draftExpiresAt" | "frozenReason" | "frozenAt" | "frozenById" | "bankName" | "accountNumber" | "paystackCustomerCode" | "withdrawalBankName" | "withdrawalBankCode" | "withdrawalAccountNumber" | "withdrawalAccountName" | "paystackRecipientCode" | "walletBalance" | "isPro" | "avatarColor" | "phoneNumber" | "profilePicture" | "totalTrades" | "completedTrades" | "completionRate" | "tier" | "deliveryAddress" | "verificationDocumentName" | "verificationSubmittedAt" | "createdAt" | "updatedAt" | "storeName" | "bio" | "location" | "storeCategory" | "coverImage" | "lastSeenAt" | "rating" | "reviewsCount" | "totalSales", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   frozenBy?: boolean | Prisma.User$frozenByArgs<ExtArgs>
   frozenUsers?: boolean | Prisma.User$frozenUsersArgs<ExtArgs>
@@ -13671,6 +13993,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     verificationStatus: $Enums.VerificationStatus
     rejectionReason: string | null
     isFrozen: boolean
+    isDraft: boolean
+    draftExpiresAt: Date | null
     frozenReason: string | null
     frozenAt: Date | null
     frozenById: string | null
@@ -14171,6 +14495,8 @@ export interface UserFieldRefs {
   readonly verificationStatus: Prisma.FieldRef<"User", 'VerificationStatus'>
   readonly rejectionReason: Prisma.FieldRef<"User", 'String'>
   readonly isFrozen: Prisma.FieldRef<"User", 'Boolean'>
+  readonly isDraft: Prisma.FieldRef<"User", 'Boolean'>
+  readonly draftExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly frozenReason: Prisma.FieldRef<"User", 'String'>
   readonly frozenAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly frozenById: Prisma.FieldRef<"User", 'String'>
