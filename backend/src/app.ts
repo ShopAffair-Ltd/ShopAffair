@@ -24,7 +24,12 @@ export const createApp = (): Express => {
   const app = express();
   
   app.use(helmet());
-  app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+  app.use(
+    cors({
+      origin: ['http://localhost:5173', 'http://localhost:5174', 'https://shops-lake.vercel.app'],
+      credentials: true
+    })
+  );
   app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
   
   app.use('/api/payments/webhooks', paymentsWebhooks);

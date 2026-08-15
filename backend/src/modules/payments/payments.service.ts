@@ -41,7 +41,7 @@ export const initiateWalletFunding = async (userId: string, amountNaira: number)
     email: user.email,
     amountKobo,
     reference,
-    callbackUrl: `${env.CLIENT_URL}/wallet/callback`,
+    callbackUrl: 'https://shops-lake.vercel.app/wallet/callback',
     metadata: { userId, purpose: 'wallet_funding' }
   });
 
@@ -78,8 +78,7 @@ export const verifyWalletFunding = async (userId: string, reference: string) => 
   }
 
   const result = await prisma.$transaction(async (tx) => {
-    // Re-check inside the transaction in case the webhook landed in the gap
-    // between our read above and this write.
+
     const current = await tx.walletTransaction.findUnique({ where: { reference } });
     if (!current || current.status === 'SUCCESS') {
       return { transaction: current };
@@ -163,15 +162,7 @@ export const creditWalletFromWebhook = async (reference: string, amountKobo: num
   return updated;
 };
 
-// ---- Dedicated Virtual Account provisioning ----
 
-/**
- * Attempts to provision a permanent virtual account number for the user so
- * they can fund their wallet by bank transfer instead of the checkout flow.
- * Until Paystack approves this business for Dedicated NUBAN, this will
- * throw a 422 with a clear explanation rather than a raw Paystack error -
- * callers (controller) should surface that as "not available yet".
- */
 export const provisionVirtualAccount = async (userId: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
@@ -348,9 +339,6 @@ export const requestWithdrawal = async (params: {
       reason: `Wallet withdrawal for ${user.username}`
     });
 
-    // Test mode returns success immediately; live mode returns pending and
-    // the real result arrives via webhook. Only mark SUCCESS here if
-    // Paystack already told us it succeeded synchronously.
     if (transfer.status === 'success') {
       await prisma.walletTransaction.update({
         where: { reference },
@@ -373,18 +361,11 @@ export const requestWithdrawal = async (params: {
 
     return { transaction, transferStatus: transfer.status, accountName: resolved.account_name };
   } catch (err) {
-    // The Paystack call itself failed (not just a later async failure) -
-    // refund immediately rather than leaving the user's money in limbo.
     await refundFailedWithdrawal(reference);
     throw err;
   }
 };
 
-/**
- * Refunds a withdrawal back to the wallet and marks it FAILED. Idempotent:
- * safe to call more than once for the same reference (e.g. once from the
- * synchronous error path and again from a later webhook retry).
- */
 export const refundFailedWithdrawal = async (reference: string) => {
   const updated = await prisma.$transaction(async (tx) => {
     const transaction = await tx.walletTransaction.findUnique({ where: { reference } });
@@ -417,11 +398,7 @@ export const refundFailedWithdrawal = async (reference: string) => {
   return updated;
 };
 
-/**
- * Called from the webhook when Paystack confirms a transfer actually
- * succeeded (transfer.success) or ultimately failed/reversed
- * (transfer.failed / transfer.reversed).
- */
+
 export const handleTransferWebhookEvent = async (event: string, reference: string) => {
   if (event === 'transfer.success') {
     const transaction = await prisma.walletTransaction.findUnique({ where: { reference } });
@@ -442,22 +419,11 @@ export const handleTransferWebhookEvent = async (event: string, reference: strin
   }
 };
 
-// ---- Seller Pro subscription (unlocks community/group creation) ----
 
-// One-time price for now - kept as a constant here rather than hardcoded at
-// each call site so it's a single place to change when this becomes
-// recurring or tiered later.
 export const SELLER_PRO_PRICE = 5000;
 
 const generateSubscriptionReference = () => `SF-SUB-${crypto.randomBytes(8).toString('hex')}`;
 
-/**
- * Charges the seller's wallet balance for the Seller Pro plan and marks
- * them isPro. One-time payment for now (Subscription.expiresAt stays null),
- * deliberately modeled with an expiry field from day one so switching to a
- * recurring plan later doesn't need a schema change - just start setting
- * expiresAt and checking it.
- */
 export const subscribeToSellerPro = async (userId: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
