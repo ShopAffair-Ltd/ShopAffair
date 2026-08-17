@@ -8,15 +8,7 @@ import * as paystack from './providers/paystack.provider';
 
 const generateReference = () => `SF-FUND-${crypto.randomBytes(8).toString('hex')}`;
 
-// ---- Wallet funding via Paystack checkout (works today on test keys) ----
 
-/**
- * Starts a wallet-funding flow: creates a PENDING WalletTransaction and asks
- * Paystack for a checkout URL. The wallet is NOT credited yet — that only
- * happens once the webhook (or verifyFunding fallback) confirms the charge
- * actually succeeded, so a user can never credit themselves by just hitting
- * this endpoint without paying.
- */
 export const initiateWalletFunding = async (userId: string, amountNaira: number) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {

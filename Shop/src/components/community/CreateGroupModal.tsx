@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Users, Lock, ShieldCheck, Loader2, Sparkles } from 'lucide-react';
+import { X, Users, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCommunities } from '../../context/CommunityContext';
-import { fetchSubscriptionStatus, subscribeToSellerPro, SELLER_PRO_PRICE_DISPLAY } from '../../services/paymentService';
+import { fetchSubscriptionStatus, subscribeToSellerPro } from '../../services/paymentService';
+import SellerProRequiredModal from './SellerProRequiredModal';
 
 interface CreateGroupModalProps {
   isOpen: boolean;
@@ -47,6 +48,10 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
   const { create } = useCommunities();
 
   const [checkingStatus, setCheckingStatus] = useState(true);
+  // Fail-safe: any uncertainty (still checking, or the status check itself
+  // failed) must NEVER be treated as "is Pro" - defaulting open here would
+  // let a non-paying seller slip past the paywall. Only an explicit
+  // isPro: true from the backend flips this.
   const [isPro, setIsPro] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
@@ -65,13 +70,15 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
     if (!isOpen) return;
     setSubmitted(false);
     setSubmitError(null);
+    setSubscribeError(null);
     setCheckingStatus(true);
+    setIsPro(false);
 
     fetchSubscriptionStatus()
-      .then((status) => setIsPro(status.isPro))
-      .catch(() => setIsPro(user?.isPro ?? false))
+      .then((status) => setIsPro(status.isPro === true))
+      .catch(() => setIsPro(false))
       .finally(() => setCheckingStatus(false));
-  }, [isOpen, user]);
+  }, [isOpen]);
 
   const handleSubscribe = async () => {
     setSubscribeError(null);
@@ -124,29 +131,38 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
     onClose();
   };
 
+  if (!isOpen) return null;
+
   if (user?.role !== 'seller') {
+    return <SellerProRequiredModal isOpen={isOpen} onClose={onClose} reason="not-seller" />;
+  }
+
+  if (checkingStatus) {
     return (
       <AnimatePresence>
-        {isOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full border border-slate-100 shadow-2xl relative text-center space-y-3"
-            >
-              <button onClick={handleClose} className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:bg-slate-50">
-                <X className="w-5 h-5" />
-              </button>
-              <Lock className="w-10 h-10 text-slate-300 mx-auto" />
-              <h3 className="text-base font-display font-bold text-slate-900">Sellers only</h3>
-              <p className="text-xs font-sans text-slate-500">
-                Only sellers can create trade groups. Buyers can be added to a group by its admin.
-              </p>
-            </motion.div>
-          </div>
-        )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-3xl p-8 border border-slate-100 shadow-2xl"
+          >
+            <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
+          </motion.div>
+        </div>
       </AnimatePresence>
+    );
+  }
+
+  if (!isPro) {
+    return (
+      <SellerProRequiredModal
+        isOpen={isOpen}
+        onClose={onClose}
+        reason="not-pro"
+        onSubscribe={handleSubscribe}
+        subscribing={subscribing}
+        subscribeError={subscribeError}
+      />
     );
   }
 
@@ -164,11 +180,7 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
               <X className="w-5 h-5" />
             </button>
 
-            {checkingStatus ? (
-              <div className="py-10 flex justify-center">
-                <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
-              </div>
-            ) : submitted ? (
+            {submitted ? (
               <div className="text-center space-y-3 py-4">
                 <ShieldCheck className="w-12 h-12 text-purple-600 mx-auto" />
                 <h3 className="text-base font-display font-bold text-slate-900">Submitted for approval</h3>
@@ -180,26 +192,6 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
                   className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-xl mt-2"
                 >
                   Done
-                </button>
-              </div>
-            ) : !isPro ? (
-              <div className="text-center space-y-3 py-2">
-                <Sparkles className="w-10 h-10 text-purple-600 mx-auto" />
-                <h3 className="text-base font-display font-bold text-slate-900">Seller Pro required</h3>
-                <p className="text-xs font-sans text-slate-500 leading-relaxed">
-                  Creating trade groups is a Seller Pro feature. Subscribe once for {SELLER_PRO_PRICE_DISPLAY} — charged from your wallet balance.
-                </p>
-                {subscribeError && (
-                  <div className="p-2.5 bg-red-50 text-red-700 rounded-lg border border-red-100 text-[11px] font-sans font-semibold text-left">
-                    {subscribeError}
-                  </div>
-                )}
-                <button
-                  onClick={handleSubscribe}
-                  disabled={subscribing}
-                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-sans font-bold text-xs rounded-xl flex items-center justify-center gap-2"
-                >
-                  {subscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : `Subscribe for ${SELLER_PRO_PRICE_DISPLAY}`}
                 </button>
               </div>
             ) : (

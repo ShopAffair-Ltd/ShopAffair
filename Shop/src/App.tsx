@@ -346,13 +346,15 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Decide purely on token presence, not on whether `user` has loaded
+    // yet - `user` can be briefly null even for a valid session (still
+    // loading, or a transient fetch failure that intentionally preserves
+    // the token - see authService.getCurrentUser). Showing landing here
+    // based on `user` alone would incorrectly boot a real session back to
+    // the landing page whenever that fetch hasn't resolved yet.
     const token = localStorage.getItem('shopfair_token');
-    if (!token && !user) {
-      setShowLanding(true);
-    } else {
-      setShowLanding(false);
-    }
-  }, [user]);
+    setShowLanding(!token);
+  }, []);
 
   if (authLoading) {
     return <Preloader onComplete={() => {}} />;
@@ -366,6 +368,7 @@ export default function App() {
         <LandingPage
           onEnterPlatform={() => {
             setShowLanding(false);
+            navigate('/market');
           }}
           onLogin={openLogin}
           onRegister={openRegister}

@@ -87,17 +87,41 @@ export const loginUser = async (payload: LoginPayload): Promise<UserProfile> => 
   return mapToUserProfile(data.user);
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const getCurrentUser = async (): Promise<UserProfile | null> => {
   const token = localStorage.getItem('shopfair_token');
   if (!token) return null;
 
-  try {
-    const { data } = await api.get<{ user: Record<string, unknown> }>('/users/me');
-    return mapToUserProfile(data.user);
-  } catch {
-    localStorage.removeItem('shopfair_token');
-    return null;
+  // Retries once after a short delay before giving up - covers the very
+  // common case of a free-tier backend (e.g. Render) being asleep and
+  // taking a few seconds to wake on the first request after a period of
+  // inactivity, which would otherwise look identical to a real failure.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const { data } = await api.get<{ user: Record<string, unknown> }>('/users/me');
+      return mapToUserProfile(data.user);
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+
+      if (status === 401 || status === 403) {
+        localStorage.removeItem('shopfair_token');
+        return null;
+      }
+
+      if (attempt === 0) {
+        await sleep(2000);
+        continue;
+      }
+
+      // Second attempt also failed for a non-auth reason - keep the token,
+      // just report as not-yet-loaded so the next natural refresh or
+      // action can try again rather than permanently signing them out.
+      return null;
+    }
   }
+
+  return null;
 };
 
 export const logoutUser = () => {
