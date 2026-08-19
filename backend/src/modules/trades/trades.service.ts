@@ -7,7 +7,6 @@ import { getOrCreateTradeChat, postTradeSystemMessage } from '../chat/chat.servi
 import type { CreateTradeInput, ListTradesQuery } from './trades.validation';
 
 const generatePickupCode = () => crypto.randomInt(100000, 999999).toString();
-
 export const createTrade = async (creatorId: string, input: CreateTradeInput) => {
   return prisma.trade.create({
     data: {
@@ -26,15 +25,22 @@ export const createTrade = async (creatorId: string, input: CreateTradeInput) =>
       image: input.image,
       description: input.description,
       status: 'PENDING'
+    },
+    include: {
+      creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+      buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
     }
   });
 };
 
 export const listTrades = async (userId: string | null, query: ListTradesQuery) => {
-  const { page, limit, status, mine } = query;
+  const { page, limit, status, type, category, search, mine } = query;
 
   const where: Record<string, unknown> = {
-    ...(status ? { status } : {})
+    ...(status ? { status } : {}),
+    ...(type ? { type } : {}),
+    ...(category ? { category } : {}),
+    ...(search ? { title: { contains: search, mode: 'insensitive' as const } } : {})
   };
 
   if (mine) {
@@ -80,13 +86,6 @@ export const getTradeById = async (id: string) => {
   return trade;
 };
 
-// Buyer funds escrow FROM THEIR WALLET BALANCE: debits the buyer, locks the
-// funds against this trade (WalletTransaction type ESCROW_LOCK), locks them
-// in as buyer, generates a pickup code, and moves status to FUNDED. The
-// seller does NOT receive the money yet — it stays locked until the pickup
-// code is verified (see completeTrade below). Everything happens inside one
-// DB transaction so a crash mid-way can never leave money debited without
-// the trade actually being marked funded, or vice versa.
 export const fundTrade = async (tradeId: string, buyerId: string) => {
   const updatedTrade = await prisma.$transaction(async (tx) => {
     const trade = await tx.trade.findUnique({ where: { id: tradeId } });
@@ -106,12 +105,6 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
 
     const totalDue = new Prisma.Decimal(trade.amount).plus(trade.deliveryFee);
 
-    // Row-level lock via findUnique inside the transaction + immediate
-    // decrement guarded by a WHERE clause is not directly expressible with
-    // Prisma's fluent API, so we re-check the balance right before writing,
-    // inside the same transaction, which still serializes against concurrent
-    // writes to the same row under Postgres's default read-committed
-    // isolation combined with Prisma's transaction locking.
     const buyer = await tx.user.findUnique({ where: { id: buyerId } });
     if (!buyer) {
       throw new ApiError(404, 'Buyer not found');
@@ -149,8 +142,6 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
     });
   });
 
-  // Fired after commit, deliberately outside the transaction: a notification
-  // failure must never roll back a successful, already-debited escrow lock.
   await notify({
     userId: updatedTrade.creatorId,
     title: 'Trade funded',
@@ -158,9 +149,6 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
     type: 'SUCCESS'
   });
 
-  // Sets up (or reuses) a direct chat between buyer and seller so they can
-  // coordinate handover, and drops a system message announcing the escrow
-  // lock right into it.
   if (updatedTrade.buyerId) {
     await getOrCreateTradeChat(updatedTrade.id, updatedTrade.creatorId, updatedTrade.buyerId);
     await postTradeSystemMessage(
@@ -172,11 +160,6 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
   return updatedTrade;
 };
 
-// Seller verifies the buyer's pickup code on delivery. On success, this is
-// the moment the trade completes AND escrow releases to the seller in one
-// atomic step: no separate "confirm satisfaction" stage. Limits attempts to
-// prevent brute-forcing a 6-digit code (1,000,000 possibilities, but repeated
-// guessing must still be bounded).
 const MAX_PICKUP_ATTEMPTS = 5;
 
 export const verifyPickupCode = async (tradeId: string, sellerId: string, code: string) => {
@@ -208,8 +191,6 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
     }
 
     if (!trade.buyerId) {
-      // Should never happen (a FUNDED trade always has a buyer), but guards
-      // against releasing escrow with no source-of-truth buyer on record.
       throw new ApiError(409, 'Trade has no associated buyer');
     }
 
@@ -237,8 +218,6 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
     });
   });
 
-  // Fired after commit: seller already has the money by this point, buyer's
-  // pickup is confirmed - both sides should know the trade is done.
   await Promise.all([
     notify({
       userId: completedTrade.creatorId,
@@ -263,7 +242,6 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
 
   return completedTrade;
 };
-
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   DRAFT: ['PENDING'],
@@ -304,10 +282,6 @@ export const updateTradeStatus = async (
   });
 };
 
-// Admin-only. Cancels a trade and, if the buyer's escrow was already locked
-// (status FUNDED), refunds the full locked amount back to the buyer's wallet
-// atomically. Trades never funded (still PENDING/DRAFT) simply move to
-// REFUNDED with no money movement, since nothing was ever debited.
 export const forceCancelTrade = async (tradeId: string) => {
   const cancelledTrade = await prisma.$transaction(async (tx) => {
     const trade = await tx.trade.findUnique({ where: { id: tradeId } });

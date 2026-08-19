@@ -2,6 +2,15 @@ import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { ApiError } from '../../utils/ApiError.js';
 import * as chatService from './chat.service.js';
+import {
+  createGroupSchema,
+  createCommunitySchema,
+  sendMessageSchema,
+  postTradeSchema,
+  addParticipantSchema,
+  blockUserSchema,
+  createInviteSchema
+} from './chat.validation.js';
 
 const requireUser = (req: Request) => {
   if (!req.user) {
@@ -20,17 +29,17 @@ export const getOrCreateDirectChat = asyncHandler(async (req: Request, res: Resp
 
 export const createGroup = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
-  const { name, description, memberIds } = req.body;
+  const input = createGroupSchema.parse(req.body);
 
-  const chatRoom = await chatService.createGroup(user.id, { name, description, memberIds });
+  const chatRoom = await chatService.createGroup(user.id, input);
   res.status(201).json({ chatRoom });
 });
 
 export const createCommunity = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
-  const { name, description, settings } = req.body;
+  const input = createCommunitySchema.parse(req.body);
 
-  const chatRoom = await chatService.createCommunity(user.id, { name, description, settings });
+  const chatRoom = await chatService.createCommunity(user.id, input);
   res.status(201).json({ chatRoom });
 });
 
@@ -52,18 +61,18 @@ export const getChatRoom = asyncHandler(async (req: Request, res: Response) => {
 export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const chatRoomId = req.params.chatRoomId as string;
-  const { content, attachmentName } = req.body;
+  const input = sendMessageSchema.parse(req.body);
 
-  const message = await chatService.sendMessage(chatRoomId, user.id, content, attachmentName);
+  const message = await chatService.sendMessage(chatRoomId, user.id, input.content, input.attachmentName);
   res.status(201).json({ message });
 });
 
 export const postTrade = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const chatRoomId = req.params.chatRoomId as string;
-  const { tradeId } = req.body;
+  const input = postTradeSchema.parse(req.body);
 
-  const message = await chatService.postTradeToGroup(chatRoomId, user.id, tradeId);
+  const message = await chatService.postTradeToGroup(chatRoomId, user.id, input.tradeId);
   res.status(201).json({ message });
 });
 
@@ -94,9 +103,9 @@ export const clearChat = asyncHandler(async (req: Request, res: Response) => {
 export const addParticipant = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const chatRoomId = req.params.chatRoomId as string;
-  const { userId } = req.body;
+  const input = addParticipantSchema.parse(req.body);
 
-  const result = await chatService.addParticipant(chatRoomId, userId, user.id);
+  const result = await chatService.addParticipant(chatRoomId, input.userId, user.id);
   res.status(200).json({ result });
 });
 
@@ -112,9 +121,9 @@ export const removeParticipant = asyncHandler(async (req: Request, res: Response
 export const blockUser = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const userId = req.params.userId as string;
-  const { reason } = req.body;
+  const input = blockUserSchema.parse(req.body);
 
-  const result = await chatService.blockUser(user.id, userId, reason);
+  const result = await chatService.blockUser(user.id, userId, input.reason);
   res.status(200).json({ result });
 });
 
@@ -136,9 +145,14 @@ export const getBlockedUsers = asyncHandler(async (req: Request, res: Response) 
 export const createInvite = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const chatRoomId = req.params.chatRoomId as string;
-  const { maxUses, expiresAt } = req.body;
+  const input = createInviteSchema.parse(req.body);
 
-  const invite = await chatService.createInvite(chatRoomId, user.id, maxUses, expiresAt);
+  const invite = await chatService.createInvite(
+    chatRoomId,
+    user.id,
+    input.maxUses,
+    input.expiresAt ? new Date(input.expiresAt) : undefined
+  );
   res.status(201).json({ invite });
 });
 

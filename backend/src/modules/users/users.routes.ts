@@ -55,18 +55,19 @@ router.get('/me', requireAuth, async (req, res) => {
 
 // Get all users
 router.get('/', requireAuth, async (req, res) => {
+  const currentUserId = req.user!.id;
+
   const users = await prisma.user.findMany({
+    where: { id: { not: currentUserId } },
     select: {
       id: true,
       tempId: true,
       name: true,
       username: true,
-      email: true,
       role: true,
       verificationStatus: true,
       avatarColor: true,
       profilePicture: true,
-      phoneNumber: true,
       storeName: true,
       bio: true,
       location: true,
@@ -80,7 +81,41 @@ router.get('/', requireAuth, async (req, res) => {
       totalSales: true
     }
   });
-  res.json({ users });
+
+  const [connectedTrades, activeListings, blocks] = await Promise.all([
+    prisma.trade.findMany({
+      where: { OR: [{ creatorId: currentUserId }, { buyerId: currentUserId }] },
+      select: { creatorId: true, buyerId: true }
+    }),
+    prisma.trade.findMany({
+      where: { type: 'SUPPLY', status: { in: ['PENDING', 'FUNDED'] } },
+      select: { creatorId: true }
+    }),
+    prisma.block.findMany({
+      where: { OR: [{ blockerId: currentUserId }, { blockedId: currentUserId }] },
+      select: { blockerId: true, blockedId: true }
+    })
+  ]);
+
+  const connectedUserIds = new Set<string>();
+  connectedTrades.forEach((t) => {
+    if (t.creatorId === currentUserId && t.buyerId) connectedUserIds.add(t.buyerId);
+    if (t.buyerId === currentUserId) connectedUserIds.add(t.creatorId);
+  });
+
+  const activeSellerIds = new Set(activeListings.map((t) => t.creatorId));
+
+  const blockedUserIds = new Set<string>();
+  blocks.forEach((b) => {
+    blockedUserIds.add(b.blockerId === currentUserId ? b.blockedId : b.blockerId);
+  });
+
+  const usersWithChatEligibility = users.map((user) => ({
+    ...user,
+    canChat: !blockedUserIds.has(user.id) && (connectedUserIds.has(user.id) || activeSellerIds.has(user.id))
+  }));
+
+  res.json({ users: usersWithChatEligibility });
 });
 
 // Get user by username
@@ -93,12 +128,10 @@ router.get('/username/:username', requireAuth, async (req, res) => {
       tempId: true,
       name: true,
       username: true,
-      email: true,
       role: true,
       verificationStatus: true,
       avatarColor: true,
       profilePicture: true,
-      phoneNumber: true,
       storeName: true,
       bio: true,
       location: true,
@@ -277,12 +310,10 @@ router.get('/search', requireAuth, async (req, res) => {
       tempId: true,
       name: true,
       username: true,
-      email: true,
       role: true,
       verificationStatus: true,
       avatarColor: true,
       profilePicture: true,
-      phoneNumber: true,
       storeName: true,
       bio: true,
       location: true,

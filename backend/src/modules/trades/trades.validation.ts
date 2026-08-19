@@ -36,7 +36,10 @@ export const listTradesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(20),
   status: escrowStatusEnum.optional(),
-  mine: z.coerce.boolean().optional() // trades where I'm creator or buyer
+  type: tradeTypeEnum.optional(),
+  category: tradeCategoryEnum.optional(),
+  search: z.string().max(140).optional(),
+  mine: z.coerce.boolean().optional()
 });
 
 export const tradeIdParamSchema = z.object({

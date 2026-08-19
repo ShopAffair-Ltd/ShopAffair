@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { ApiError } from '../../utils/ApiError.js';
 import * as communitiesService from './chat.communities.service.js';
+import { updateGroupSettingsSchema } from './chat.validation.js';
 
 const requireUser = (req: Request) => {
   if (!req.user) {
@@ -66,7 +67,7 @@ export const updateSettings = asyncHandler(async (req: Request, res: Response) =
     throw new ApiError(403, 'Only group admins can change group settings');
   }
 
-  const chatRoom = await communitiesService.updateGroupSettings(chatRoomId, req.body ?? {});
+  const chatRoom = await communitiesService.updateGroupSettings(chatRoomId, updateGroupSettingsSchema.parse(req.body ?? {}));
   res.status(200).json({ chatRoom });
 });
 export const myAdminGroups = asyncHandler(async (req: Request, res: Response) => {

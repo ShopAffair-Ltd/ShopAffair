@@ -46,6 +46,7 @@ export default function ChatModals({
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [startChatError, setStartChatError] = useState<string | null>(null);
   const [createGroupError, setCreateGroupError] = useState<string | null>(null);
+  const [createCommunityError, setCreateCommunityError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [groupName, setGroupName] = useState('');
@@ -104,6 +105,7 @@ export default function ChatModals({
     setCommunityApproveMembers(true);
     setCommunityProtectTraders(true);
     setCommunityAddMembers(true);
+    setCreateCommunityError(null);
   };
 
   const handleCopyInviteLink = () => {
@@ -151,6 +153,7 @@ export default function ChatModals({
 
   const handleCreateCommunity = async () => {
     if (!communityName.trim() || !communityDescription.trim()) return;
+    setCreateCommunityError(null);
     try {
       await chatService.createCommunity({
         name: communityName,
@@ -168,6 +171,7 @@ export default function ChatModals({
       resetCommunityForm();
     } catch (error) {
       console.error('Failed to create community:', error);
+      setCreateCommunityError(getApiErrorMessage(error));
     }
   };
 
@@ -537,6 +541,11 @@ export default function ChatModals({
             </div>
 
             <div className="p-5 pt-2">
+              {createCommunityError && (
+                <div className="mb-3 p-3 bg-red-50 text-red-700 rounded-lg border border-red-100 text-xs font-sans font-semibold">
+                  {createCommunityError}
+                </div>
+              )}
               <button
                 onClick={handleCreateCommunity}
                 disabled={!communityName.trim() || !communityDescription.trim()}

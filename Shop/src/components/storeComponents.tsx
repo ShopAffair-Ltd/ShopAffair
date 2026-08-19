@@ -54,6 +54,7 @@ interface WallPostComponentProps {
   openCommentsFor: string | null;
   commentDrafts: Record<string, string>;
   setCommentDrafts: (drafts: Record<string, string>) => void;
+  canManage?: boolean;
 }
 
 export function WallPostComponent({
@@ -65,7 +66,8 @@ export function WallPostComponent({
   onSendComment,
   openCommentsFor,
   commentDrafts,
-  setCommentDrafts
+  setCommentDrafts,
+  canManage = true
 }: WallPostComponentProps) {
   const isOpen = openCommentsFor === post.id;
 
@@ -94,7 +96,7 @@ export function WallPostComponent({
             <span className="text-[10px] font-sans text-slate-400 leading-tight">{timeAgo(post.timestamp)}</span>
           </div>
         </div>
-        {!post.isPinned && (
+        {!post.isPinned && canManage && (
           <button
             onClick={() => onTogglePin(post.id)}
             className="shrink-0 flex items-center gap-1 text-[9px] font-sans font-bold uppercase tracking-wide px-2.5 py-1.5 rounded-full cursor-pointer outline-none text-slate-400 border border-slate-200 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50 transition-colors"
@@ -103,7 +105,7 @@ export function WallPostComponent({
             Pin
           </button>
         )}
-        {post.isPinned && (
+        {post.isPinned && canManage && (
           <button
             onClick={() => onTogglePin(post.id)}
             className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center cursor-pointer outline-none text-amber-400 hover:text-amber-600 hover:bg-amber-100/60 transition-colors"

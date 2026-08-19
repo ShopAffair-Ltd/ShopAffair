@@ -1,13 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
-  ArrowLeft, MessageCircle, Share2, ThumbsUp, Heart,
-  MapPin, Star, Grid3x3, MessageSquare, LayoutGrid, ShoppingBag,
-  MoreVertical, Users, Package, Award, Clock, CheckCircle
+  ArrowLeft, MessageCircle, Share2, ThumbsUp,
+  Star, MessageSquare, ShoppingBag,
+  MoreVertical, Users, Package, CheckCircle
 } from 'lucide-react';
-import { MarketProduct } from '../types';
+import { MarketProduct, UserProfile } from '../types';
 import { reviewService, Review, RatingDistribution } from '../services/reviewService';
 import { userService } from '../services/userService';
+import { getApiErrorMessage } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
+import { WallPostComponent } from './storeComponents';
+import { WallPost, timeAgo } from './storeConstants';
+import * as wallPostService from '../services/wallPostService';
+import type { WallPost as ApiWallPost } from '../services/wallPostService';
+
+function mapApiPost(apiPost: ApiWallPost, sellerId: string): WallPost {
+  return {
+    id: apiPost.id,
+    caption: apiPost.content,
+    timestamp: apiPost.createdAt,
+    isPinned: apiPost.isPinned,
+    likes: apiPost.likesCount,
+    likedByMe: apiPost.likedByMe,
+    comments: apiPost.comments.map((c) => ({
+      id: c.id,
+      authorName: c.author.name,
+      isSeller: c.author.id === sellerId,
+      content: c.content,
+      timestamp: c.createdAt
+    }))
+  };
+}
 
 interface StoreProfileProps {
   seller: {
@@ -46,10 +70,10 @@ export default function StoreProfile({
   onProductClick,
   communityPosts = []
 }: StoreProfileProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'reviews'>('overview');
+  const { user: viewer } = useAuth();
+  const [activeTab, setActiveTab] = useState<'wall' | 'products' | 'reviews'>('wall');
   const [isFollowing, setIsFollowing] = useState(seller.followingByMe ?? false);
   const [followersCount, setFollowersCount] = useState(seller.followers || 0);
-  const [likedPosts, setLikedPosts] = useState<string[]>([]);
   const [ratingDistribution, setRatingDistribution] = useState<RatingDistribution[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -61,10 +85,56 @@ export default function StoreProfile({
     followers: seller.followers || 0
   });
 
+  const [wallPosts, setWallPosts] = useState<WallPost[]>([]);
+  const [wallLoading, setWallLoading] = useState(true);
+  const [wallError, setWallError] = useState<string | null>(null);
+  const [openCommentsFor, setOpenCommentsFor] = useState<string | null>(null);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+
   useEffect(() => {
     fetchStats();
     fetchReviews();
+    fetchWallPosts();
   }, [seller.username]);
+
+  const fetchWallPosts = async () => {
+    setWallLoading(true);
+    try {
+      const posts = await wallPostService.getWallPosts(seller.username);
+      setWallPosts(posts.map((p) => mapApiPost(p, seller.id)));
+      setWallError(null);
+    } catch (error) {
+      console.error('Failed to fetch wall posts:', error);
+      setWallError('Could not load this store\'s wall.');
+    } finally {
+      setWallLoading(false);
+    }
+  };
+
+  const handleToggleWallLike = async (postId: string) => {
+    try {
+      const updated = await wallPostService.toggleLike(postId);
+      setWallPosts((prev) => prev.map((p) => (p.id === postId ? mapApiPost(updated, seller.id) : p)));
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
+  };
+
+  const handleToggleComments = (postId: string) => {
+    setOpenCommentsFor((prev) => (prev === postId ? null : postId));
+  };
+
+  const handleSendComment = async (postId: string) => {
+    const content = commentDrafts[postId]?.trim();
+    if (!content) return;
+    try {
+      const updated = await wallPostService.addComment(postId, content);
+      setWallPosts((prev) => prev.map((p) => (p.id === postId ? mapApiPost(updated, seller.id) : p)));
+      setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      console.error('Failed to send comment:', error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -111,12 +181,6 @@ export default function StoreProfile({
     }
   };
 
-  const handleLike = (postId: string) => {
-    setLikedPosts(prev =>
-      prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
-    );
-  };
-
   const handleMarkHelpful = async (reviewId: string) => {
     try {
       const response = await reviewService.markHelpful(reviewId);
@@ -129,6 +193,32 @@ export default function StoreProfile({
       );
     } catch (error) {
       console.error('Failed to mark helpful:', error);
+    }
+  };
+
+  const [newReviewRating, setNewReviewRating] = useState(0);
+  const [newReviewContent, setNewReviewContent] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(null);
+
+  const handleSubmitReview = async () => {
+    if (newReviewRating < 1 || !newReviewContent.trim()) return;
+    setSubmittingReview(true);
+    setReviewSubmitError(null);
+    try {
+      const response = await reviewService.createReview(seller.username, {
+        rating: newReviewRating,
+        content: newReviewContent.trim()
+      });
+      setReviews((prev) => [response.data.review, ...prev]);
+      await fetchStats();
+      setNewReviewRating(0);
+      setNewReviewContent('');
+    } catch (error) {
+      console.error('Failed to submit review:', error);
+      setReviewSubmitError(getApiErrorMessage(error));
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -166,49 +256,76 @@ export default function StoreProfile({
       <div className="flex-1 overflow-y-auto">
 
         <div className="relative">
-          <div className="h-40 sm:h-48 bg-gradient-to-r from-purple-600 to-indigo-600 relative overflow-hidden">
-            {seller.coverImage ? (
-              <img src={seller.coverImage} alt="Cover" className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/30 to-indigo-600/30" />
+          <div className="h-24 sm:h-28 w-full bg-slate-800 relative overflow-hidden">
+            {seller.coverImage && (
+              <img src={seller.coverImage} alt="Cover" className="w-full h-full object-cover opacity-60" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           </div>
 
-          <div className="px-4 -mt-10 relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
-              <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${seller.avatarColor || 'bg-purple-600'} text-white font-sans font-bold text-3xl flex items-center justify-center shrink-0 border-4 border-white shadow-lg relative`}>
-                {seller.avatar || seller.name?.charAt(0) || 'S'}
+          <div className="px-4">
+            <div className="flex items-end justify-between -mt-8">
+              <div className="w-16 h-16 rounded-full bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center bg-purple-100 text-purple-600 font-display font-black text-xl relative">
+                <span className={`w-full h-full flex items-center justify-center ${seller.avatarColor || 'bg-purple-600'} text-white`}>
+                  {seller.avatar || seller.name?.charAt(0) || 'S'}
+                </span>
                 {seller.isVerified && (
                   <span className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white rounded-full p-0.5 border-2 border-white">
                     <CheckCircle className="w-3.5 h-3.5" />
                   </span>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-lg sm:text-xl font-sans font-bold text-white drop-shadow-lg truncate">
-                    {seller.storeName || seller.name}
-                  </h1>
-                  {seller.isVerified && (
-                    <span className="bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shrink-0">Verified</span>
-                  )}
-                </div>
-                <p className="text-sm text-white/80 drop-shadow-md">@{seller.username}</p>
+              <span className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
+                • Available
+              </span>
+            </div>
+
+            <div className="mt-2 pb-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base font-display font-black text-slate-900">
+                  {seller.storeName || seller.name}
+                </h1>
+                {seller.isVerified && (
+                  <span className="bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shrink-0">Verified</span>
+                )}
               </div>
-              <div className="flex gap-2 shrink-0">
+              <p className="text-[11px] text-slate-400 font-sans">@{seller.username}</p>
+
+              <div className="flex items-center gap-2 mt-1.5 text-[11px] font-sans text-slate-500 flex-wrap">
+                <span>{seller.location || 'Nigeria'}</span>
+                <span className="w-1 h-1 rounded-full bg-slate-300" />
+                <span>{seller.category || 'General'}</span>
+                <span className="px-2 py-0.5 rounded-full bg-orange-50 text-orange-500 border border-orange-100 font-bold flex items-center gap-1 text-[10px]">
+                  {seller.plan || 'Free Plan'}
+                </span>
+              </div>
+
+              {seller.bio && (
+                <p className="text-[12px] font-sans text-slate-500 mt-2 leading-relaxed">
+                  {showFullBio ? seller.bio : `${seller.bio.slice(0, 120)}${seller.bio.length > 120 ? '...' : ''}`}
+                  {seller.bio.length > 120 && (
+                    <button
+                      onClick={() => setShowFullBio(!showFullBio)}
+                      className="text-purple-600 font-semibold text-xs ml-1"
+                    >
+                      {showFullBio ? 'Show less' : 'Read more'}
+                    </button>
+                  )}
+                </p>
+              )}
+
+              <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => onChat(seller.username, seller.name)}
-                  className="flex-1 sm:flex-none px-4 py-2 bg-white text-purple-600 font-sans font-bold text-xs rounded-xl shadow-lg hover:shadow-xl transition-all"
+                  className="flex-1 px-4 py-2 bg-white border border-slate-200 text-slate-700 font-sans font-bold text-xs rounded-xl shadow-sm hover:bg-slate-50 transition-all"
                 >
-                  <MessageCircle className="w-4 h-4 inline sm:mr-1.5" />
-                  <span className="hidden sm:inline">Chat</span>
+                  <MessageCircle className="w-4 h-4 inline mr-1.5" />
+                  Chat
                 </button>
                 <button
                   onClick={handleFollow}
-                  className={`flex-1 sm:flex-none px-4 py-2 font-sans font-bold text-xs rounded-xl shadow-lg transition-all ${
-                    isFollowing 
-                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' 
+                  className={`flex-1 px-4 py-2 font-sans font-bold text-xs rounded-xl shadow-sm transition-all ${
+                    isFollowing
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                       : 'bg-purple-600 text-white hover:bg-purple-700'
                   }`}
                 >
@@ -217,36 +334,6 @@ export default function StoreProfile({
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="px-4 py-3 bg-white border-b border-slate-100">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{seller.location || 'Nigeria'}</span>
-            </div>
-            <span className="w-1 h-1 rounded-full bg-slate-300" />
-            <div className="flex items-center gap-1">
-              <Package className="w-3.5 h-3.5" />
-              <span>{seller.category || 'General'}</span>
-            </div>
-            <span className="w-1 h-1 rounded-full bg-slate-300" />
-            <span className="text-purple-600 font-semibold">{seller.plan || 'Free Plan'}</span>
-          </div>
-
-          {seller.bio && (
-            <p className="text-sm text-slate-600 leading-relaxed mt-2">
-              {showFullBio ? seller.bio : `${seller.bio.slice(0, 120)}${seller.bio.length > 120 ? '...' : ''}`}
-              {seller.bio.length > 120 && (
-                <button
-                  onClick={() => setShowFullBio(!showFullBio)}
-                  className="text-purple-600 font-semibold text-xs ml-1"
-                >
-                  {showFullBio ? 'Show less' : 'Read more'}
-                </button>
-              )}
-            </p>
-          )}
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 px-4 py-3 bg-white border-b border-slate-100">
@@ -264,7 +351,7 @@ export default function StoreProfile({
         <div className="bg-white border-b border-slate-100 px-4 overflow-x-auto">
           <div className="flex items-center gap-6 min-w-max">
             {[
-              { id: 'overview', label: 'Overview', icon: <LayoutGrid className="w-4 h-4" /> },
+              { id: 'wall', label: 'Store Wall', icon: <MessageSquare className="w-4 h-4" /> },
               { id: 'products', label: 'Products', icon: <Package className="w-4 h-4" /> },
               { id: 'reviews', label: 'Reviews', icon: <Star className="w-4 h-4" /> }
             ].map((tab) => (
@@ -291,47 +378,39 @@ export default function StoreProfile({
 
         <div className="p-4 space-y-4">
 
-          {activeTab === 'overview' && (
-            <div className="space-y-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">About this store</h3>
-                <div className="space-y-2 text-sm text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>Joined {seller.joinedDate ? new Date(seller.joinedDate).toLocaleDateString() : 'Recently'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-slate-400" />
-                    <span>{products.length} products listed</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-slate-400" />
-                    <span>{seller.plan || 'Free'} seller</span>
-                  </div>
+          {activeTab === 'wall' && (
+            <div className="space-y-3">
+              {wallLoading ? (
+                <div className="text-center py-8 bg-white rounded-xl border border-slate-100">
+                  <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                  <p className="text-xs text-slate-400 mt-2">Loading store wall...</p>
                 </div>
-              </div>
-
-              {communityPosts && communityPosts.length > 0 && (
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Latest Updates</h3>
-                  <div className="space-y-3">
-                    {communityPosts.slice(0, 3).map((post) => (
-                      <div key={post.id} className="border-b border-slate-50 last:border-0 pb-3 last:pb-0">
-                        <p className="text-xs text-slate-700 line-clamp-2">{post.content}</p>
-                        <div className="flex items-center gap-3 mt-1.5 text-[10px] text-slate-400">
-                          <span>{post.time || 'Just now'}</span>
-                          <button className="flex items-center gap-1 hover:text-purple-600">
-                            <Heart className={`w-3 h-3 ${likedPosts.includes(post.id) ? 'fill-red-500 text-red-500' : ''}`} />
-                            {post.likes || 0}
-                          </button>
-                          <button className="flex items-center gap-1 hover:text-purple-600">
-                            <MessageCircle className="w-3 h-3" />
-                            {post.comments || 0}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              ) : wallError ? (
+                <div className="text-center py-8 bg-white rounded-xl border border-slate-100">
+                  <p className="text-xs text-red-500">{wallError}</p>
+                </div>
+              ) : wallPosts.length > 0 ? (
+                wallPosts.map((post) =>
+                  viewer ? (
+                    <WallPostComponent
+                      key={post.id}
+                      post={post}
+                      profile={viewer}
+                      onToggleLike={handleToggleWallLike}
+                      onTogglePin={() => {}}
+                      onToggleComments={handleToggleComments}
+                      onSendComment={handleSendComment}
+                      openCommentsFor={openCommentsFor}
+                      commentDrafts={commentDrafts}
+                      setCommentDrafts={setCommentDrafts}
+                      canManage={false}
+                    />
+                  ) : null
+                )
+              ) : (
+                <div className="text-center py-12 bg-white rounded-xl border border-slate-100">
+                  <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                  <p className="text-xs text-slate-400">No updates from this store yet</p>
                 </div>
               )}
             </div>
@@ -376,6 +455,46 @@ export default function StoreProfile({
 
           {activeTab === 'reviews' && (
             <div className="space-y-4">
+              {viewer && viewer.id !== seller.id && (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Leave a review</h3>
+                  <div className="flex items-center gap-1 mb-3">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewReviewRating(star)}
+                        className="p-0.5"
+                      >
+                        <Star
+                          className={`w-6 h-6 ${
+                            star <= newReviewRating ? 'fill-amber-400 stroke-amber-400' : 'text-slate-200'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={newReviewContent}
+                    onChange={(e) => setNewReviewContent(e.target.value)}
+                    placeholder="Share your experience with this seller..."
+                    maxLength={1000}
+                    rows={3}
+                    className="w-full text-xs font-sans px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/15 focus:border-purple-600 transition-all resize-none"
+                  />
+                  {reviewSubmitError && (
+                    <p className="text-[10px] text-red-500 font-sans font-semibold mt-2">{reviewSubmitError}</p>
+                  )}
+                  <button
+                    onClick={handleSubmitReview}
+                    disabled={submittingReview || newReviewRating < 1 || !newReviewContent.trim()}
+                    className="w-full mt-3 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-sans font-bold text-xs rounded-lg transition-colors"
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
+              )}
+
               {loadingReviews ? (
                 <div className="text-center py-8 bg-white rounded-xl border border-slate-100">
                   <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />

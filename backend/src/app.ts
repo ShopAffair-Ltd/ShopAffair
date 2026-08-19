@@ -19,6 +19,7 @@ import notificationsRoutes from './modules/notifications/notifications.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import supportRoutes from './modules/support/support.routes';
 import settingsRoutes from './modules/settings/settings.routes';
+import uploadsRoutes from './modules/uploads/uploads.routes';
 
 export const createApp = (): Express => {
   const app = express();
@@ -26,7 +27,7 @@ export const createApp = (): Express => {
   app.use(helmet());
   app.use(
     cors({
-      origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'https://shops-lake.vercel.app'],
+      origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:5174', 'https://shops-lake.vercel.app'],
       credentials: true
     })
   );
@@ -54,7 +55,8 @@ export const createApp = (): Express => {
   app.use('/api/admin', adminRoutes);
   app.use('/api/support', supportRoutes);
   app.use('/api/settings', settingsRoutes);
-
+// ...
+app.use('/api/uploads', uploadsRoutes);
   app.use(errorMiddleware);
 
   return app;

@@ -311,7 +311,7 @@ return (
         isVerified: sellerData.verificationStatus === 'VERIFIED',
         followers: sellerData.followers || 0,
         followingByMe: sellerData.followingByMe || false,
-        joinedDate: sellerData.createdAt ? new Date(sellerData.createdAt).toLocaleDateString() : undefined
+        joinedDate: sellerData.createdAt || undefined
       }}
       products={products.filter((p) => p.sellerUsername === username)}
       onBack={() => navigate('/market')}

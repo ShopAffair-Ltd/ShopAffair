@@ -11,6 +11,9 @@ interface EnvConfig {
   KUDA_API_KEY: string;
   KUDA_CLIENT_SECRET: string;
   KUDA_CLIENT_ID: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 
 const requireEnv = (key: string): string => {
@@ -31,5 +34,8 @@ export const env: EnvConfig = {
   PAYSTACK_PUBLIC_KEY: requireEnv('PAYSTACK_PUBLIC_KEY'),
   KUDA_API_KEY: requireEnv('KUDA_API_KEY'),
   KUDA_CLIENT_SECRET: requireEnv('KUDA_CLIENT_SECRET'),
-  KUDA_CLIENT_ID: requireEnv('KUDA_CLIENT_ID')
+  KUDA_CLIENT_ID: requireEnv('KUDA_CLIENT_ID'),
+  CLOUDINARY_CLOUD_NAME: requireEnv('CLOUDINARY_CLOUD_NAME'),
+  CLOUDINARY_API_KEY: requireEnv('CLOUDINARY_API_KEY'),
+  CLOUDINARY_API_SECRET: requireEnv('CLOUDINARY_API_SECRET')
 };

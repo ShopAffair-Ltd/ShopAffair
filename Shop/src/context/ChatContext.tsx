@@ -16,6 +16,8 @@ interface ChatContextType {
   totalUnreadChats: number;
   loading: boolean;
   refreshChats: () => Promise<void>;
+  sendError: string | null;
+  clearSendError: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -65,6 +67,7 @@ const mapApiRoomToChatRoom = (apiRoom: any, currentUsername: string): ChatRoom =
       senderRole: m.isSystem ? 'system' : ((m.sender?.role as 'user' | 'seller' | 'ai') || 'user'),
       content: m.content,
       timestamp: m.createdAt,
+      isRead: !!m.isRead,
       sharedTrade: m.sharedTrade
         ? {
             id: m.sharedTrade.id,
@@ -89,6 +92,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [pendingMessages, setPendingMessages] = useState<Record<string, string>>({});
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const loadChats = async () => {
     if (!user) return;
@@ -111,9 +116,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     loadChats();
   }, [user]);
 
-  // Connect the socket app-wide, tied to login state rather than any one
-  // view - this is what makes live chat delivery AND live notification
-  // delivery work regardless of which tab the user currently has open.
   useEffect(() => {
     if (!user) {
       chatSocket.disconnect();
@@ -149,6 +151,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           senderRole: message.isSystem ? 'system' : (message.sender?.role as 'user' | 'seller' | 'ai'),
           content: message.content,
           timestamp: message.createdAt,
+          isRead: !!message.isRead,
           sharedTrade: message.sharedTrade
             ? {
                 id: message.sharedTrade.id,
@@ -165,13 +168,22 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             const isMine = message.senderId === user.id;
             const shouldMarkRead = !isMine && selectedRoomId === message.chatRoomId;
 
-            // If this is our own message coming back from the server, it
-            // replaces the optimistic temp_ placeholder we added in
-            // sendMessage() rather than appending a duplicate.
-            const withoutOptimisticDuplicate = isMine
-              ? room.messages.filter(
-                  (m) => !(m.id.startsWith('temp_') && m.content === message.content && m.senderUsername === user.username)
+            const optimisticMatch = isMine
+              ? room.messages.find(
+                  (m) => m.id.startsWith('temp_') && m.content === message.content && m.senderUsername === user.username
                 )
+              : undefined;
+
+            if (optimisticMatch) {
+              setPendingMessages((prev) => {
+                const next = { ...prev };
+                delete next[optimisticMatch.id];
+                return next;
+              });
+            }
+
+            const withoutOptimisticDuplicate = isMine
+              ? room.messages.filter((m) => m.id !== optimisticMatch?.id)
               : room.messages;
 
             return {
@@ -191,38 +203,62 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setChatRooms(prev => 
         prev.map(room => {
           if (room.id === data.chatRoomId) {
-            return { ...room, unreadCount: 0 };
+            const iAmTheReader = data.userId === user.id;
+            return {
+              ...room,
+              unreadCount: iAmTheReader ? 0 : room.unreadCount,
+              messages: iAmTheReader
+                ? room.messages
+                : room.messages.map((m) =>
+                    m.senderUsername === user.username ? { ...m, isRead: true } : m
+                  )
+            };
           }
           return room;
         })
       );
     });
 
+    chatSocket.on('onError', (data: { message: string }) => {
+      setPendingMessages((prevPending) => {
+        const pendingIds = Object.keys(prevPending);
+        if (pendingIds.length > 0) {
+          setChatRooms((prevRooms) =>
+            prevRooms.map((room) => ({
+              ...room,
+              messages: room.messages.filter((m) => !pendingIds.includes(m.id))
+            }))
+          );
+        }
+        return {};
+      });
+      setSendError(data.message);
+    });
+
     return () => {
       chatSocket.off('onNewMessage', () => {});
       chatSocket.off('onMessagesRead', () => {});
+      chatSocket.off('onError', () => {});
     };
   }, [user, selectedRoomId]);
 
   const sendMessage = async (roomId: string, text: string) => {
     if (!user) return;
 
-    // Optimistically show the message immediately, then send it once over
-    // the socket. The socket handler on the backend persists it AND
-    // broadcasts it back to all participants (including us), so we
-    // deliberately do not also call the REST endpoint here - doing both
-    // would save the same message twice.
+    const tempId = `temp_${Date.now()}`;
+
     setChatRooms(prev =>
       prev.map((room) => {
         if (room.id === roomId) {
           const newMsg: ChatMessage = {
-            id: `temp_${Date.now()}`,
+            id: tempId,
             chatId: roomId,
             senderUsername: user.username,
             senderName: user.name,
             senderRole: user.role === 'seller' ? 'seller' : 'user',
             content: text,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            isRead: false
           };
           return {
             ...room,
@@ -235,6 +271,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       })
     );
 
+    setPendingMessages((prev) => ({ ...prev, [tempId]: roomId }));
     chatSocket.sendMessage(roomId, text);
   };
 
@@ -294,7 +331,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       startChatWithSeller: createChatRoom,
       totalUnreadChats: totalUnread,
       loading,
-      refreshChats
+      refreshChats,
+      sendError,
+      clearSendError: () => setSendError(null)
     }}>
       {children}
     </ChatContext.Provider>

@@ -33,6 +33,34 @@ export const getOrCreateDirectChat = async (userId: string, otherUserIdOrUsernam
     throw new ApiError(403, 'You cannot start a conversation with this user');
   }
 
+  if (userId !== otherUserId) {
+    const alreadyConnectedByTrade = await prisma.trade.findFirst({
+      where: {
+        OR: [
+          { creatorId: userId, buyerId: otherUserId },
+          { creatorId: otherUserId, buyerId: userId }
+        ]
+      },
+      select: { id: true }
+    });
+
+    const otherUserHasActiveListing = await prisma.trade.findFirst({
+      where: {
+        creatorId: otherUserId,
+        type: 'SUPPLY',
+        status: { in: ['PENDING', 'FUNDED'] }
+      },
+      select: { id: true }
+    });
+
+    if (!alreadyConnectedByTrade && !otherUserHasActiveListing) {
+      throw new ApiError(
+        403,
+        'You can only message users you have an active trade with, or sellers with an active listing'
+      );
+    }
+  }
+
   let chatRoom = await prisma.chatRoom.findFirst({
     where: {
       type: ChatRoomType.DIRECT,
@@ -105,7 +133,27 @@ export const getOrCreateDirectChat = async (userId: string, otherUserIdOrUsernam
   return chatRoom;
 };
 
-export const createGroup = async (userId: string, data: { name: string; description?: string; memberIds: string[] }) => {
+export const createGroup = async (userId: string, data: {
+  name: string;
+  description?: string;
+  memberIds: string[];
+  settings?: { notification?: boolean; approveMembers?: boolean; addMembers?: boolean };
+}) => {
+  if (data.memberIds.length > 0) {
+    const blocks = await prisma.block.findMany({
+      where: {
+        OR: [
+          { blockerId: userId, blockedId: { in: data.memberIds } },
+          { blockerId: { in: data.memberIds }, blockedId: userId }
+        ]
+      }
+    });
+
+    if (blocks.length > 0) {
+      throw new ApiError(403, 'You cannot add a user you have blocked, or who has blocked you, to this group');
+    }
+  }
+
   const chatRoom = await prisma.chatRoom.create({
     data: {
       type: ChatRoomType.GROUP,
@@ -122,9 +170,12 @@ export const createGroup = async (userId: string, data: { name: string; descript
         ]
       },
       settings: {
-        notification: true,
-        approveMembers: true,
-        addMembers: true
+        notification: data.settings?.notification ?? true,
+        approveMembers: data.settings?.approveMembers ?? true,
+        addMembers: data.settings?.addMembers ?? true,
+        whoCanChat: 'ALL',
+        whoCanPostTrades: 'ALL',
+        whoCanViewParticipants: 'ALL'
       }
     },
     include: {
@@ -173,17 +224,16 @@ export const createCommunity = async (userId: string, data: {
           { userId, role: ParticipantRole.ADMIN }
         ]
       },
-      settings: data.settings || {
+      settings: {
         visibility: true,
         notification: true,
         approveMembers: true,
         protectTraders: true,
         addMembers: true,
-        // Group-permission toggles: 'ALL' lets every member do this,
-        // 'ADMINS' restricts it to ParticipantRole.ADMIN members only.
         whoCanChat: 'ALL',
         whoCanPostTrades: 'ALL',
-        whoCanViewParticipants: 'ALL'
+        whoCanViewParticipants: 'ALL',
+        ...data.settings
       }
     },
     include: {
@@ -547,6 +597,19 @@ export const addParticipant = async (chatRoomId: string, userId: string, inviter
     if (!inviterParticipant || inviterParticipant.role !== ParticipantRole.ADMIN) {
       throw new ApiError(403, 'Only admins can add new members');
     }
+  }
+
+  const block = await prisma.block.findFirst({
+    where: {
+      OR: [
+        { blockerId: inviterId, blockedId: userId },
+        { blockerId: userId, blockedId: inviterId }
+      ]
+    }
+  });
+
+  if (block) {
+    throw new ApiError(403, 'You cannot add a user you have blocked, or who has blocked you, to this group');
   }
 
   return await prisma.chatRoomParticipant.create({
