@@ -581,6 +581,13 @@ export default function MarketProductList({
 
               <button
                 onClick={() => setSelectedProduct(null)}
+                className="absolute top-3 left-4 p-1.5 rounded-full text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => setSelectedProduct(null)}
                 className="absolute top-3 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />

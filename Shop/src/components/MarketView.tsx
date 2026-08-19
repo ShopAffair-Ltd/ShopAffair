@@ -6,6 +6,7 @@ import { useMarket } from '../context/MarketContext';
 import { useChat } from '../context/ChatContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useNavigate } from 'react-router-dom';
+import { isTradeBasedProductId, stripTradeIdPrefix } from '../services/TradeService';
 import MarketHeader from './MarketHeader';
 import MarketProductList from './MarketProductList';
 
@@ -88,6 +89,14 @@ export default function MarketView() {
   const { products, isLoading: productsLoading, error: productsError } = useMarket();
   const { startChatWithSeller } = useChat();
   const navigate = useNavigate();
+
+  const handleAddToCart = (product: MarketProduct) => {
+    if (isTradeBasedProductId(product.id)) {
+      navigate(`/trade?open=${stripTradeIdPrefix(product.id)}`);
+      return;
+    }
+    addToCart(product);
+  };
 
   const activeProfile = user;
 
@@ -283,7 +292,7 @@ export default function MarketView() {
         cart={cart}
         cartTotal={cartTotal}
         cartCount={cartCount}
-        onAddToCart={addToCart}
+        onAddToCart={handleAddToCart}
         onUpdateCartQty={updateQuantity}
         onRemoveFromCart={removeFromCart}
         onProceedToCheckout={handleProceedToCheckout}

@@ -3,6 +3,7 @@ import { UserProfile } from '../types';
 
 export interface User extends UserProfile {
   online?: boolean;
+  canChat?: boolean;
 }
 
 export interface UsersResponse {

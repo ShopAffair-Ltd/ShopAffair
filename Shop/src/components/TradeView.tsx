@@ -28,9 +28,6 @@ export default function TradeView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
 
-  // Supports deep-linking into a specific trade, e.g. from a trade card
-  // shared in a group chat (`/trade?open=<id>`). Once consumed, the param
-  // is cleared so navigating back to the list doesn't re-trigger it.
   useEffect(() => {
     const openId = searchParams.get('open');
     if (openId && trades.some((t) => t.id === openId)) {
@@ -92,8 +89,8 @@ export default function TradeView() {
           onCancel={() => setCurrentView('list')}
           onSubmit={async (payload) => {
             await createTrade(payload);
-            setCurrentView('list');
           }}
+          onDone={() => setCurrentView('list')}
         />
       )}
 

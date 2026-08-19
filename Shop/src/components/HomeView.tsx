@@ -9,10 +9,6 @@ import { useStore } from '../context/StoreContext';
 import { useTrades } from '../context/TradeContext';
 import QuickTransferModal from './QuickTransferModal';
 
-// Temporary client-side-only role toggle. This does NOT call the backend —
-// role is otherwise fixed at registration. Kept deliberately so buyer vs.
-// seller views can still be exercised during development/testing until a
-// real PATCH /api/users/role endpoint exists.
 const useLocalRoleOverride = () => {
   const { user, updateUser } = useAuth();
   const switchRole = (role: 'buyer' | 'seller') => {
@@ -151,7 +147,6 @@ export default function HomeView() {
         </div>
       </motion.div>
 
-      {/* Market Actions */}
       <div className="px-4 mt-4">
         <h3 className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400 mb-2">Market Actions</h3>
         <motion.div
@@ -239,7 +234,6 @@ export default function HomeView() {
         </motion.div>
       </div>
 
-      {/* Refer & Earn */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -269,7 +263,6 @@ export default function HomeView() {
         </motion.div>
       </motion.div>
 
-      {/* Quick Actions */}
       <motion.div
         initial="hidden"
         animate="show"
@@ -332,7 +325,6 @@ export default function HomeView() {
         </div>
       </motion.div>
 
-      {/* Recent Trades - HORIZONTAL SCROLL */}
       {recentTrades.length > 0 && (
         <div className="px-4 mt-5">
           <div className="flex items-center justify-between mb-2">
@@ -384,7 +376,6 @@ export default function HomeView() {
         </div>
       )}
 
-      {/* Market Top Products - HORIZONTAL SCROLL */}
       <div className="px-4 mt-5">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400">Market Top Products</h3>
@@ -398,26 +389,21 @@ export default function HomeView() {
 
         <div className="overflow-x-auto no-scrollbar -mx-1 px-1">
           <div className="flex gap-3 pb-2" style={{ minWidth: 'max-content' }}>
-            {trendingProducts.map((prod) => (
+            {trendingProducts.map((product) => (
               <div
-                key={prod.id}
-                onClick={() => navigate('/market')}
+                key={product.id}
+                onClick={() => navigate('/market', { state: { productId: product.id } })}
                 className="w-[140px] shrink-0 bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition-all flex flex-col"
               >
                 <div className="aspect-square w-full bg-slate-50 relative overflow-hidden">
-                  <img
-                    src={prod.image}
-                    alt={prod.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={product.image} alt={product.title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                 </div>
                 <div className="p-2.5 flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="text-[8px] font-sans font-semibold text-slate-400 block mb-0.5">{prod.salesCount} Sales</span>
-                    <h4 className="text-[9px] font-sans font-bold text-slate-800 line-clamp-1">{prod.title}</h4>
+                    <span className="text-[8px] font-sans font-semibold text-slate-400 block mb-0.5">{product.salesCount} Sales</span>
+                    <h4 className="text-[9px] font-sans font-bold text-slate-800 line-clamp-1">{product.title}</h4>
                   </div>
-                  <p className="text-[10px] font-sans font-extrabold text-purple-600 mt-1">₦{prod.price.toLocaleString()}</p>
+                  <p className="text-[10px] font-sans font-extrabold text-purple-600 mt-1">₦{product.price.toLocaleString()}</p>
                 </div>
               </div>
             ))}

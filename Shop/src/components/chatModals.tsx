@@ -9,6 +9,7 @@ import { INVITE_LINK } from './chatConstants';
 import SettingRow from './chatSettingRow';
 import { userService, User } from '../services/userService';
 import { chatService } from '../services/chatService';
+import { getApiErrorMessage } from '../services/authService';
 import { useChat } from '../context/ChatContext';
 
 interface ChatModalsProps {
@@ -43,6 +44,8 @@ export default function ChatModals({
   const { refreshChats, chatRooms } = useChat();
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [startChatError, setStartChatError] = useState<string | null>(null);
+  const [createGroupError, setCreateGroupError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [groupName, setGroupName] = useState('');
@@ -78,9 +81,10 @@ export default function ChatModals({
   };
 
   const filteredUsers = allUsers.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.canChat &&
+    (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (user.storeName && user.storeName.toLowerCase().includes(searchTerm.toLowerCase()))
+    (user.storeName && user.storeName.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   const resetGroupForm = () => {
@@ -89,6 +93,7 @@ export default function ChatModals({
     setGroupNotification(true);
     setGroupApproveMembers(true);
     setGroupAddMembers(true);
+    setCreateGroupError(null);
   };
 
   const resetCommunityForm = () => {
@@ -106,6 +111,7 @@ export default function ChatModals({
   };
 
   const handleStartChat = async (username: string) => {
+    setStartChatError(null);
     try {
       await chatService.getOrCreateDirectChat(username);
       await refreshChats();
@@ -116,22 +122,30 @@ export default function ChatModals({
       }
     } catch (error) {
       console.error('Failed to start chat:', error);
+      setStartChatError(getApiErrorMessage(error));
     }
   };
 
   const handleCreateGroup = async () => {
     if (!groupName.trim() || !groupDescription.trim()) return;
+    setCreateGroupError(null);
     try {
       await chatService.createGroup({
         name: groupName,
         description: groupDescription,
-        memberIds: []
+        memberIds: [],
+        settings: {
+          notification: groupNotification,
+          approveMembers: groupApproveMembers,
+          addMembers: groupAddMembers
+        }
       });
       await refreshChats();
       setShowNewGroup(false);
       resetGroupForm();
     } catch (error) {
       console.error('Failed to create group:', error);
+      setCreateGroupError(getApiErrorMessage(error));
     }
   };
 
@@ -185,6 +199,12 @@ export default function ChatModals({
                 />
                 <Search className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
               </div>
+
+              {startChatError && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-100 text-xs font-sans font-semibold">
+                  {startChatError}
+                </div>
+              )}
 
               <div className="space-y-1 mb-4">
                 <button
@@ -404,6 +424,11 @@ export default function ChatModals({
             </div>
 
             <div className="p-5 pt-2">
+              {createGroupError && (
+                <div className="mb-3 p-3 bg-red-50 text-red-700 rounded-lg border border-red-100 text-xs font-sans font-semibold">
+                  {createGroupError}
+                </div>
+              )}
               <button
                 onClick={handleCreateGroup}
                 disabled={!groupName.trim() || !groupDescription.trim()}

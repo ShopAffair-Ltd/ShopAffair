@@ -59,8 +59,12 @@ export const chatService = {
 
   getOrCreateDirectChat: (userId: string) => api.post<{ chatRoom: ChatRoom }>(`/chat/direct/${userId}`),
 
-  createGroup: (data: { name: string; description?: string; memberIds: string[] }) =>
-    api.post<{ chatRoom: ChatRoom }>('/chat/group', data),
+  createGroup: (data: {
+    name: string;
+    description?: string;
+    memberIds: string[];
+    settings?: { notification?: boolean; approveMembers?: boolean; addMembers?: boolean };
+  }) => api.post<{ chatRoom: ChatRoom }>('/chat/group', data),
 
   createCommunity: (data: { name: string; description?: string; settings?: any }) =>
     api.post<{ chatRoom: ChatRoom }>('/chat/community', data),

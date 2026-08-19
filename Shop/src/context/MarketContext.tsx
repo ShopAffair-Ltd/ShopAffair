@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { MarketProduct } from '../types';
+import { MarketProduct, TradeType } from '../types';
 import {
   fetchProducts,
   createProduct as createProductApi,
@@ -7,6 +7,7 @@ import {
   deleteProduct as deleteProductApi,
   CreateProductPayload
 } from '../services/productService';
+import { fetchTrades, mapTradeToMarketProduct } from '../services/TradeService';
 import { getApiErrorMessage } from '../services/authService';
 import { useAuth } from './AuthContext';
 
@@ -34,8 +35,16 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await fetchProducts({ limit: 50 });
-      setProducts(result.items);
+      const [productResult, tradeResult] = await Promise.all([
+        fetchProducts({ limit: 50 }),
+        fetchTrades({ type: TradeType.SUPPLY, limit: 50 })
+      ]);
+
+      const tradesAsProducts = tradeResult.items
+        .map(mapTradeToMarketProduct)
+        .filter((item): item is MarketProduct => item !== null);
+
+      setProducts([...productResult.items, ...tradesAsProducts]);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -56,9 +65,6 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     return created;
   };
 
-  // Backend derives ownership from the JWT for authorization — this call
-  // will fail server-side if the signed-in user doesn't own the product,
-  // same trust boundary as addProduct.
   const editProduct = async (id: string, product: Partial<Omit<CreateProductPayload, 'sellerId'>>) => {
     if (!user) {
       throw new Error('You must be signed in to edit a product');

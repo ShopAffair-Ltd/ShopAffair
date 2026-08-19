@@ -1,15 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Image as ImageIcon, Trash2, ShieldCheck, MapPin, Truck, Sparkles, Upload, X } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Trash2, ShieldCheck, MapPin, Truck, Sparkles, Upload, X, CheckCircle2 } from 'lucide-react';
 import { TradeType, TradeCategory } from '../types';
 import * as tradeService from '../services/TradeService';
+import { uploadImage } from '../services/UploadService';
 
 interface TradeCreateViewProps {
   onCancel: () => void;
   onSubmit: (payload: tradeService.CreateTradePayload) => Promise<void>;
+  onDone: () => void;
 }
 
-export default function TradeCreateView({ onCancel, onSubmit }: TradeCreateViewProps) {
+export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCreateViewProps) {
   const [tradeType, setTradeType] = useState<TradeType>(TradeType.SUPPLY);
   const [tradeCategory, setTradeCategory] = useState<TradeCategory>(TradeCategory.PHYSICAL);
   const [title, setTitle] = useState('');
@@ -32,6 +34,7 @@ export default function TradeCreateView({ onCancel, onSubmit }: TradeCreateViewP
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleAddSpec = () => setSpecs([...specs, { key: '', value: '' }]);
   const handleRemoveSpec = (index: number) => setSpecs(specs.filter((_, i) => i !== index));
@@ -41,28 +44,24 @@ export default function TradeCreateView({ onCancel, onSubmit }: TradeCreateViewP
     setSpecs(updated);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    const newImages: string[] = [];
+    setSubmitError(null);
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        newImages.push(reader.result as string);
-        if (newImages.length === files.length) {
-          setUploadedImages((prev) => [...prev, ...newImages]);
-          setIsUploading(false);
-        }
-      };
-      reader.onerror = () => setIsUploading(false);
-      reader.readAsDataURL(file);
-    });
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    try {
+      const uploaded = await Promise.all(Array.from(files).map((file) => uploadImage(file)));
+      setUploadedImages((prev) => [...prev, ...uploaded]);
+    } catch (err) {
+      console.error(err);
+      setSubmitError('Image upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -95,6 +94,8 @@ export default function TradeCreateView({ onCancel, onSubmit }: TradeCreateViewP
         deliveryLocation,
         image: uploadedImages.length > 0 ? uploadedImages[0] : undefined
       });
+      setIsSubmitting(false);
+      setShowSuccessModal(true);
     } catch (err) {
       console.error(err);
       setSubmitError('Could not create trade. Please try again.');
@@ -407,6 +408,31 @@ export default function TradeCreateView({ onCancel, onSubmit }: TradeCreateViewP
           <Sparkles className="w-4 h-4 fill-white" /> {isSubmitting ? 'Creating...' : 'Create Market Trade'}
         </motion.button>
       </div>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl flex flex-col items-center text-center"
+          >
+            <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-base font-display font-bold text-slate-900 mb-1">Trade Created!</h3>
+            <p className="text-xs font-sans text-slate-500 mb-6">
+              "{title}" has been posted{tradeType === TradeType.SUPPLY && uploadedImages.length > 0 ? ' and is now visible on the Market too' : ''}.
+            </p>
+            <button
+              type="button"
+              onClick={onDone}
+              className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-sm rounded-lg transition-colors cursor-pointer"
+            >
+              Done
+            </button>
+          </motion.div>
+        </div>
+      )}
     </form>
   );
 }
