@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import express from 'express';
 import crypto from 'crypto';
 import { env } from '../../config/env';
-import { creditWalletFromWebhook, handleTransferWebhookEvent } from './payments.service';
+import { creditWalletFromWebhook, creditWalletFromDvaWebhook, handleTransferWebhookEvent } from './payments.service';
 
 const router = Router();
 
@@ -12,15 +12,14 @@ interface PaystackWebhookEvent {
     reference: string;
     amount: number;
     status: string;
+    channel?: string;
+    metadata?: {
+      receiver_account_number?: string;
+      receiver_bank?: string;
+    };
   };
 }
 
-// Paystack signs the raw request body with your secret key (HMAC SHA512) and
-// sends it in the x-paystack-signature header. This MUST be verified before
-// trusting anything in the payload - without it, anyone who finds this URL
-// could POST a fake "payment succeeded" event and credit their own wallet.
-// Requires the raw (unparsed) body, hence express.raw() here instead of
-// relying on the app-level express.json() middleware.
 router.post(
   '/paystack',
   express.raw({ type: 'application/json' }),
@@ -43,14 +42,19 @@ router.post(
       return;
     }
 
-   
     res.status(200).json({ received: true });
 
     void (async () => {
       try {
         const event = JSON.parse(rawBody.toString('utf-8')) as PaystackWebhookEvent;
 
-        if (event.event === 'charge.success') {
+        if (event.event === 'charge.success' && event.data.channel === 'dedicated_nuban') {
+          await creditWalletFromDvaWebhook({
+            reference: event.data.reference,
+            amountKobo: event.data.amount,
+            receiverAccountNumber: event.data.metadata?.receiver_account_number
+          });
+        } else if (event.event === 'charge.success') {
           await creditWalletFromWebhook(event.data.reference, event.data.amount);
         } else if (
           event.event === 'transfer.success' ||

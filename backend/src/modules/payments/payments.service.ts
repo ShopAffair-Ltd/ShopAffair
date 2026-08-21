@@ -134,6 +134,61 @@ export const creditWalletFromWebhook = async (reference: string, amountKobo: num
   return updated;
 };
 
+export const creditWalletFromDvaWebhook = async (params: {
+  reference: string;
+  amountKobo: number;
+  receiverAccountNumber: string | undefined;
+}) => {
+  const { reference, amountKobo, receiverAccountNumber } = params;
+
+  if (!receiverAccountNumber) {
+    console.error(`DVA webhook missing receiver_account_number for reference ${reference}`);
+    return null;
+  }
+
+  const existing = await prisma.walletTransaction.findUnique({ where: { reference } });
+  if (existing) {
+    return null;
+  }
+
+  const user = await prisma.user.findFirst({ where: { accountNumber: receiverAccountNumber } });
+  if (!user) {
+    console.error(`DVA webhook: no user found for account number ${receiverAccountNumber} (reference ${reference})`);
+    return null;
+  }
+
+  const amountNaira = amountKobo / 100;
+
+  const result = await prisma.$transaction(async (tx) => {
+    const created = await tx.walletTransaction.create({
+      data: {
+        userId: user.id,
+        type: 'FUNDING',
+        provider: 'PAYSTACK',
+        amount: amountNaira,
+        status: 'SUCCESS',
+        reference
+      }
+    });
+
+    await tx.user.update({
+      where: { id: user.id },
+      data: { walletBalance: { increment: amountNaira } }
+    });
+
+    return created;
+  });
+
+  await notify({
+    userId: user.id,
+    title: 'Wallet funded',
+    message: `₦${amountNaira.toLocaleString()} has been added to your wallet.`,
+    type: 'SUCCESS'
+  });
+
+  return result;
+};
+
 export const provisionVirtualAccount = async (userId: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
