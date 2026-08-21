@@ -1,7 +1,13 @@
 import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiError } from '../../utils/ApiError';
-import { fundWalletSchema, verifyFundingSchema, resolveAccountSchema, withdrawSchema } from './payments.validation';
+import {
+  fundWalletSchema,
+  verifyFundingSchema,
+  resolveAccountSchema,
+  resolveAccountAllBanksSchema,
+  withdrawSchema
+} from './payments.validation';
 import {
   initiateWalletFunding,
   verifyWalletFunding,
@@ -10,6 +16,7 @@ import {
   getWalletBalance,
   getBankList,
   resolveWithdrawalAccount,
+  resolveWithdrawalAccountAllBanks,
   requestWithdrawal,
   subscribeToSellerPro,
   getSubscriptionStatus,
@@ -67,6 +74,13 @@ export const resolveAccount = asyncHandler(async (req: Request, res: Response) =
   requireUser(req);
   const { accountNumber, bankCode } = resolveAccountSchema.parse(req.body);
   const result = await resolveWithdrawalAccount(accountNumber, bankCode);
+  res.status(200).json(result);
+});
+
+export const resolveAccountAllBanks = asyncHandler(async (req: Request, res: Response) => {
+  requireUser(req);
+  const { accountNumber } = resolveAccountAllBanksSchema.parse(req.body);
+  const result = await resolveWithdrawalAccountAllBanks(accountNumber);
   res.status(200).json(result);
 });
 

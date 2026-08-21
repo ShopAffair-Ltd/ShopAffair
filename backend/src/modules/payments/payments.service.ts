@@ -8,7 +8,6 @@ import * as paystack from './providers/paystack.provider';
 
 const generateReference = () => `SF-FUND-${crypto.randomBytes(8).toString('hex')}`;
 
-
 export const initiateWalletFunding = async (userId: string, amountNaira: number) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
@@ -40,14 +39,6 @@ export const initiateWalletFunding = async (userId: string, amountNaira: number)
   return { authorizationUrl: authorization_url, accessCode: access_code, reference };
 };
 
-/**
- * Confirms a funding transaction directly against Paystack's verify endpoint
- * and credits the wallet if (and only if) it hasn't already been credited.
- * This is a fallback path for when the client redirects back before the
- * webhook has landed - the webhook remains the source of truth in production,
- * this just lets the frontend show an immediate result. Idempotent: calling
- * it twice on an already-SUCCESS transaction is a no-op, not a double credit.
- */
 export const verifyWalletFunding = async (userId: string, reference: string) => {
   const transaction = await prisma.walletTransaction.findUnique({ where: { reference } });
 
@@ -70,7 +61,6 @@ export const verifyWalletFunding = async (userId: string, reference: string) => 
   }
 
   const result = await prisma.$transaction(async (tx) => {
-
     const current = await tx.walletTransaction.findUnique({ where: { reference } });
     if (!current || current.status === 'SUCCESS') {
       return { transaction: current };
@@ -101,30 +91,20 @@ export const verifyWalletFunding = async (userId: string, reference: string) => 
   return { alreadyProcessed: false, transaction: result.transaction };
 };
 
-/**
- * Called from the Paystack webhook handler once signature verification has
- * passed. Same idempotency guarantee as verifyWalletFunding: safe to call
- * more than once for the same reference (Paystack does retry webhooks).
- */
 export const creditWalletFromWebhook = async (reference: string, amountKobo: number) => {
   const updated = await prisma.$transaction(async (tx) => {
     const transaction = await tx.walletTransaction.findUnique({ where: { reference } });
 
     if (!transaction) {
-      // Unknown reference - not one of ours, or funding record was never
-      // created. Nothing to credit; log and move on rather than throwing,
-      // since throwing here would make Paystack retry forever.
       return null;
     }
 
     if (transaction.status === 'SUCCESS') {
-      return null; // already credited via this path or the verify fallback - don't notify twice
+      return null;
     }
 
     const expectedKobo = Math.round(Number(transaction.amount) * 100);
     if (expectedKobo !== amountKobo) {
-      // Amount mismatch between what we expected and what Paystack says was
-      // paid - do not credit blindly, flag as failed for manual review.
       await tx.walletTransaction.update({ where: { reference }, data: { status: 'FAILED' } });
       return null;
     }
@@ -153,7 +133,6 @@ export const creditWalletFromWebhook = async (reference: string, amountKobo: num
 
   return updated;
 };
-
 
 export const provisionVirtualAccount = async (userId: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -199,8 +178,6 @@ export const provisionVirtualAccount = async (userId: string) => {
   };
 };
 
-// ---- Withdrawals (wallet balance -> bank) ----
-
 export const listWalletTransactions = async (userId: string, page: number, limit: number) => {
   const [items, total] = await Promise.all([
     prisma.walletTransaction.findMany({
@@ -226,32 +203,25 @@ export const getWalletBalance = async (userId: string) => {
   return user;
 };
 
-// ---- Withdrawals: bank list, account resolution, recipient setup, transfer ----
-
 export const getBankList = async () => {
   return paystack.listBanks();
 };
 
-/**
- * Verifies the account number/bank pair resolves to a real account and
- * returns the account holder's name, without saving anything yet - the
- * frontend shows this name so the user can confirm before we commit to it.
- */
 export const resolveWithdrawalAccount = async (accountNumber: string, bankCode: string) => {
   const resolved = await paystack.resolveAccountNumber(accountNumber, bankCode);
   return { accountName: resolved.account_name, accountNumber: resolved.account_number };
 };
 
+export const resolveWithdrawalAccountAllBanks = async (accountNumber: string) => {
+  const matches = await paystack.resolveAccountAllBanks(accountNumber);
+  if (matches.length === 0) {
+    throw new ApiError(404, 'Could not find any bank for this account number');
+  }
+  return { matches };
+};
+
 const generateWithdrawalReference = () => `SF-WD-${crypto.randomBytes(8).toString('hex')}`;
 
-/**
- * Debits the wallet immediately and kicks off a Paystack transfer.
- * The debit happens up front (optimistic) rather than after transfer
- * confirmation, because transfers are asynchronous by design - if we waited
- * for confirmation before debiting, a user could spend the same balance
- * twice while a transfer is still in flight. If the transfer later fails
- * (transfer.failed / transfer.reversed webhook), the wallet is refunded.
- */
 export const requestWithdrawal = async (params: {
   userId: string;
   amountNaira: number;
@@ -269,11 +239,8 @@ export const requestWithdrawal = async (params: {
     throw new ApiError(402, 'Insufficient wallet balance');
   }
 
-  // Confirm the account is real before we ever touch the wallet balance.
   const resolved = await paystack.resolveAccountNumber(accountNumber, bankCode);
 
-  // Reuse an existing Paystack recipient for this exact account if the user
-  // has withdrawn to it before; otherwise register a new one and save it.
   let recipientCode = user.paystackRecipientCode;
   const isSameAccountAsBefore =
     user.withdrawalAccountNumber === accountNumber && user.withdrawalBankCode === bankCode;
@@ -290,8 +257,6 @@ export const requestWithdrawal = async (params: {
   const reference = generateWithdrawalReference();
 
   const { transaction } = await prisma.$transaction(async (tx) => {
-    // Re-check balance inside the transaction to guard against a
-    // concurrent withdrawal request racing this one.
     const fresh = await tx.user.findUnique({ where: { id: userId } });
     if (!fresh || new Prisma.Decimal(fresh.walletBalance).lessThan(amountNaira)) {
       throw new ApiError(402, 'Insufficient wallet balance');
@@ -390,7 +355,6 @@ export const refundFailedWithdrawal = async (reference: string) => {
   return updated;
 };
 
-
 export const handleTransferWebhookEvent = async (event: string, reference: string) => {
   if (event === 'transfer.success') {
     const transaction = await prisma.walletTransaction.findUnique({ where: { reference } });
@@ -410,7 +374,6 @@ export const handleTransferWebhookEvent = async (event: string, reference: strin
     await refundFailedWithdrawal(reference);
   }
 };
-
 
 export const SELLER_PRO_PRICE = 5000;
 
@@ -434,8 +397,6 @@ export const subscribeToSellerPro = async (userId: string) => {
   const reference = generateSubscriptionReference();
 
   const subscription = await prisma.$transaction(async (tx) => {
-    // Re-check balance and isPro inside the transaction to guard against a
-    // double-submit racing this same request.
     const fresh = await tx.user.findUnique({ where: { id: userId } });
     if (!fresh || fresh.isPro) {
       throw new ApiError(409, 'You already have an active Seller Pro subscription');

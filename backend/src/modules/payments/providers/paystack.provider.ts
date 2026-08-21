@@ -32,8 +32,6 @@ const paystackRequest = async <T>(
   return json;
 };
 
-// ---- Checkout (works on any test key, used to fund wallet today) ----
-
 interface InitializeTransactionData {
   authorization_url: string;
   access_code: string;
@@ -76,8 +74,6 @@ export const verifyTransaction = async (reference: string) => {
   );
   return data;
 };
-
-// ---- Dedicated Virtual Account (requires business approval from Paystack) ----
 
 interface PaystackCustomerData {
   customer_code: string;
@@ -123,11 +119,6 @@ export const createDedicatedAccount = async (params: {
   return data;
 };
 
-/**
- * Checks whether Dedicated Virtual Accounts are enabled for this Paystack business.
- * Returns false (instead of throwing) when the feature isn't available yet, so callers
- * can gracefully fall back to checkout-based funding.
- */
 export const isDedicatedAccountAvailable = async (): Promise<boolean> => {
   try {
     await paystackRequest('/dedicated_account/available_providers');
@@ -137,8 +128,6 @@ export const isDedicatedAccountAvailable = async (): Promise<boolean> => {
   }
 };
 
-// ---- Bank resolution & transfers (withdrawals) ----
-
 interface BankListItem {
   name: string;
   code: string;
@@ -147,11 +136,6 @@ interface BankListItem {
 
 let cachedBanks: BankListItem[] | null = null;
 
-/**
- * Full list of Nigerian banks with their Paystack bank codes. Cached in
- * memory for the process lifetime since this list changes rarely - avoids
- * hitting Paystack on every withdrawal form load.
- */
 export const listBanks = async (): Promise<BankListItem[]> => {
   if (cachedBanks) return cachedBanks;
   const { data } = await paystackRequest<BankListItem[]>('/bank?country=nigeria');
@@ -165,12 +149,6 @@ interface ResolvedAccount {
   bank_id: number;
 }
 
-/**
- * Confirms an account number actually belongs to a real account at the given
- * bank, and returns the account holder's real name so the withdrawing user
- * can double check it before confirming - prevents money going to a
- * mistyped account number.
- */
 export const resolveAccountNumber = async (accountNumber: string, bankCode: string) => {
   const { data } = await paystackRequest<ResolvedAccount>(
     `/bank/resolve?account_number=${encodeURIComponent(accountNumber)}&bank_code=${encodeURIComponent(bankCode)}`
@@ -178,16 +156,52 @@ export const resolveAccountNumber = async (accountNumber: string, bankCode: stri
   return data;
 };
 
+const resolveAccountAtBank = async (accountNumber: string, bankCode: string) => {
+  try {
+    return await resolveAccountNumber(accountNumber, bankCode);
+  } catch {
+    return null;
+  }
+};
+
+interface BankMatch {
+  accountName: string;
+  bankCode: string;
+  bankName: string;
+}
+
+const resolveCache = new Map<string, { data: BankMatch[]; expiresAt: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+export const resolveAccountAllBanks = async (accountNumber: string): Promise<BankMatch[]> => {
+  const cached = resolveCache.get(accountNumber);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  const banks = await listBanks();
+
+  const results = await Promise.all(
+    banks.map(async (bank) => {
+      const resolved = await resolveAccountAtBank(accountNumber, bank.code);
+      return resolved
+        ? { accountName: resolved.account_name, bankCode: bank.code, bankName: bank.name }
+        : null;
+    })
+  );
+
+  const matches = results.filter((r): r is BankMatch => r !== null);
+
+  resolveCache.set(accountNumber, { data: matches, expiresAt: Date.now() + CACHE_TTL_MS });
+
+  return matches;
+};
+
 interface TransferRecipientData {
   recipient_code: string;
   active: boolean;
 }
 
-/**
- * One-time (per bank account) setup step: registers the withdrawal
- * destination with Paystack and returns a recipient_code to reuse on every
- * future withdrawal to that account.
- */
 export const createTransferRecipient = async (params: {
   name: string;
   accountNumber: string;
@@ -212,7 +226,6 @@ interface TransferData {
   status: string;
   amount: number;
 }
-
 
 export const initiateTransfer = async (params: {
   amountKobo: number;

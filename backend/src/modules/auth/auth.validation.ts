@@ -13,9 +13,23 @@ export const registerSchema = z.object({
   role: z.enum(['buyer', 'seller']).default('buyer')
 });
 
-export const updateDraftSchema = registerSchema.partial().extend({
-  draftId: z.string().uuid()
+export const startDraftSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8).max(72)
 });
+
+export const resolveAccountSchema = z.object({
+  accountNumber: z.string().min(10).max(10)
+});
+
+export const updateDraftSchema = registerSchema
+  .omit({ name: true })
+  .partial()
+  .extend({
+    draftId: z.string().uuid(),
+    bankAccountNumber: z.string().min(10).max(10).optional(),
+    bankCode: z.string().min(1).optional()
+  });
 
 export const confirmDraftSchema = z.object({
   draftId: z.string().uuid()

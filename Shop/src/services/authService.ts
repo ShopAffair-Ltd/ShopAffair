@@ -1,13 +1,25 @@
 import { api } from './api';
 import { UserProfile } from '../types';
 
-interface RegisterPayload {
-  name: string;
-  username: string;
+interface StartDraftPayload {
   email: string;
   password: string;
-  phoneNumber: string;
-  role: 'buyer' | 'seller';
+}
+
+interface UpdateDraftPayload {
+  username?: string;
+  email?: string;
+  password?: string;
+  phoneNumber?: string;
+  role?: 'buyer' | 'seller';
+  bankAccountNumber?: string;
+  bankCode?: string;
+}
+
+interface ResolvedBankAccount {
+  accountName: string;
+  bankCode: string;
+  bankName: string;
 }
 
 interface LoginPayload {
@@ -53,20 +65,19 @@ const mapToUserProfile = (raw: Record<string, unknown>): UserProfile => ({
   verificationSubmittedAt: raw.verificationSubmittedAt as string | undefined
 });
 
-export const registerUser = async (payload: RegisterPayload): Promise<UserProfile> => {
-  const { data } = await api.post<AuthResponse>('/auth/register', payload);
-  localStorage.setItem('shopfair_token', data.token);
-  return mapToUserProfile(data.user);
-};
-
-export const startDraftRegistration = async (payload: RegisterPayload): Promise<UserProfile> => {
+export const startDraftRegistration = async (payload: StartDraftPayload): Promise<UserProfile> => {
   const { data } = await api.post<{ user: Record<string, unknown> }>('/auth/register/start', payload);
   return mapToUserProfile(data.user);
 };
 
+export const resolveBankAccount = async (accountNumber: string): Promise<ResolvedBankAccount[]> => {
+  const { data } = await api.post<{ matches: ResolvedBankAccount[] }>('/auth/register/resolve-account', { accountNumber });
+  return data.matches;
+};
+
 export const updateDraftRegistration = async (
   draftId: string,
-  payload: Partial<RegisterPayload>
+  payload: UpdateDraftPayload
 ): Promise<UserProfile> => {
   const { data } = await api.post<{ user: Record<string, unknown> }>('/auth/register/update', {
     draftId,
@@ -93,10 +104,6 @@ export const getCurrentUser = async (): Promise<UserProfile | null> => {
   const token = localStorage.getItem('shopfair_token');
   if (!token) return null;
 
-  // Retries once after a short delay before giving up - covers the very
-  // common case of a free-tier backend (e.g. Render) being asleep and
-  // taking a few seconds to wake on the first request after a period of
-  // inactivity, which would otherwise look identical to a real failure.
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const { data } = await api.get<{ user: Record<string, unknown> }>('/users/me');
@@ -114,9 +121,6 @@ export const getCurrentUser = async (): Promise<UserProfile | null> => {
         continue;
       }
 
-      // Second attempt also failed for a non-auth reason - keep the token,
-      // just report as not-yet-loaded so the next natural refresh or
-      // action can try again rather than permanently signing them out.
       return null;
     }
   }

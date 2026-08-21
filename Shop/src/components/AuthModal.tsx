@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShieldCheck, User, ArrowLeft, Landmark, Loader2 } from 'lucide-react';
+import { X, ShieldCheck, User, ArrowLeft, Landmark, Loader2, CheckCircle2 } from 'lucide-react';
 import { UserProfile } from '../types';
 import {
   loginUser,
   startDraftRegistration,
+  resolveBankAccount,
   updateDraftRegistration,
   confirmDraftRegistration,
   getApiErrorMessage
@@ -12,17 +13,25 @@ import {
 import { useAuthModal } from '../context/AuthModalContext';
 import { useAuth } from '../context/AuthContext';
 
+type RegisterStep = 'credentials' | 'verify' | 'confirm';
+
+interface ResolvedBankAccount {
+  accountName: string;
+  bankCode: string;
+  bankName: string;
+}
+
 export default function AuthModal() {
   const { isOpen, mode: initialMode, close } = useAuthModal();
   const { login } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode as 'login' | 'register');
-  const [registerStep, setRegisterStep] = useState<'form' | 'confirm'>('form');
+  const [registerStep, setRegisterStep] = useState<RegisterStep>('credentials');
   const [draftProfile, setDraftProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode as 'login' | 'register');
-      setRegisterStep('form');
+      setRegisterStep('credentials');
       setDraftProfile(null);
     }
   }, [isOpen, initialMode]);
@@ -31,7 +40,10 @@ export default function AuthModal() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [bankMatches, setBankMatches] = useState<ResolvedBankAccount[]>([]);
+  const [selectedBank, setSelectedBank] = useState<ResolvedBankAccount | null>(null);
+  const [isResolving, setIsResolving] = useState(false);
   const [username, setUsername] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [role, setRole] = useState<'buyer' | 'seller'>('buyer');
@@ -77,29 +89,74 @@ export default function AuthModal() {
     }
   };
 
-  // "Next" generates the account (creates a draft user + Paystack DVA) and
-  // moves to the confirmation step, WITHOUT logging the person in yet.
-  const handleNext = async (e: React.FormEvent) => {
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !username || !password || !fullName || !phoneNumber) return;
+    if (!email || !password) return;
 
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
-      let profile: UserProfile;
-      if (draftProfile) {
-        profile = await updateDraftRegistration(draftProfile.id, {
-          name: fullName,
-          username,
-          email,
-          password,
-          phoneNumber,
-          role
-        });
-      } else {
-        profile = await startDraftRegistration({ name: fullName, username, email, password, phoneNumber, role });
+      const profile = await startDraftRegistration({ email, password });
+      setDraftProfile(profile);
+      setRegisterStep('verify');
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResolveAccount = async () => {
+    if (bankAccountNumber.length !== 10) return;
+
+    setIsResolving(true);
+    setErrorMessage(null);
+    setBankMatches([]);
+    setSelectedBank(null);
+
+    try {
+      const matches = await resolveBankAccount(bankAccountNumber);
+      setBankMatches(matches);
+      if (matches.length === 1) {
+        handleSelectBank(matches[0]);
       }
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error));
+    } finally {
+      setIsResolving(false);
+    }
+  };
+
+  const handleSelectBank = (bank: ResolvedBankAccount) => {
+    setSelectedBank(bank);
+    if (!username) {
+      const suggested = bank.accountName
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .trim()
+        .split(/\s+/)
+        .join('_')
+        .slice(0, 24);
+      setUsername(suggested);
+    }
+  };
+
+  const handleVerifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!draftProfile || !selectedBank || !username || !phoneNumber) return;
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const profile = await updateDraftRegistration(draftProfile.id, {
+        bankAccountNumber,
+        bankCode: selectedBank.bankCode,
+        username,
+        phoneNumber,
+        role
+      });
       setDraftProfile(profile);
       setRegisterStep('confirm');
     } catch (error) {
@@ -109,9 +166,8 @@ export default function AuthModal() {
     }
   };
 
-  // Back from confirmation returns to the same editable form, values intact.
-  const handleBackToForm = () => {
-    setRegisterStep('form');
+  const handleBackToVerify = () => {
+    setRegisterStep('verify');
     setErrorMessage(null);
   };
 
@@ -220,14 +276,14 @@ export default function AuthModal() {
                 </form>
               )}
 
-              {mode === 'register' && registerStep === 'form' && (
-                <form onSubmit={handleNext} className="space-y-5">
+              {mode === 'register' && registerStep === 'credentials' && (
+                <form onSubmit={handleCredentialsSubmit} className="space-y-5">
                   <div className="text-center">
                     <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-xl bg-purple-50 text-purple-600 mb-3">
                       <User className="w-6 h-6 stroke-[2]" />
                     </div>
                     <h3 className="text-2xl font-display font-bold text-slate-900">Create Account</h3>
-                    <p className="text-sm font-sans text-slate-500 mt-1">Get started with secure multi-sig escrow trading</p>
+                    <p className="text-sm font-sans text-slate-500 mt-1">Step 1 of 3 — Get started with your email</p>
                   </div>
 
                   {errorMessage && (
@@ -237,72 +293,6 @@ export default function AuthModal() {
                   )}
 
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Full Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="e.g. Rumline Peters"
-                        className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Username</label>
-                      <input
-                        type="text"
-                        required
-                        minLength={3}
-                        maxLength={30}
-                        pattern="[a-z0-9_]+"
-                        title="Lowercase letters, numbers, and underscores only"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                        placeholder="e.g. rumline"
-                        className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
-                      />
-                      <p className="text-[11px] font-sans text-slate-400 mt-1">Lowercase letters, numbers, and underscores only</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Phone Number</label>
-                      <input
-                        type="tel"
-                        required
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9+]/g, ''))}
-                        placeholder="e.g. 08012345678"
-                        className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
-                      />
-                      <p className="text-[11px] font-sans text-slate-400 mt-1">Used to set up your personal deposit account number</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">I want to</label>
-                      <div className="grid grid-cols-2 gap-2 bg-slate-100/70 p-1.5 rounded-xl border border-slate-200/40">
-                        <button
-                          type="button"
-                          onClick={() => setRole('buyer')}
-                          className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${
-                            role === 'buyer' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-                          }`}
-                        >
-                          Buy items
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setRole('seller')}
-                          className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${
-                            role === 'seller' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-                          }`}
-                        >
-                          Sell items
-                        </button>
-                      </div>
-                    </div>
-
                     <div>
                       <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Email Address</label>
                       <input
@@ -334,7 +324,7 @@ export default function AuthModal() {
                     disabled={isSubmitting}
                     className="w-full font-sans font-bold text-sm text-white bg-purple-600 hover:bg-purple-700 py-3.5 rounded-xl transition-all shadow-md shadow-purple-100 flex items-center justify-center cursor-pointer disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Setting up your account...' : 'Next'}
+                    {isSubmitting ? 'Setting up...' : 'Next'}
                   </button>
 
                   <div className="text-center pt-2">
@@ -349,6 +339,168 @@ export default function AuthModal() {
                 </form>
               )}
 
+              {mode === 'register' && registerStep === 'verify' && (
+                <form onSubmit={handleVerifySubmit} className="space-y-5">
+                  <div className="text-center">
+                    <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-xl bg-purple-50 text-purple-600 mb-3">
+                      <Landmark className="w-6 h-6 stroke-[2]" />
+                    </div>
+                    <h3 className="text-2xl font-display font-bold text-slate-900">Verify Your Bank Account</h3>
+                    <p className="text-sm font-sans text-slate-500 mt-1">Step 2 of 3 — We'll use this to confirm your real name</p>
+                  </div>
+
+                  {errorMessage && (
+                    <div className="p-3 bg-red-50 text-red-700 text-xs font-sans font-semibold rounded-xl border border-red-100">
+                      {errorMessage}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Bank Account Number</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          required
+                          inputMode="numeric"
+                          maxLength={10}
+                          value={bankAccountNumber}
+                          onChange={(e) => {
+                            setBankAccountNumber(e.target.value.replace(/[^0-9]/g, ''));
+                            setBankMatches([]);
+                            setSelectedBank(null);
+                          }}
+                          placeholder="e.g. 0123456789"
+                          className="flex-1 font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleResolveAccount}
+                          disabled={bankAccountNumber.length !== 10 || isResolving}
+                          className="px-4 font-sans font-bold text-xs text-purple-600 bg-purple-50 hover:bg-purple-100 disabled:opacity-40 rounded-xl transition-all cursor-pointer shrink-0"
+                        >
+                          {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify'}
+                        </button>
+                      </div>
+                      <p className="text-[11px] font-sans text-slate-400 mt-1">
+                        Any of your existing bank, OPay, or PalmPay accounts — we auto-detect the bank
+                      </p>
+                    </div>
+
+                    {bankMatches.length > 1 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-sans font-bold uppercase tracking-wider text-slate-500">
+                          This account number is linked to {bankMatches.length} banks — pick one
+                        </p>
+                        <div className="space-y-1.5">
+                          {bankMatches.map((bank) => (
+                            <button
+                              key={bank.bankCode}
+                              type="button"
+                              onClick={() => handleSelectBank(bank)}
+                              className={`w-full text-left p-3 rounded-xl border flex items-start gap-2.5 transition-all cursor-pointer ${
+                                selectedBank?.bankCode === bank.bankCode
+                                  ? 'bg-green-50 border-green-200'
+                                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
+                              <CheckCircle2
+                                className={`w-4 h-4 shrink-0 mt-0.5 ${
+                                  selectedBank?.bankCode === bank.bankCode ? 'text-green-600' : 'text-slate-300'
+                                }`}
+                              />
+                              <div className="text-xs font-sans">
+                                <p className={`font-bold ${selectedBank?.bankCode === bank.bankCode ? 'text-green-800' : 'text-slate-700'}`}>
+                                  {bank.accountName}
+                                </p>
+                                <p className={selectedBank?.bankCode === bank.bankCode ? 'text-green-600' : 'text-slate-400'}>
+                                  {bank.bankName}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {bankMatches.length === 1 && selectedBank && (
+                      <div className="p-3 bg-green-50 rounded-xl border border-green-100 flex items-start gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                        <div className="text-xs font-sans">
+                          <p className="text-green-800 font-bold">{selectedBank.accountName}</p>
+                          <p className="text-green-600">{selectedBank.bankName}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBank && (
+                      <>
+                        <div>
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Username</label>
+                          <input
+                            type="text"
+                            required
+                            minLength={3}
+                            maxLength={30}
+                            pattern="[a-z0-9_]+"
+                            title="Lowercase letters, numbers, and underscores only"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                            placeholder="e.g. rumline"
+                            className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
+                          />
+                          <p className="text-[11px] font-sans text-slate-400 mt-1">Suggested from your name — feel free to change it</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Phone Number</label>
+                          <input
+                            type="tel"
+                            required
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9+]/g, ''))}
+                            placeholder="e.g. 08012345678"
+                            className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">I want to</label>
+                          <div className="grid grid-cols-2 gap-2 bg-slate-100/70 p-1.5 rounded-xl border border-slate-200/40">
+                            <button
+                              type="button"
+                              onClick={() => setRole('buyer')}
+                              className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${
+                                role === 'buyer' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+                              }`}
+                            >
+                              Buy items
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setRole('seller')}
+                              className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${
+                                role === 'seller' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+                              }`}
+                            >
+                              Sell items
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !selectedBank || !username || !phoneNumber}
+                    className="w-full font-sans font-bold text-sm text-white bg-purple-600 hover:bg-purple-700 py-3.5 rounded-xl transition-all shadow-md shadow-purple-100 flex items-center justify-center cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Setting up your account...' : 'Next'}
+                  </button>
+                </form>
+              )}
+
               {mode === 'register' && registerStep === 'confirm' && draftProfile && (
                 <div className="space-y-5">
                   <div className="text-center">
@@ -357,7 +509,7 @@ export default function AuthModal() {
                     </div>
                     <h3 className="text-2xl font-display font-bold text-slate-900">Your Account Number</h3>
                     <p className="text-sm font-sans text-slate-500 mt-1">
-                      This is your personal deposit account. Confirm your details to finish creating your account.
+                      Step 3 of 3 — This is your personal deposit account. Confirm your details to finish.
                     </p>
                   </div>
 
@@ -382,7 +534,7 @@ export default function AuthModal() {
                   )}
 
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5 text-xs font-sans text-left">
-                    <p><span className="text-slate-400">Name:</span> <span className="font-semibold text-slate-700">{fullName}</span></p>
+                    <p><span className="text-slate-400">Name:</span> <span className="font-semibold text-slate-700">{selectedBank?.accountName}</span></p>
                     <p><span className="text-slate-400">Username:</span> <span className="font-semibold text-slate-700">@{username}</span></p>
                     <p><span className="text-slate-400">Email:</span> <span className="font-semibold text-slate-700">{email}</span></p>
                     <p><span className="text-slate-400">Phone:</span> <span className="font-semibold text-slate-700">{phoneNumber}</span></p>
@@ -400,7 +552,7 @@ export default function AuthModal() {
                     </button>
                     <button
                       type="button"
-                      onClick={handleBackToForm}
+                      onClick={handleBackToVerify}
                       disabled={isSubmitting}
                       className="w-full font-sans font-semibold text-sm text-slate-500 hover:text-slate-700 py-2.5 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                     >

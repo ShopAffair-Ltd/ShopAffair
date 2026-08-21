@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../../config/db.js';
 import { env } from '../../config/env.js';
 import { ApiError } from '../../utils/ApiError.js';
-import type { RegisterInput, LoginInput } from './auth.validation.js';
+import * as paystack from '../payments/providers/paystack.provider.js';
+import type { LoginInput, updateDraftSchema, startDraftSchema } from './auth.validation.js';
+import type { z } from 'zod';
+import { provisionVirtualAccount } from '../payments/payments.service';
 
 const generateTempId = () => `SHOPFAIR-${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -15,33 +18,33 @@ const generateToken = (userId: string, username: string, role: string) => {
   return jwt.sign(payload, env.JWT_SECRET, options);
 };
 
-import { provisionVirtualAccount } from '../payments/payments.service';
-
 const DRAFT_TTL_MS = 30 * 60 * 1000;
 
-export const startRegistrationDraft = async (input: RegisterInput) => {
+type StartDraftInput = z.infer<typeof startDraftSchema>;
+type UpdateDraftInput = z.infer<typeof updateDraftSchema>;
+
+export const startRegistrationDraft = async (input: StartDraftInput) => {
   const existing = await prisma.user.findFirst({
     where: {
       isDraft: false,
-      OR: [{ email: input.email.toLowerCase() }, { username: input.username.toLowerCase() }]
+      email: input.email.toLowerCase()
     }
   });
 
   if (existing) {
-    throw new ApiError(409, 'An account with that email or username already exists');
+    throw new ApiError(409, 'An account with that email already exists');
   }
 
   const passwordHash = await bcrypt.hash(input.password, 12);
 
-  let user = await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       tempId: generateTempId(),
-      name: input.name,
-      username: input.username.toLowerCase(),
+      name: '',
+      username: `pending_${generateTempId().toLowerCase()}`,
       email: input.email.toLowerCase(),
       passwordHash,
-      phoneNumber: input.phoneNumber,
-      role: input.role,
+      role: 'buyer',
       verificationStatus: 'UNVERIFIED',
       avatarColor: 'bg-purple-600',
       isDraft: true,
@@ -49,17 +52,43 @@ export const startRegistrationDraft = async (input: RegisterInput) => {
     }
   });
 
-  try {
-    await provisionVirtualAccount(user.id);
-    user = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
-  } catch (err) {
-    console.error(`Could not provision virtual account for draft ${user.id}:`, err);
-  }
-
   return user;
 };
 
-export const updateRegistrationDraft = async (draftId: string, input: Partial<RegisterInput>) => {
+export const resolveBankAccount = async (accountNumber: string) => {
+  const matches = await paystack.resolveAccountAllBanks(accountNumber);
+  if (matches.length === 0) {
+    throw new ApiError(
+      404,
+      'Could not verify this account number against any supported bank. Please check the number and try again.'
+    );
+  }
+  return matches;
+};
+
+const suggestUsernameFromName = async (fullName: string): Promise<string> => {
+  const base = fullName
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim()
+    .split(/\s+/)
+    .join('_')
+    .slice(0, 24);
+
+  const fallbackBase = base || 'user';
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const candidate = attempt === 0 ? fallbackBase : `${fallbackBase}${Math.floor(100 + Math.random() * 900)}`;
+    const taken = await prisma.user.findFirst({
+      where: { username: candidate, isDraft: false }
+    });
+    if (!taken) return candidate;
+  }
+
+  return `${fallbackBase}${Date.now().toString().slice(-6)}`;
+};
+
+export const updateRegistrationDraft = async (draftId: string, input: Omit<UpdateDraftInput, 'draftId'>) => {
   const draft = await prisma.user.findUnique({ where: { id: draftId } });
   if (!draft || !draft.isDraft) {
     throw new ApiError(404, 'Registration draft not found or already confirmed');
@@ -83,13 +112,38 @@ export const updateRegistrationDraft = async (draftId: string, input: Partial<Re
 
   const passwordHash = input.password ? await bcrypt.hash(input.password, 12) : undefined;
 
+  let resolvedName: string | undefined;
+  let resolvedBankName: string | undefined;
+  let usernameToSet = input.username?.toLowerCase();
+
+  if (input.bankAccountNumber) {
+    if (!input.bankCode) {
+      throw new ApiError(400, 'Please select which bank this account number belongs to');
+    }
+
+    const matches = await resolveBankAccount(input.bankAccountNumber);
+    const selected = matches.find((m) => m.bankCode === input.bankCode);
+
+    if (!selected) {
+      throw new ApiError(400, 'That bank does not match this account number. Please verify again.');
+    }
+
+    resolvedName = selected.accountName;
+    resolvedBankName = selected.bankName;
+
+    if (!usernameToSet) {
+      usernameToSet = await suggestUsernameFromName(resolvedName);
+    }
+  }
+
   const phoneChanged = input.phoneNumber && input.phoneNumber !== draft.phoneNumber;
+  const bankAccountChanged = Boolean(input.bankAccountNumber);
 
   let user = await prisma.user.update({
     where: { id: draftId },
     data: {
-      name: input.name,
-      username: input.username?.toLowerCase(),
+      name: resolvedName ?? undefined,
+      username: usernameToSet,
       email: input.email?.toLowerCase(),
       phoneNumber: input.phoneNumber,
       role: input.role,
@@ -98,7 +152,7 @@ export const updateRegistrationDraft = async (draftId: string, input: Partial<Re
     }
   });
 
-  if (phoneChanged) {
+  if (phoneChanged || bankAccountChanged) {
     try {
       await provisionVirtualAccount(user.id);
       user = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
@@ -116,6 +170,10 @@ export const confirmRegistration = async (draftId: string) => {
     throw new ApiError(404, 'Registration draft not found or already confirmed');
   }
 
+  if (!draft.name || draft.username.startsWith('pending_') || !draft.phoneNumber) {
+    throw new ApiError(400, 'Please complete your bank verification and profile details before continuing');
+  }
+
   const user = await prisma.user.update({
     where: { id: draftId },
     data: { isDraft: false, draftExpiresAt: null }
@@ -130,11 +188,6 @@ export const cleanupExpiredDrafts = async () => {
     where: { isDraft: true, draftExpiresAt: { lt: new Date() } }
   });
   return result.count;
-};
-
-export const registerUser = async (input: RegisterInput) => {
-  const draft = await startRegistrationDraft(input);
-  return confirmRegistration(draft.id);
 };
 
 export const loginUser = async (input: LoginInput) => {
