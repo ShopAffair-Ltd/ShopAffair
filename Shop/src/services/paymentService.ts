@@ -6,11 +6,6 @@ export interface FundWalletResult {
   reference: string;
 }
 
-// Starts a wallet-funding flow. The backend creates a PENDING transaction and
-// returns a Paystack checkout URL - redirect the user there (same tab, since
-// Paystack redirects back to callbackUrl/CLIENT_URL on completion). The
-// wallet balance does NOT change yet; it only updates once verifyFunding (or
-// the server-side webhook) confirms the charge actually succeeded.
 export const fundWallet = async (amount: number): Promise<FundWalletResult> => {
   const { data } = await api.post<FundWalletResult>('/payments/wallet/fund', { amount });
   return data;
@@ -32,9 +27,7 @@ export interface VerifyFundingResult {
   transaction: WalletTransaction;
 }
 
-// Call this when the user is redirected back from Paystack checkout (read
-// `reference` off the callback URL's query string). Safe to call more than
-// once for the same reference - the backend only credits the wallet once.
+
 export const verifyFunding = async (reference: string): Promise<VerifyFundingResult> => {
   const { data } = await api.get<VerifyFundingResult>('/payments/wallet/verify', {
     params: { reference }

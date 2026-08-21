@@ -73,7 +73,8 @@ export const ModelName = {
   SupportTicket: 'SupportTicket',
   SupportTicketReply: 'SupportTicketReply',
   PlatformSetting: 'PlatformSetting',
-  PromoCode: 'PromoCode'
+  PromoCode: 'PromoCode',
+  Otp: 'Otp'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -101,6 +102,7 @@ export const UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   verificationStatus: 'verificationStatus',
+  emailVerified: 'emailVerified',
   rejectionReason: 'rejectionReason',
   isFrozen: 'isFrozen',
   isDraft: 'isDraft',
@@ -466,6 +468,20 @@ export const PromoCodeScalarFieldEnum = {
 } as const
 
 export type PromoCodeScalarFieldEnum = (typeof PromoCodeScalarFieldEnum)[keyof typeof PromoCodeScalarFieldEnum]
+
+
+export const OtpScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  codeHash: 'codeHash',
+  purpose: 'purpose',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  attempts: 'attempts',
+  createdAt: 'createdAt'
+} as const
+
+export type OtpScalarFieldEnum = (typeof OtpScalarFieldEnum)[keyof typeof OtpScalarFieldEnum]
 
 
 export const SortOrder = {

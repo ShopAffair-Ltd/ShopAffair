@@ -7,6 +7,7 @@ import * as paystack from '../payments/providers/paystack.provider.js';
 import type { LoginInput, updateDraftSchema, startDraftSchema } from './auth.validation.js';
 import type { z } from 'zod';
 import { provisionVirtualAccount } from '../payments/payments.service';
+import { issueOtp, verifyOtp } from './otp.service';
 
 const generateTempId = () => `SHOPFAIR-${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -51,6 +52,8 @@ export const startRegistrationDraft = async (input: StartDraftInput) => {
       draftExpiresAt: new Date(Date.now() + DRAFT_TTL_MS)
     }
   });
+
+  await issueOtp(user.email, 'SIGNUP_VERIFICATION');
 
   return user;
 };
@@ -164,10 +167,37 @@ export const updateRegistrationDraft = async (draftId: string, input: Omit<Updat
   return user;
 };
 
+export const verifySignupEmail = async (draftId: string, code: string) => {
+  const draft = await prisma.user.findUnique({ where: { id: draftId } });
+  if (!draft || !draft.isDraft) {
+    throw new ApiError(404, 'Registration draft not found or already confirmed');
+  }
+
+  await verifyOtp(draft.email, code, 'SIGNUP_VERIFICATION');
+
+  return prisma.user.update({
+    where: { id: draftId },
+    data: { emailVerified: true }
+  });
+};
+
+export const resendSignupOtp = async (draftId: string) => {
+  const draft = await prisma.user.findUnique({ where: { id: draftId } });
+  if (!draft || !draft.isDraft) {
+    throw new ApiError(404, 'Registration draft not found or already confirmed');
+  }
+
+  await issueOtp(draft.email, 'SIGNUP_VERIFICATION');
+};
+
 export const confirmRegistration = async (draftId: string) => {
   const draft = await prisma.user.findUnique({ where: { id: draftId } });
   if (!draft || !draft.isDraft) {
     throw new ApiError(404, 'Registration draft not found or already confirmed');
+  }
+
+  if (!draft.emailVerified) {
+    throw new ApiError(400, 'Please verify your email before continuing');
   }
 
   if (!draft.name || draft.username.startsWith('pending_') || !draft.phoneNumber) {
@@ -219,4 +249,32 @@ export const getUserById = async (userId: string) => {
   }
 
   return user;
+};
+
+export const requestPasswordReset = async (email: string) => {
+  const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  console.log('LOOKUP RESULT:', user ? { found: true, isDraft: user.isDraft, email: user.email } : { found: false });
+
+  if (user && !user.isDraft) {
+    console.log('CALLING issueOtp NOW');
+    await issueOtp(user.email, 'PASSWORD_RESET');
+    console.log('issueOtp RETURNED SUCCESSFULLY');
+  }
+};
+
+export const resetPassword = async (email: string, code: string, newPassword: string) => {
+  const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+
+  if (!user || user.isDraft) {
+    throw new ApiError(400, 'Invalid code or email');
+  }
+
+  await verifyOtp(user.email, code, 'PASSWORD_RESET');
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash }
+  });
 };

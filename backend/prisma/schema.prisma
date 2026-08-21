@@ -109,6 +109,11 @@ enum TicketStatus {
   CLOSED
 }
 
+enum OtpPurpose {
+  SIGNUP_VERIFICATION
+  PASSWORD_RESET
+}
+
 model User {
   id                        String              @id @default(uuid())
   tempId                    String              @unique
@@ -118,6 +123,7 @@ model User {
   passwordHash              String
   role                      UserRole            @default(buyer)
   verificationStatus        VerificationStatus  @default(UNVERIFIED)
+  emailVerified             Boolean             @default(false)
   rejectionReason           String?
   isFrozen                  Boolean             @default(false)
   isDraft                   Boolean             @default(false)
@@ -544,4 +550,18 @@ model PromoCode {
   createdBy   User      @relation("PromoCreator", fields: [createdById], references: [id])
   createdAt   DateTime  @default(now())
   expiresAt   DateTime?
+}
+
+model Otp {
+  id         String      @id @default(uuid())
+  email      String
+  codeHash   String
+  purpose    OtpPurpose
+  expiresAt  DateTime
+  usedAt     DateTime?
+  attempts   Int         @default(0)
+  createdAt  DateTime    @default(now())
+
+  @@index([email, purpose])
+  
 }

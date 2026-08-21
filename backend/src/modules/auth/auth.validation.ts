@@ -35,6 +35,25 @@ export const confirmDraftSchema = z.object({
   draftId: z.string().uuid()
 });
 
+export const verifySignupOtpSchema = z.object({
+  draftId: z.string().uuid(),
+  code: z.string().length(6)
+});
+
+export const resendOtpSchema = z.object({
+  draftId: z.string().uuid()
+});
+
+export const requestPasswordResetSchema = z.object({
+  email: z.email()
+});
+
+export const resetPasswordSchema = z.object({
+  email: z.email(),
+  code: z.string().length(6),
+  newPassword: z.string().min(8).max(72)
+});
+
 export const loginSchema = z.object({
   email: z.email(),
   password: z.string().min(1)

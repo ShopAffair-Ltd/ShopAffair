@@ -57,6 +57,7 @@ export type UserMinAggregateOutputType = {
   passwordHash: string | null
   role: $Enums.UserRole | null
   verificationStatus: $Enums.VerificationStatus | null
+  emailVerified: boolean | null
   rejectionReason: string | null
   isFrozen: boolean | null
   isDraft: boolean | null
@@ -106,6 +107,7 @@ export type UserMaxAggregateOutputType = {
   passwordHash: string | null
   role: $Enums.UserRole | null
   verificationStatus: $Enums.VerificationStatus | null
+  emailVerified: boolean | null
   rejectionReason: string | null
   isFrozen: boolean | null
   isDraft: boolean | null
@@ -155,6 +157,7 @@ export type UserCountAggregateOutputType = {
   passwordHash: number
   role: number
   verificationStatus: number
+  emailVerified: number
   rejectionReason: number
   isFrozen: number
   isDraft: number
@@ -228,6 +231,7 @@ export type UserMinAggregateInputType = {
   passwordHash?: true
   role?: true
   verificationStatus?: true
+  emailVerified?: true
   rejectionReason?: true
   isFrozen?: true
   isDraft?: true
@@ -277,6 +281,7 @@ export type UserMaxAggregateInputType = {
   passwordHash?: true
   role?: true
   verificationStatus?: true
+  emailVerified?: true
   rejectionReason?: true
   isFrozen?: true
   isDraft?: true
@@ -326,6 +331,7 @@ export type UserCountAggregateInputType = {
   passwordHash?: true
   role?: true
   verificationStatus?: true
+  emailVerified?: true
   rejectionReason?: true
   isFrozen?: true
   isDraft?: true
@@ -462,6 +468,7 @@ export type UserGroupByOutputType = {
   passwordHash: string
   role: $Enums.UserRole
   verificationStatus: $Enums.VerificationStatus
+  emailVerified: boolean
   rejectionReason: string | null
   isFrozen: boolean
   isDraft: boolean
@@ -534,6 +541,7 @@ export type UserWhereInput = {
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFilter<"User"> | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
   rejectionReason?: Prisma.StringNullableFilter<"User"> | string | null
   isFrozen?: Prisma.BoolFilter<"User"> | boolean
   isDraft?: Prisma.BoolFilter<"User"> | boolean
@@ -616,6 +624,7 @@ export type UserOrderByWithRelationInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   verificationStatus?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
   isDraft?: Prisma.SortOrder
@@ -701,6 +710,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFilter<"User"> | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
   rejectionReason?: Prisma.StringNullableFilter<"User"> | string | null
   isFrozen?: Prisma.BoolFilter<"User"> | boolean
   isDraft?: Prisma.BoolFilter<"User"> | boolean
@@ -783,6 +793,7 @@ export type UserOrderByWithAggregationInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   verificationStatus?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
   isDraft?: Prisma.SortOrder
@@ -840,6 +851,7 @@ export type UserScalarWhereWithAggregatesInput = {
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusWithAggregatesFilter<"User"> | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isFrozen?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isDraft?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -889,6 +901,7 @@ export type UserCreateInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -970,6 +983,7 @@ export type UserUncheckedCreateInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -1051,6 +1065,7 @@ export type UserUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1132,6 +1147,7 @@ export type UserUncheckedUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1213,6 +1229,7 @@ export type UserCreateManyInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -1262,6 +1279,7 @@ export type UserUpdateManyMutationInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1310,6 +1328,7 @@ export type UserUncheckedUpdateManyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1374,6 +1393,7 @@ export type UserCountOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   verificationStatus?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
   isDraft?: Prisma.SortOrder
@@ -1434,6 +1454,7 @@ export type UserMaxOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   verificationStatus?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
   isDraft?: Prisma.SortOrder
@@ -1483,6 +1504,7 @@ export type UserMinOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   verificationStatus?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   isFrozen?: Prisma.SortOrder
   isDraft?: Prisma.SortOrder
@@ -1571,12 +1593,12 @@ export type EnumVerificationStatusFieldUpdateOperationsInput = {
   set?: $Enums.VerificationStatus
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -2122,6 +2144,7 @@ export type UserCreateWithoutFrozenUsersInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2202,6 +2225,7 @@ export type UserUncheckedCreateWithoutFrozenUsersInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2287,6 +2311,7 @@ export type UserCreateWithoutFrozenByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2367,6 +2392,7 @@ export type UserUncheckedCreateWithoutFrozenByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2468,6 +2494,7 @@ export type UserUpdateWithoutFrozenUsersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2548,6 +2575,7 @@ export type UserUncheckedUpdateWithoutFrozenUsersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2647,6 +2675,7 @@ export type UserScalarWhereInput = {
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFilter<"User"> | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
   rejectionReason?: Prisma.StringNullableFilter<"User"> | string | null
   isFrozen?: Prisma.BoolFilter<"User"> | boolean
   isDraft?: Prisma.BoolFilter<"User"> | boolean
@@ -2696,6 +2725,7 @@ export type UserCreateWithoutFollowingInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2776,6 +2806,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2861,6 +2892,7 @@ export type UserCreateWithoutFollowedByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -2941,6 +2973,7 @@ export type UserUncheckedCreateWithoutFollowedByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -3037,6 +3070,7 @@ export type UserUpdateWithoutFollowingInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3117,6 +3151,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3208,6 +3243,7 @@ export type UserUpdateWithoutFollowedByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3288,6 +3324,7 @@ export type UserUncheckedUpdateWithoutFollowedByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3368,6 +3405,7 @@ export type UserCreateWithoutReviewsGivenInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -3448,6 +3486,7 @@ export type UserUncheckedCreateWithoutReviewsGivenInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -3533,6 +3572,7 @@ export type UserCreateWithoutReviewsReceivedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -3613,6 +3653,7 @@ export type UserUncheckedCreateWithoutReviewsReceivedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -3709,6 +3750,7 @@ export type UserUpdateWithoutReviewsGivenInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3789,6 +3831,7 @@ export type UserUncheckedUpdateWithoutReviewsGivenInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3880,6 +3923,7 @@ export type UserUpdateWithoutReviewsReceivedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3960,6 +4004,7 @@ export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4040,6 +4085,7 @@ export type UserCreateWithoutReviewHelpfulVotesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4120,6 +4166,7 @@ export type UserUncheckedCreateWithoutReviewHelpfulVotesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4216,6 +4263,7 @@ export type UserUpdateWithoutReviewHelpfulVotesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4296,6 +4344,7 @@ export type UserUncheckedUpdateWithoutReviewHelpfulVotesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4376,6 +4425,7 @@ export type UserCreateWithoutProductsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4456,6 +4506,7 @@ export type UserUncheckedCreateWithoutProductsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4552,6 +4603,7 @@ export type UserUpdateWithoutProductsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4632,6 +4684,7 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4712,6 +4765,7 @@ export type UserCreateWithoutTradesCreatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4792,6 +4846,7 @@ export type UserUncheckedCreateWithoutTradesCreatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4877,6 +4932,7 @@ export type UserCreateWithoutTradesBoughtInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -4957,6 +5013,7 @@ export type UserUncheckedCreateWithoutTradesBoughtInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -5053,6 +5110,7 @@ export type UserUpdateWithoutTradesCreatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5133,6 +5191,7 @@ export type UserUncheckedUpdateWithoutTradesCreatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5224,6 +5283,7 @@ export type UserUpdateWithoutTradesBoughtInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5304,6 +5364,7 @@ export type UserUncheckedUpdateWithoutTradesBoughtInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5384,6 +5445,7 @@ export type UserCreateWithoutBuyerOrdersInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -5464,6 +5526,7 @@ export type UserUncheckedCreateWithoutBuyerOrdersInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -5549,6 +5612,7 @@ export type UserCreateWithoutSellerOrdersInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -5629,6 +5693,7 @@ export type UserUncheckedCreateWithoutSellerOrdersInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -5725,6 +5790,7 @@ export type UserUpdateWithoutBuyerOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5805,6 +5871,7 @@ export type UserUncheckedUpdateWithoutBuyerOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5896,6 +5963,7 @@ export type UserUpdateWithoutSellerOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5976,6 +6044,7 @@ export type UserUncheckedUpdateWithoutSellerOrdersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6056,6 +6125,7 @@ export type UserCreateWithoutChatRoomsInitiatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6136,6 +6206,7 @@ export type UserUncheckedCreateWithoutChatRoomsInitiatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6221,6 +6292,7 @@ export type UserCreateWithoutChatRoomsJoinedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6301,6 +6373,7 @@ export type UserUncheckedCreateWithoutChatRoomsJoinedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6386,6 +6459,7 @@ export type UserCreateWithoutChatRoomsCreatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6466,6 +6540,7 @@ export type UserUncheckedCreateWithoutChatRoomsCreatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6551,6 +6626,7 @@ export type UserCreateWithoutCommunitiesApprovedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6631,6 +6707,7 @@ export type UserUncheckedCreateWithoutCommunitiesApprovedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -6727,6 +6804,7 @@ export type UserUpdateWithoutChatRoomsInitiatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6807,6 +6885,7 @@ export type UserUncheckedUpdateWithoutChatRoomsInitiatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6898,6 +6977,7 @@ export type UserUpdateWithoutChatRoomsJoinedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6978,6 +7058,7 @@ export type UserUncheckedUpdateWithoutChatRoomsJoinedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7069,6 +7150,7 @@ export type UserUpdateWithoutChatRoomsCreatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7149,6 +7231,7 @@ export type UserUncheckedUpdateWithoutChatRoomsCreatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7240,6 +7323,7 @@ export type UserUpdateWithoutCommunitiesApprovedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7320,6 +7404,7 @@ export type UserUncheckedUpdateWithoutCommunitiesApprovedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7400,6 +7485,7 @@ export type UserCreateWithoutChatParticipantsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -7480,6 +7566,7 @@ export type UserUncheckedCreateWithoutChatParticipantsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -7576,6 +7663,7 @@ export type UserUpdateWithoutChatParticipantsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7656,6 +7744,7 @@ export type UserUncheckedUpdateWithoutChatParticipantsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7736,6 +7825,7 @@ export type UserCreateWithoutChatMessagesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -7816,6 +7906,7 @@ export type UserUncheckedCreateWithoutChatMessagesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -7912,6 +8003,7 @@ export type UserUpdateWithoutChatMessagesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7992,6 +8084,7 @@ export type UserUncheckedUpdateWithoutChatMessagesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8072,6 +8165,7 @@ export type UserCreateWithoutChatInvitesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -8152,6 +8246,7 @@ export type UserUncheckedCreateWithoutChatInvitesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -8248,6 +8343,7 @@ export type UserUpdateWithoutChatInvitesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8328,6 +8424,7 @@ export type UserUncheckedUpdateWithoutChatInvitesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8408,6 +8505,7 @@ export type UserCreateWithoutBlockingInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -8488,6 +8586,7 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -8573,6 +8672,7 @@ export type UserCreateWithoutBlockedByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -8653,6 +8753,7 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -8749,6 +8850,7 @@ export type UserUpdateWithoutBlockingInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8829,6 +8931,7 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8920,6 +9023,7 @@ export type UserUpdateWithoutBlockedByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9000,6 +9104,7 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9080,6 +9185,7 @@ export type UserCreateWithoutNotificationsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -9160,6 +9266,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -9256,6 +9363,7 @@ export type UserUpdateWithoutNotificationsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9336,6 +9444,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9416,6 +9525,7 @@ export type UserCreateWithoutAuditLogsActedByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -9496,6 +9606,7 @@ export type UserUncheckedCreateWithoutAuditLogsActedByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -9581,6 +9692,7 @@ export type UserCreateWithoutAuditLogsAboutInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -9661,6 +9773,7 @@ export type UserUncheckedCreateWithoutAuditLogsAboutInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -9757,6 +9870,7 @@ export type UserUpdateWithoutAuditLogsActedByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9837,6 +9951,7 @@ export type UserUncheckedUpdateWithoutAuditLogsActedByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9928,6 +10043,7 @@ export type UserUpdateWithoutAuditLogsAboutInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10008,6 +10124,7 @@ export type UserUncheckedUpdateWithoutAuditLogsAboutInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10088,6 +10205,7 @@ export type UserCreateWithoutWallPostsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -10168,6 +10286,7 @@ export type UserUncheckedCreateWithoutWallPostsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -10264,6 +10383,7 @@ export type UserUpdateWithoutWallPostsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10344,6 +10464,7 @@ export type UserUncheckedUpdateWithoutWallPostsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10424,6 +10545,7 @@ export type UserCreateWithoutWallPostLikesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -10504,6 +10626,7 @@ export type UserUncheckedCreateWithoutWallPostLikesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -10600,6 +10723,7 @@ export type UserUpdateWithoutWallPostLikesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10680,6 +10804,7 @@ export type UserUncheckedUpdateWithoutWallPostLikesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10760,6 +10885,7 @@ export type UserCreateWithoutWallPostCommentsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -10840,6 +10966,7 @@ export type UserUncheckedCreateWithoutWallPostCommentsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -10936,6 +11063,7 @@ export type UserUpdateWithoutWallPostCommentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11016,6 +11144,7 @@ export type UserUncheckedUpdateWithoutWallPostCommentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11096,6 +11225,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -11176,6 +11306,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -11272,6 +11403,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11352,6 +11484,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11432,6 +11565,7 @@ export type UserCreateWithoutWalletTransactionsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -11512,6 +11646,7 @@ export type UserUncheckedCreateWithoutWalletTransactionsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -11608,6 +11743,7 @@ export type UserUpdateWithoutWalletTransactionsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11688,6 +11824,7 @@ export type UserUncheckedUpdateWithoutWalletTransactionsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11768,6 +11905,7 @@ export type UserCreateWithoutSupportTicketsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -11848,6 +11986,7 @@ export type UserUncheckedCreateWithoutSupportTicketsInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -11944,6 +12083,7 @@ export type UserUpdateWithoutSupportTicketsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12024,6 +12164,7 @@ export type UserUncheckedUpdateWithoutSupportTicketsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12104,6 +12245,7 @@ export type UserCreateWithoutSupportRepliesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -12184,6 +12326,7 @@ export type UserUncheckedCreateWithoutSupportRepliesInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -12280,6 +12423,7 @@ export type UserUpdateWithoutSupportRepliesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12360,6 +12504,7 @@ export type UserUncheckedUpdateWithoutSupportRepliesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12440,6 +12585,7 @@ export type UserCreateWithoutPlatformSettingsEditedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -12520,6 +12666,7 @@ export type UserUncheckedCreateWithoutPlatformSettingsEditedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -12616,6 +12763,7 @@ export type UserUpdateWithoutPlatformSettingsEditedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12696,6 +12844,7 @@ export type UserUncheckedUpdateWithoutPlatformSettingsEditedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12776,6 +12925,7 @@ export type UserCreateWithoutPromoCodesCreatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -12856,6 +13006,7 @@ export type UserUncheckedCreateWithoutPromoCodesCreatedInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -12952,6 +13103,7 @@ export type UserUpdateWithoutPromoCodesCreatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13032,6 +13184,7 @@ export type UserUncheckedUpdateWithoutPromoCodesCreatedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13112,6 +13265,7 @@ export type UserCreateManyFrozenByInput = {
   passwordHash: string
   role?: $Enums.UserRole
   verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
   rejectionReason?: string | null
   isFrozen?: boolean
   isDraft?: boolean
@@ -13160,6 +13314,7 @@ export type UserUpdateWithoutFrozenByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13240,6 +13395,7 @@ export type UserUncheckedUpdateWithoutFrozenByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13320,6 +13476,7 @@ export type UserUncheckedUpdateManyWithoutFrozenByInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13678,6 +13835,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   passwordHash?: boolean
   role?: boolean
   verificationStatus?: boolean
+  emailVerified?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
   isDraft?: boolean
@@ -13761,6 +13919,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   passwordHash?: boolean
   role?: boolean
   verificationStatus?: boolean
+  emailVerified?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
   isDraft?: boolean
@@ -13811,6 +13970,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   passwordHash?: boolean
   role?: boolean
   verificationStatus?: boolean
+  emailVerified?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
   isDraft?: boolean
@@ -13861,6 +14021,7 @@ export type UserSelectScalar = {
   passwordHash?: boolean
   role?: boolean
   verificationStatus?: boolean
+  emailVerified?: boolean
   rejectionReason?: boolean
   isFrozen?: boolean
   isDraft?: boolean
@@ -13901,7 +14062,7 @@ export type UserSelectScalar = {
   totalSales?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tempId" | "name" | "username" | "email" | "passwordHash" | "role" | "verificationStatus" | "rejectionReason" | "isFrozen" | "isDraft" | "draftExpiresAt" | "frozenReason" | "frozenAt" | "frozenById" | "bankName" | "accountNumber" | "paystackCustomerCode" | "withdrawalBankName" | "withdrawalBankCode" | "withdrawalAccountNumber" | "withdrawalAccountName" | "paystackRecipientCode" | "walletBalance" | "isPro" | "avatarColor" | "phoneNumber" | "profilePicture" | "totalTrades" | "completedTrades" | "completionRate" | "tier" | "deliveryAddress" | "verificationDocumentName" | "verificationSubmittedAt" | "createdAt" | "updatedAt" | "storeName" | "bio" | "location" | "storeCategory" | "coverImage" | "lastSeenAt" | "rating" | "reviewsCount" | "totalSales", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tempId" | "name" | "username" | "email" | "passwordHash" | "role" | "verificationStatus" | "emailVerified" | "rejectionReason" | "isFrozen" | "isDraft" | "draftExpiresAt" | "frozenReason" | "frozenAt" | "frozenById" | "bankName" | "accountNumber" | "paystackCustomerCode" | "withdrawalBankName" | "withdrawalBankCode" | "withdrawalAccountNumber" | "withdrawalAccountName" | "paystackRecipientCode" | "walletBalance" | "isPro" | "avatarColor" | "phoneNumber" | "profilePicture" | "totalTrades" | "completedTrades" | "completionRate" | "tier" | "deliveryAddress" | "verificationDocumentName" | "verificationSubmittedAt" | "createdAt" | "updatedAt" | "storeName" | "bio" | "location" | "storeCategory" | "coverImage" | "lastSeenAt" | "rating" | "reviewsCount" | "totalSales", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   frozenBy?: boolean | Prisma.User$frozenByArgs<ExtArgs>
   frozenUsers?: boolean | Prisma.User$frozenUsersArgs<ExtArgs>
@@ -13991,6 +14152,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     passwordHash: string
     role: $Enums.UserRole
     verificationStatus: $Enums.VerificationStatus
+    emailVerified: boolean
     rejectionReason: string | null
     isFrozen: boolean
     isDraft: boolean
@@ -14493,6 +14655,7 @@ export interface UserFieldRefs {
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly verificationStatus: Prisma.FieldRef<"User", 'VerificationStatus'>
+  readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly rejectionReason: Prisma.FieldRef<"User", 'String'>
   readonly isFrozen: Prisma.FieldRef<"User", 'Boolean'>
   readonly isDraft: Prisma.FieldRef<"User", 'Boolean'>

@@ -86,6 +86,15 @@ export const updateDraftRegistration = async (
   return mapToUserProfile(data.user);
 };
 
+export const verifySignupOtp = async (draftId: string, code: string): Promise<UserProfile> => {
+  const { data } = await api.post<{ user: Record<string, unknown> }>('/auth/register/verify-email', { draftId, code });
+  return mapToUserProfile(data.user);
+};
+
+export const resendSignupOtp = async (draftId: string): Promise<void> => {
+  await api.post('/auth/register/resend-otp', { draftId });
+};
+
 export const confirmDraftRegistration = async (draftId: string): Promise<UserProfile> => {
   const { data } = await api.post<AuthResponse>('/auth/register/confirm', { draftId });
   localStorage.setItem('shopfair_token', data.token);
@@ -138,4 +147,22 @@ export const getApiErrorMessage = (error: unknown): string => {
     if (response?.data?.message) return response.data.message;
   }
   return 'Something went wrong. Please try again.';
+};
+
+export interface RequestPasswordResetPayload {
+  email: string;
+}
+
+export const requestPasswordReset = async (email: string): Promise<void> => {
+  await api.post('/auth/forgot-password', { email });
+};
+
+export interface ResetPasswordPayload {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export const resetPassword = async (payload: ResetPasswordPayload): Promise<void> => {
+  await api.post('/auth/reset-password', payload);
 };

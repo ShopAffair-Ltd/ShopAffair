@@ -156,3 +156,8 @@ export type PlatformSetting = Prisma.PlatformSettingModel
  * 
  */
 export type PromoCode = Prisma.PromoCodeModel
+/**
+ * Model Otp
+ * 
+ */
+export type Otp = Prisma.OtpModel

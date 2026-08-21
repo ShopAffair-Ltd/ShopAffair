@@ -1,7 +1,28 @@
 import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
-import { startDraftSchema, resolveAccountSchema, loginSchema, updateDraftSchema, confirmDraftSchema } from './auth.validation';
-import { startRegistrationDraft, resolveBankAccount, updateRegistrationDraft, confirmRegistration, loginUser, getUserById } from './auth.service';
+import {
+  startDraftSchema,
+  resolveAccountSchema,
+  loginSchema,
+  updateDraftSchema,
+  confirmDraftSchema,
+  verifySignupOtpSchema,
+  resendOtpSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema
+} from './auth.validation';
+import {
+  startRegistrationDraft,
+  resolveBankAccount,
+  updateRegistrationDraft,
+  confirmRegistration,
+  loginUser,
+  getUserById,
+  verifySignupEmail,
+  resendSignupOtp,
+  requestPasswordReset,
+  resetPassword
+} from './auth.service';
 
 const sanitizeUser = (user: Record<string, unknown>) => {
   const { passwordHash, ...safe } = user;
@@ -21,6 +42,11 @@ export const resolveAccount = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const updateDraft = asyncHandler(async (req: Request, res: Response) => {
+  console.log('UPDATE DRAFT BODY:', JSON.stringify(req.body, null, 2));
+  const result = updateDraftSchema.safeParse(req.body);
+  if (!result.success) {
+    console.log('UPDATE DRAFT VALIDATION ERRORS:', JSON.stringify(result.error.issues, null, 2));
+  }
   const { draftId, ...rest } = updateDraftSchema.parse(req.body);
   const user = await updateRegistrationDraft(draftId, rest);
   res.status(200).json({ user: sanitizeUser(user) });
@@ -30,6 +56,30 @@ export const confirmDraft = asyncHandler(async (req: Request, res: Response) => 
   const { draftId } = confirmDraftSchema.parse(req.body);
   const { user, token } = await confirmRegistration(draftId);
   res.status(200).json({ user: sanitizeUser(user), token });
+});
+
+export const verifySignupOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { draftId, code } = verifySignupOtpSchema.parse(req.body);
+  const user = await verifySignupEmail(draftId, code);
+  res.status(200).json({ user: sanitizeUser(user) });
+});
+
+export const resendSignupOtpHandler = asyncHandler(async (req: Request, res: Response) => {
+  const { draftId } = resendOtpSchema.parse(req.body);
+  await resendSignupOtp(draftId);
+  res.status(200).json({ message: 'A new code has been sent to your email' });
+});
+
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = requestPasswordResetSchema.parse(req.body);
+  await requestPasswordReset(email);
+  res.status(200).json({ message: 'If that email exists, a reset code has been sent' });
+});
+
+export const resetPasswordHandler = asyncHandler(async (req: Request, res: Response) => {
+  const { email, code, newPassword } = resetPasswordSchema.parse(req.body);
+  await resetPassword(email, code, newPassword);
+  res.status(200).json({ message: 'Password reset successfully' });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
