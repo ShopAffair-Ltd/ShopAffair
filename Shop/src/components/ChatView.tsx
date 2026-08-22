@@ -15,7 +15,7 @@ interface ChatViewProps {
 
 export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewProps) {
   const { user } = useAuth();
-  const { chatRooms, sendMessage, refreshChats, markAsRead } = useChat();
+  const { chatRooms, sendMessage, markAsRead } = useChat();
   const navigate = useNavigate();
   const activeProfile = user;
 
@@ -34,25 +34,6 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const [storeIconShake, setStoreIconShake] = useState(true);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const previousRoomIdRef = useRef<string | null>(null);
-
-  // Socket connection is managed app-wide in ChatContext (tied to login
-  // state), not per-view, so live delivery works even when this tab isn't
-  // open.
-
-  useEffect(() => {
-    chatSocket.on('onNewMessage', (message) => {
-      refreshChats();
-    });
-
-    chatSocket.on('onUserTyping', (data) => {
-      console.log('User typing:', data);
-    });
-
-    return () => {
-      chatSocket.off('onNewMessage', () => {});
-      chatSocket.off('onUserTyping', () => {});
-    };
-  }, [refreshChats]);
 
   useEffect(() => {
     if (selectedRoom) {
@@ -79,6 +60,11 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
     return chatRooms;
   }, [chatRooms]);
 
+  const selectedRoomLive = React.useMemo(() => {
+    if (!selectedRoom) return null;
+    return allRooms.find((r) => r.id === selectedRoom.id) ?? selectedRoom;
+  }, [allRooms, selectedRoom]);
+
   const pinnedChats = allRooms.filter(room => room.isPinned);
   const recentChats = allRooms.filter(room => !room.isPinned);
 
@@ -104,8 +90,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRoom || !messageText.trim()) return;
-    
-    chatSocket.sendMessage(selectedRoom.id, messageText.trim());
+
     sendMessage(selectedRoom.id, messageText.trim());
     setMessageText('');
   };
@@ -113,7 +98,6 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !selectedRoom) return;
-    chatSocket.sendMessage(selectedRoom.id, `📎 ${file.name}`);
     sendMessage(selectedRoom.id, `📎 ${file.name}`);
     e.target.value = '';
   };
@@ -177,9 +161,9 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
         />
       </div>
 
-      {selectedRoom && (
+      {selectedRoomLive && (
         <ChatWindow
-          selectedRoom={selectedRoom}
+          selectedRoom={selectedRoomLive}
           activeUsername={activeProfile.username}
           messageText={messageText}
           setMessageText={setMessageText}
