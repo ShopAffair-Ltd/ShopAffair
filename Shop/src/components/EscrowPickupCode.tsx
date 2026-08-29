@@ -76,9 +76,13 @@ interface SellerCodeEntryProps {
   onAttempt: (code: string) => Promise<void>;
   attempts: number;
   locked: boolean;
+  tradeAmount: number;
+  deliveryFee: number;
 }
 
-export function SellerPickupCodeEntry({ onAttempt, attempts, locked }: SellerCodeEntryProps) {
+const PLATFORM_FEE_RATE = 0.013;
+
+export function SellerPickupCodeEntry({ onAttempt, attempts, locked, tradeAmount, deliveryFee }: SellerCodeEntryProps) {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -135,6 +139,27 @@ export function SellerPickupCodeEntry({ onAttempt, attempts, locked }: SellerCod
         placeholder="000000"
         className="w-full text-center text-lg font-mono font-black tracking-[0.3em] px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/15 focus:border-purple-600 transition-all"
       />
+
+      <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-[10px] font-sans space-y-1">
+        <div className="flex items-center justify-between text-slate-400">
+          <span>Sale amount</span>
+          <span>₦{tradeAmount.toLocaleString()}</span>
+        </div>
+        <div className="flex items-center justify-between text-slate-400">
+          <span>Platform fee (1.3%)</span>
+          <span>-₦{(tradeAmount * PLATFORM_FEE_RATE).toFixed(2)}</span>
+        </div>
+        {deliveryFee > 0 && (
+          <div className="flex items-center justify-between text-slate-400">
+            <span>Delivery fee</span>
+            <span>+₦{deliveryFee.toLocaleString()}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between font-bold text-slate-700 pt-1 border-t border-slate-100">
+          <span>You'll receive</span>
+          <span>₦{(tradeAmount - tradeAmount * PLATFORM_FEE_RATE + deliveryFee).toFixed(2)}</span>
+        </div>
+      </div>
 
       <AnimatePresence>
         {error && (

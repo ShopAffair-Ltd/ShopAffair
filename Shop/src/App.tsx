@@ -56,7 +56,7 @@ const GUEST_PROFILE: UserProfile = {
 
 function GlobalOverlays() {
   const { addAuditLog } = useAdmin();
-  const { storeUpgradeOpen, selectedStorePlan, closeStoreUpgrade, selectPlan, activatePlan } = useStore();
+  const { storeUpgradeOpen, selectedStorePlan, activating, activateError, closeStoreUpgrade, selectPlan, activatePlan } = useStore();
   const { depositOpen, transferOpen, closeDeposit, closeTransfer, deposit, transfer } = useWallet();
   const { user } = useAuth();
   const activeProfile = user ?? GUEST_PROFILE;
@@ -67,6 +67,8 @@ function GlobalOverlays() {
       <StoreUpgradeModal
         isOpen={storeUpgradeOpen}
         selectedStorePlan={selectedStorePlan}
+        activating={activating}
+        activateError={activateError}
         onClose={closeStoreUpgrade}
         onSelectPlan={selectPlan}
         onActivatePlan={activatePlan}
@@ -87,6 +89,7 @@ function GlobalOverlays() {
         onTransfer={transfer}
         onAddAuditLog={addAuditLog}
         activeUsername={activeProfile.username}
+        accountHolderName={activeProfile.name}
       />
     </>
   );

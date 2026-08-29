@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Users, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCommunities } from '../../context/CommunityContext';
-import { fetchSubscriptionStatus, subscribeToSellerPro } from '../../services/paymentService';
+import { fetchSubscriptionStatus, subscribeToStorePlan } from '../../services/paymentService';
 import SellerProRequiredModal from './SellerProRequiredModal';
 
 interface CreateGroupModalProps {
@@ -84,13 +84,13 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
     setSubscribeError(null);
     setSubscribing(true);
     try {
-      await subscribeToSellerPro();
+      await subscribeToStorePlan('STARTER');
       setIsPro(true);
       if (user) updateUser({ ...user, isPro: true });
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Could not activate Seller Pro. Please try again.';
+        'Could not activate the Starter Plan. Please try again.';
       setSubscribeError(message);
     } finally {
       setSubscribing(false);

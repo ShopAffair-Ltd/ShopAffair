@@ -439,39 +439,61 @@ export const handleTransferWebhookEvent = async (event: string, reference: strin
   }
 };
 
-export const SELLER_PRO_PRICE = 5000;
+export const STORE_PLANS = {
+  TRIAL: {
+    id: 'TRIAL',
+    name: 'Trial Plan',
+    price: 499.9,
+    storeCapacity: 5,
+    listingLimit: 5
+  },
+  STARTER: {
+    id: 'STARTER',
+    name: 'Starter Plan',
+    price: 5000,
+    storeCapacity: 1000,
+    listingLimit: 250
+  }
+} as const;
+
+export type StorePlanId = keyof typeof STORE_PLANS;
 
 const generateSubscriptionReference = () => `SF-SUB-${crypto.randomBytes(8).toString('hex')}`;
 
-export const subscribeToSellerPro = async (userId: string) => {
+export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) => {
+  const plan = STORE_PLANS[planId];
+  if (!plan) {
+    throw new ApiError(400, 'Unknown store plan');
+  }
+
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new ApiError(404, 'User not found');
   }
   if (user.role !== 'seller') {
-    throw new ApiError(403, 'Only sellers can subscribe to Seller Pro');
+    throw new ApiError(403, `Only sellers can subscribe to the ${plan.name}`);
   }
-  if (user.isPro) {
-    throw new ApiError(409, 'You already have an active Seller Pro subscription');
+  if (user.storePlan === plan.id) {
+    throw new ApiError(409, `You already have an active ${plan.name} subscription`);
   }
-  if (new Prisma.Decimal(user.walletBalance).lessThan(SELLER_PRO_PRICE)) {
-    throw new ApiError(402, `Insufficient wallet balance. Seller Pro costs ₦${SELLER_PRO_PRICE.toLocaleString()}.`);
+  if (new Prisma.Decimal(user.walletBalance).lessThan(plan.price)) {
+    throw new ApiError(402, `Insufficient wallet balance. The ${plan.name} costs ₦${plan.price.toLocaleString()}.`);
   }
 
   const reference = generateSubscriptionReference();
 
   const subscription = await prisma.$transaction(async (tx) => {
     const fresh = await tx.user.findUnique({ where: { id: userId } });
-    if (!fresh || fresh.isPro) {
-      throw new ApiError(409, 'You already have an active Seller Pro subscription');
+    if (!fresh || fresh.storePlan === plan.id) {
+      throw new ApiError(409, `You already have an active ${plan.name} subscription`);
     }
-    if (new Prisma.Decimal(fresh.walletBalance).lessThan(SELLER_PRO_PRICE)) {
+    if (new Prisma.Decimal(fresh.walletBalance).lessThan(plan.price)) {
       throw new ApiError(402, 'Insufficient wallet balance');
     }
 
     await tx.user.update({
       where: { id: userId },
-      data: { walletBalance: { decrement: SELLER_PRO_PRICE }, isPro: true }
+      data: { walletBalance: { decrement: plan.price }, isPro: true, storePlan: plan.id }
     });
 
     await tx.walletTransaction.create({
@@ -479,7 +501,7 @@ export const subscribeToSellerPro = async (userId: string) => {
         userId,
         type: 'SUBSCRIPTION',
         provider: 'MANUAL',
-        amount: SELLER_PRO_PRICE,
+        amount: plan.price,
         status: 'SUCCESS',
         reference
       }
@@ -488,8 +510,8 @@ export const subscribeToSellerPro = async (userId: string) => {
     return tx.subscription.create({
       data: {
         userId,
-        plan: 'SELLER_PRO',
-        amount: SELLER_PRO_PRICE,
+        plan: plan.id,
+        amount: plan.price,
         reference,
         expiresAt: null
       }
@@ -498,18 +520,22 @@ export const subscribeToSellerPro = async (userId: string) => {
 
   await notify({
     userId,
-    title: 'Seller Pro activated',
-    message: `You're now a Seller Pro member. You can create and manage community groups.`,
+    title: `${plan.name} activated`,
+    message: `You're now on the ${plan.name}. You can list up to ${plan.listingLimit} products.`,
     type: 'SUCCESS'
   });
 
   return subscription;
 };
 
+export const SELLER_PRO_PRICE = STORE_PLANS.STARTER.price;
+
+export const subscribeToSellerPro = async (userId: string) => subscribeToStorePlan(userId, 'STARTER');
+
 export const getSubscriptionStatus = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { isPro: true }
+    select: { isPro: true, storePlan: true }
   });
   if (!user) {
     throw new ApiError(404, 'User not found');
@@ -520,7 +546,7 @@ export const getSubscriptionStatus = async (userId: string) => {
     orderBy: { createdAt: 'desc' }
   });
 
-  return { isPro: user.isPro, subscription: latest };
+  return { isPro: user.isPro, storePlan: user.storePlan, subscription: latest };
 };
 
 export const listAllWithdrawals = async (page: number, limit: number) => {

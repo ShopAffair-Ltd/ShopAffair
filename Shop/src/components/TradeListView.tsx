@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Search, Plus, Image as ImageIcon, AlertCircle, Store, Share, Users, Check } from 'lucide-react';
-import { TradeItem, EscrowStatus } from '../types';
+import { TradeItem, EscrowStatus, TradeType } from '../types';
 import { useCommunities } from '../context/CommunityContext';
 import CreateGroupModal from './community/CreateGroupModal';
 
@@ -232,6 +232,17 @@ export default function TradeListView({
               </div>
 
               <div className="flex-1 min-w-0 space-y-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span
+                    className={`text-[9px] font-sans font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                      trade.type === TradeType.SUPPLY
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                        : 'bg-sky-50 text-sky-600 border border-sky-100'
+                    }`}
+                  >
+                    {trade.type === TradeType.SUPPLY ? 'Supply Order' : 'Demand Order'}
+                  </span>
+                </div>
                 <h3 className="text-sm font-sans font-extrabold text-slate-800 truncate">{trade.title}</h3>
                 <div className="flex items-center gap-1.5 text-[11px] font-sans text-slate-500">
                   <span>@{trade.creatorUsername}</span>

@@ -6,7 +6,8 @@ import {
   verifyFundingSchema,
   resolveAccountSchema,
   resolveAccountAllBanksSchema,
-  withdrawSchema
+  withdrawSchema,
+  subscribeSchema
 } from './payments.validation';
 import {
   initiateWalletFunding,
@@ -18,7 +19,8 @@ import {
   resolveWithdrawalAccount,
   resolveWithdrawalAccountAllBanks,
   requestWithdrawal,
-  subscribeToSellerPro,
+  STORE_PLANS,
+  subscribeToStorePlan,
   getSubscriptionStatus,
   listAllWithdrawals,
   listAllTransactions
@@ -97,9 +99,14 @@ export const withdraw = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(result);
 });
 
+export const getPlans = asyncHandler(async (_req: Request, res: Response) => {
+  res.status(200).json({ plans: Object.values(STORE_PLANS) });
+});
+
 export const subscribe = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
-  const subscription = await subscribeToSellerPro(user.id);
+  const { planId } = subscribeSchema.parse(req.body);
+  const subscription = await subscribeToStorePlan(user.id, planId);
   res.status(200).json({ subscription });
 });
 

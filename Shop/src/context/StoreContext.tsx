@@ -1,43 +1,73 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './AuthContext';
+import { subscribeToStorePlan, StorePlanId } from '../services/paymentService';
 
 interface StoreContextType {
   storeUpgradeOpen: boolean;
-  selectedStorePlan: 'free' | 'pro' | null;
+  selectedStorePlan: StorePlanId | null;
+  activating: boolean;
+  activateError: string | null;
   openStoreUpgrade: () => void;
   closeStoreUpgrade: () => void;
-  selectPlan: (plan: 'free' | 'pro' | null) => void;
-  activatePlan: (plan: 'free' | 'pro') => void;
+  selectPlan: (plan: StorePlanId | null) => void;
+  activatePlan: (plan: StorePlanId) => Promise<boolean>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-// NOTE: no real subscription/billing backend exists yet. activatePlan only
-// flips the local isPro flag via AuthContext.updateUser — no payment is
-// actually charged. Replace with a real API call once a subscriptions
-// module exists.
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const { user, updateUser } = useAuth();
   const [storeUpgradeOpen, setStoreUpgradeOpen] = useState(false);
-  const [selectedStorePlan, setSelectedStorePlan] = useState<'free' | 'pro' | null>(null);
+  const [selectedStorePlan, setSelectedStorePlan] = useState<StorePlanId | null>(null);
+  const [activating, setActivating] = useState(false);
+  const [activateError, setActivateError] = useState<string | null>(null);
 
   const openStoreUpgrade = () => setStoreUpgradeOpen(true);
   const closeStoreUpgrade = () => {
     setStoreUpgradeOpen(false);
     setSelectedStorePlan(null);
+    setActivateError(null);
   };
-  const selectPlan = (plan: 'free' | 'pro' | null) => setSelectedStorePlan(plan);
+  const selectPlan = (plan: StorePlanId | null) => {
+    setActivateError(null);
+    setSelectedStorePlan(plan);
+  };
 
-  const activatePlan = (plan: 'free' | 'pro') => {
-    if (!user) return;
-    updateUser({ ...user, isPro: plan === 'pro' });
-    setStoreUpgradeOpen(false);
-    setSelectedStorePlan(null);
+  const activatePlan = async (plan: StorePlanId): Promise<boolean> => {
+    if (!user) return false;
+
+    setActivating(true);
+    setActivateError(null);
+
+    try {
+      await subscribeToStorePlan(plan);
+      updateUser({ ...user, isPro: true });
+      setStoreUpgradeOpen(false);
+      setSelectedStorePlan(null);
+      return true;
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Could not activate this plan. Please try again.';
+      setActivateError(message);
+      return false;
+    } finally {
+      setActivating(false);
+    }
   };
 
   return (
     <StoreContext.Provider
-      value={{ storeUpgradeOpen, selectedStorePlan, openStoreUpgrade, closeStoreUpgrade, selectPlan, activatePlan }}
+      value={{
+        storeUpgradeOpen,
+        selectedStorePlan,
+        activating,
+        activateError,
+        openStoreUpgrade,
+        closeStoreUpgrade,
+        selectPlan,
+        activatePlan
+      }}
     >
       {children}
     </StoreContext.Provider>

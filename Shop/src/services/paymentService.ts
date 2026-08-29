@@ -127,11 +127,29 @@ export const withdraw = async (params: {
 };
 
 
-export const SELLER_PRO_PRICE = 5000;
-export const SELLER_PRO_PRICE_DISPLAY = `₦${SELLER_PRO_PRICE.toLocaleString()}`;
+export type StorePlanId = 'TRIAL' | 'STARTER';
+
+export const STARTER_PLAN_PRICE = 5000;
+export const STARTER_PLAN_PRICE_DISPLAY = `₦${STARTER_PLAN_PRICE.toLocaleString()}`;
+export const TRIAL_PLAN_PRICE = 499.9;
+export const TRIAL_PLAN_PRICE_DISPLAY = `₦${TRIAL_PLAN_PRICE.toLocaleString()}`;
+
+export interface StorePlan {
+  id: StorePlanId;
+  name: string;
+  price: number;
+  storeCapacity: number;
+  listingLimit: number;
+}
+
+export const fetchStorePlans = async (): Promise<StorePlan[]> => {
+  const { data } = await api.get<{ plans: StorePlan[] }>('/payments/plans');
+  return data.plans;
+};
 
 export interface SubscriptionStatus {
   isPro: boolean;
+  storePlan: StorePlanId | null;
   subscription: {
     id: string;
     plan: string;
@@ -147,7 +165,6 @@ export const fetchSubscriptionStatus = async (): Promise<SubscriptionStatus> => 
   return data;
 };
 
-
-export const subscribeToSellerPro = async (): Promise<void> => {
-  await api.post('/payments/subscription');
+export const subscribeToStorePlan = async (planId: StorePlanId): Promise<void> => {
+  await api.post('/payments/subscription', { planId });
 };

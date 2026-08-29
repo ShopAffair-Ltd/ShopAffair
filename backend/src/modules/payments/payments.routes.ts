@@ -10,7 +10,8 @@ import {
   resolveAccount,
   withdraw,
   subscribe,
-  getSubscription
+  getSubscription,
+  getPlans
 } from './payments.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
 
@@ -42,5 +43,6 @@ router.post('/wallet/resolve-account', requireAuth, resolveAccount);
 router.post('/wallet/withdraw', requireAuth, withdrawalLimiter, withdraw);
 router.get('/subscription', requireAuth, getSubscription);
 router.post('/subscription', requireAuth, subscribe);
+router.get('/plans', getPlans);
 
 export default router;

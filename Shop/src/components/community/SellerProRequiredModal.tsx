@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Lock, Sparkles, Loader2 } from 'lucide-react';
-import { SELLER_PRO_PRICE_DISPLAY } from '../../services/paymentService';
+import { STARTER_PLAN_PRICE_DISPLAY } from '../../services/paymentService';
 
 interface SellerProRequiredModalProps {
   isOpen: boolean;
@@ -53,9 +53,9 @@ export default function SellerProRequiredModal({
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-xl font-display font-bold text-slate-900">Upgrade to Seller Pro</h3>
+                  <h3 className="text-xl font-display font-bold text-slate-900">Upgrade to the Starter Plan</h3>
                   <p className="text-sm font-sans text-slate-500 mt-1">
-                    You need to upgrade to Seller Pro before you can create a trade group. It's a one-time payment of {SELLER_PRO_PRICE_DISPLAY}, charged from your wallet balance.
+                    You need the Starter Plan before you can create a trade group. It's {STARTER_PLAN_PRICE_DISPLAY}/month, charged from your wallet balance.
                   </p>
                 </div>
               )}
@@ -73,7 +73,7 @@ export default function SellerProRequiredModal({
                   className="w-full font-sans font-bold text-sm text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-60 py-3.5 rounded-xl transition-all shadow-md shadow-purple-100 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {subscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {subscribing ? 'Upgrading...' : `Upgrade for ${SELLER_PRO_PRICE_DISPLAY}`}
+                  {subscribing ? 'Upgrading...' : `Upgrade for ${STARTER_PLAN_PRICE_DISPLAY}`}
                 </button>
               )}
 

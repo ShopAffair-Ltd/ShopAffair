@@ -1,21 +1,39 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShieldCheck } from 'lucide-react';
+import { X, ShieldCheck, Loader2 } from 'lucide-react';
+import { StorePlanId, TRIAL_PLAN_PRICE_DISPLAY, STARTER_PLAN_PRICE_DISPLAY } from '../../services/paymentService';
 
 interface StoreUpgradeModalProps {
   isOpen: boolean;
-  selectedStorePlan: 'free' | 'pro' | null;
+  selectedStorePlan: StorePlanId | null;
+  activating: boolean;
+  activateError: string | null;
   onClose: () => void;
-  onSelectPlan: (plan: 'free' | 'pro' | null) => void;
-  onActivatePlan: (plan: 'free' | 'pro') => void;
+  onSelectPlan: (plan: StorePlanId | null) => void;
+  onActivatePlan: (plan: StorePlanId) => Promise<boolean>;
   onAddAuditLog: (type: string, message: string, actor: string) => void;
   onNavigateToMyStore: () => void;
   activeUsername: string;
 }
 
+const PLAN_DETAILS: Record<StorePlanId, { name: string; price: string; bullets: string[] }> = {
+  TRIAL: {
+    name: 'Trial Plan',
+    price: TRIAL_PLAN_PRICE_DISPLAY,
+    bullets: ['Trial plan badge', 'Store capacity: 5', 'Product listing limit: 5']
+  },
+  STARTER: {
+    name: 'Starter Plan',
+    price: `${STARTER_PLAN_PRICE_DISPLAY}/month`,
+    bullets: ['Merchant badge', 'Unlimited trades', 'Store capacity: 1,000 (expandable)', 'Product listing limit: 250 items']
+  }
+};
+
 export default function StoreUpgradeModal({
   isOpen,
   selectedStorePlan,
+  activating,
+  activateError,
   onClose,
   onSelectPlan,
   onActivatePlan,
@@ -23,6 +41,20 @@ export default function StoreUpgradeModal({
   onNavigateToMyStore,
   activeUsername
 }: StoreUpgradeModalProps) {
+  const handleConfirm = async () => {
+    if (!selectedStorePlan) return;
+    const plan = PLAN_DETAILS[selectedStorePlan];
+    const success = await onActivatePlan(selectedStorePlan);
+    if (success) {
+      onAddAuditLog(
+        selectedStorePlan === 'STARTER' ? 'SUBSCRIBE_STARTER' : 'SUBSCRIBE_TRIAL',
+        `Activated ${plan.name}.`,
+        activeUsername
+      );
+      onNavigateToMyStore();
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -54,31 +86,33 @@ export default function StoreUpgradeModal({
 
                   <div className="space-y-2.5 text-left">
                     <button
-                      onClick={() => onSelectPlan('free')}
+                      onClick={() => onSelectPlan('TRIAL')}
                       className="w-full p-4 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-2xl text-left transition-colors cursor-pointer"
                     >
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-sans font-bold text-slate-800">Free Plan</span>
-                        <span className="text-xs font-sans font-bold text-slate-500">₦0 / month</span>
+                        <span className="text-sm font-sans font-bold text-slate-800">{PLAN_DETAILS.TRIAL.name}</span>
+                        <span className="text-xs font-sans font-bold text-slate-500">{PLAN_DETAILS.TRIAL.price}</span>
                       </div>
-                      <p className="text-[10px] font-sans text-slate-500 mt-1 leading-relaxed">
-                        List up to 10 products, standard escrow fees, basic store wall.
-                      </p>
+                      <ul className="text-[10px] font-sans text-slate-500 mt-1 space-y-0.5 leading-relaxed">
+                        {PLAN_DETAILS.TRIAL.bullets.map((b) => (
+                          <li key={b}>• {b}</li>
+                        ))}
+                      </ul>
                     </button>
 
                     <button
-                      onClick={() => onSelectPlan('pro')}
+                      onClick={() => onSelectPlan('STARTER')}
                       className="w-full p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-2xl text-left transition-colors cursor-pointer relative overflow-hidden"
                     >
                       <span className="absolute top-2 right-2 text-[8px] font-sans font-bold px-1.5 py-0.5 rounded-full bg-purple-600 text-white">Recommended</span>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-sans font-bold text-purple-700">Pro Merchant</span>
-                        <span className="text-xs font-sans font-bold text-purple-600">₦10,000 / month</span>
+                        <span className="text-sm font-sans font-bold text-purple-700">{PLAN_DETAILS.STARTER.name}</span>
+                        <span className="text-xs font-sans font-bold text-purple-600">{PLAN_DETAILS.STARTER.price}</span>
                       </div>
                       <ul className="text-[10px] font-sans text-purple-700/80 mt-1.5 space-y-0.5 leading-relaxed">
-                        <li>• Zero escrow mediation fee on supply trades</li>
-                        <li>• Dedicated virtual settlement account</li>
-                        <li>• Listings limit raised to 250 items</li>
+                        {PLAN_DETAILS.STARTER.bullets.map((b) => (
+                          <li key={b}>• {b}</li>
+                        ))}
                       </ul>
                     </button>
                   </div>
@@ -91,43 +125,39 @@ export default function StoreUpgradeModal({
 
                   <div>
                     <h3 className="text-lg font-display font-bold text-slate-900">
-                      Confirm {selectedStorePlan === 'pro' ? 'Pro Merchant' : 'Free'} Plan
+                      Confirm {PLAN_DETAILS[selectedStorePlan].name}
                     </h3>
                     <p className="text-xs font-sans text-slate-500 mt-1">
-                      {selectedStorePlan === 'pro'
-                        ? 'This is a mock checkout — no real payment will be charged.'
-                        : 'Free plan activates instantly, no payment required.'}
+                      This amount will be charged from your wallet balance immediately.
                     </p>
                   </div>
 
-                  {selectedStorePlan === 'pro' && (
-                    <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex justify-between items-center text-xs font-sans">
-                      <span className="text-slate-500">Amount due today</span>
-                      <span className="font-bold text-slate-800">₦10,000.00</span>
+                  <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex justify-between items-center text-xs font-sans">
+                    <span className="text-slate-500">Amount due today</span>
+                    <span className="font-bold text-slate-800">{PLAN_DETAILS[selectedStorePlan].price}</span>
+                  </div>
+
+                  {activateError && (
+                    <div className="p-3 bg-red-50 text-red-700 rounded-xl border border-red-100 text-xs font-sans font-semibold text-left">
+                      {activateError}
                     </div>
                   )}
 
                   <div className="flex gap-2">
                     <button
                       onClick={() => onSelectPlan(null)}
-                      className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 font-sans font-bold text-xs rounded-xl border border-slate-200/50 transition-all cursor-pointer"
+                      disabled={activating}
+                      className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 disabled:opacity-60 text-slate-600 font-sans font-bold text-xs rounded-xl border border-slate-200/50 transition-all cursor-pointer"
                     >
                       Back
                     </button>
                     <button
-                      onClick={() => {
-                        const isPro = selectedStorePlan === 'pro';
-                        onActivatePlan(selectedStorePlan);
-                        onAddAuditLog(
-                          isPro ? 'SUBSCRIBE_PRO' : 'SUBSCRIBE_FREE',
-                          `Activated ${isPro ? 'premium PRO' : 'Free'} store plan.`,
-                          activeUsername
-                        );
-                        onNavigateToMyStore();
-                      }}
-                      className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+                      onClick={handleConfirm}
+                      disabled={activating}
+                      className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
                     >
-                      {selectedStorePlan === 'pro' ? 'Pay & Activate' : 'Activate Free Plan'}
+                      {activating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      {activating ? 'Activating...' : 'Pay & Activate'}
                     </button>
                   </div>
                 </motion.div>

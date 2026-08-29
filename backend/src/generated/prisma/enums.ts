@@ -106,7 +106,8 @@ export const TransactionType = {
   ESCROW_LOCK: 'ESCROW_LOCK',
   ESCROW_RELEASE: 'ESCROW_RELEASE',
   REFUND: 'REFUND',
-  SUBSCRIPTION: 'SUBSCRIPTION'
+  SUBSCRIPTION: 'SUBSCRIPTION',
+  PLATFORM_FEE: 'PLATFORM_FEE'
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]

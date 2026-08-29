@@ -57,7 +57,9 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
 
     where.creatorId = storeOwner.id;
 
-    if (userId !== storeOwner.id) {
+    if (userId === storeOwner.id) {
+      // Owner viewing their own store sees everything they've listed.
+    } else {
       where.visibility = { in: ['MARKET', 'STORE'] };
     }
   } else if (userId) {
@@ -236,6 +238,7 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
 };
 
 const MAX_PICKUP_ATTEMPTS = 5;
+export const PLATFORM_FEE_RATE = 0.013;
 
 export const verifyPickupCode = async (tradeId: string, sellerId: string, code: string) => {
   const completedTrade = await prisma.$transaction(async (tx) => {
@@ -269,7 +272,9 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
       throw new ApiError(409, 'Trade has no associated buyer');
     }
 
-    const releaseAmount = new Prisma.Decimal(trade.amount).plus(trade.deliveryFee);
+    const tradeAmount = new Prisma.Decimal(trade.amount);
+    const platformFee = tradeAmount.times(PLATFORM_FEE_RATE).toDecimalPlaces(2);
+    const releaseAmount = tradeAmount.minus(platformFee).plus(trade.deliveryFee);
 
     await tx.user.update({
       where: { id: sellerId },
@@ -287,6 +292,17 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
       }
     });
 
+    await tx.walletTransaction.create({
+      data: {
+        userId: sellerId,
+        type: 'PLATFORM_FEE',
+        provider: 'MANUAL',
+        amount: platformFee,
+        status: 'SUCCESS',
+        tradeId
+      }
+    });
+
     return tx.trade.update({
       where: { id: tradeId },
       data: { status: 'COMPLETED' }
@@ -297,7 +313,7 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
     notify({
       userId: completedTrade.creatorId,
       title: 'Payment released',
-      message: `Pickup confirmed for "${completedTrade.title}". Funds have been added to your wallet.`,
+      message: `Pickup confirmed for "${completedTrade.title}". Funds have been added to your wallet (a 1.3% platform fee was deducted from the sale amount).`,
       type: 'SUCCESS'
     }),
     completedTrade.buyerId
