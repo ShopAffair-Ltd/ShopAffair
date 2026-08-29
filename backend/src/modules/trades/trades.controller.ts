@@ -3,6 +3,7 @@ import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiError } from '../../utils/ApiError';
 import {
   createTradeSchema,
+  editTradeSchema,
   updateTradeStatusSchema,
   listTradesQuerySchema,
   tradeIdParamSchema,
@@ -10,6 +11,8 @@ import {
 } from './trades.validation';
 import {
   createTrade,
+  editTrade,
+  cancelOwnTrade,
   listTrades,
   getTradeById,
   fundTrade,
@@ -40,7 +43,22 @@ export const list = asyncHandler(async (req: Request, res: Response) => {
 
 export const getOne = asyncHandler(async (req: Request, res: Response) => {
   const { id } = tradeIdParamSchema.parse(req.params);
-  const trade = await getTradeById(id);
+  const trade = await getTradeById(id, req.user?.id ?? null);
+  res.status(200).json({ trade });
+});
+
+export const update = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const { id } = tradeIdParamSchema.parse(req.params);
+  const input = editTradeSchema.parse(req.body);
+  const trade = await editTrade(id, user.id, input);
+  res.status(200).json({ trade });
+});
+
+export const cancel = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const { id } = tradeIdParamSchema.parse(req.params);
+  const trade = await cancelOwnTrade(id, user.id);
   res.status(200).json({ trade });
 });
 

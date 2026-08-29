@@ -7,7 +7,7 @@ import TradeListView from './TradeListView';
 import TradeCreateView from './TradeCreateView';
 import TradeDetailView from './TradeDetailView';
 
-type ViewMode = 'list' | 'create' | 'detail';
+type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 type FilterOption = 'All' | 'Drafts' | 'Offers' | 'Pending';
 
 export default function TradeView() {
@@ -18,6 +18,8 @@ export default function TradeView() {
     trades,
     loading: tradesLoading,
     createTrade,
+    editTrade,
+    cancelTrade,
     fundTrade,
     verifyPickupCode,
     updateTradeStatus
@@ -94,6 +96,18 @@ export default function TradeView() {
         />
       )}
 
+      {currentView === 'edit' && selectedTrade && (
+        <TradeCreateView
+          initialTrade={selectedTrade}
+          onCancel={() => setCurrentView('detail')}
+          onSubmit={async () => {}}
+          onEditSubmit={async (id, updates) => {
+            await editTrade(id, updates);
+          }}
+          onDone={() => setCurrentView('detail')}
+        />
+      )}
+
       {currentView === 'detail' && selectedTrade && (
         <TradeDetailView
           trade={selectedTrade}
@@ -111,6 +125,15 @@ export default function TradeView() {
           }}
           onUpdateStatus={async (id, status) => {
             await updateTradeStatus(id, status);
+          }}
+          onEditTrade={(id) => {
+            setSelectedTradeId(id);
+            setCurrentView('edit');
+          }}
+          onCancelTrade={async (id) => {
+            await cancelTrade(id);
+            setSelectedTradeId(null);
+            setCurrentView('list');
           }}
         />
       )}

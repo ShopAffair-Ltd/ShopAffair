@@ -406,6 +406,13 @@ export type EnumTradeCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTradeCategoryFilter<$PrismaModel> | $Enums.TradeCategory
 }
 
+export type EnumTradeVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.TradeVisibility | Prisma.EnumTradeVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTradeVisibilityFilter<$PrismaModel> | $Enums.TradeVisibility
+}
+
 export type EnumEscrowStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.EscrowStatus | Prisma.EnumEscrowStatusFieldRefInput<$PrismaModel>
   in?: $Enums.EscrowStatus[] | Prisma.ListEnumEscrowStatusFieldRefInput<$PrismaModel>
@@ -434,6 +441,16 @@ export type EnumTradeCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTradeCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTradeCategoryFilter<$PrismaModel>
+}
+
+export type EnumTradeVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TradeVisibility | Prisma.EnumTradeVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTradeVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.TradeVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTradeVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTradeVisibilityFilter<$PrismaModel>
 }
 
 export type EnumOrderStatusFilter<$PrismaModel = never> = {
@@ -962,6 +979,13 @@ export type NestedEnumTradeCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTradeCategoryFilter<$PrismaModel> | $Enums.TradeCategory
 }
 
+export type NestedEnumTradeVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.TradeVisibility | Prisma.EnumTradeVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTradeVisibilityFilter<$PrismaModel> | $Enums.TradeVisibility
+}
+
 export type NestedEnumEscrowStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.EscrowStatus | Prisma.EnumEscrowStatusFieldRefInput<$PrismaModel>
   in?: $Enums.EscrowStatus[] | Prisma.ListEnumEscrowStatusFieldRefInput<$PrismaModel>
@@ -990,6 +1014,16 @@ export type NestedEnumTradeCategoryWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTradeCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTradeCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumTradeVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TradeVisibility | Prisma.EnumTradeVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TradeVisibility[] | Prisma.ListEnumTradeVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTradeVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.TradeVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTradeVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTradeVisibilityFilter<$PrismaModel>
 }
 
 export type NestedEnumOrderStatusFilter<$PrismaModel = never> = {

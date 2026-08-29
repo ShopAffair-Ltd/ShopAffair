@@ -26,7 +26,6 @@ export const sendOtpEmail = async (params: {
     purpose === 'signup'
       ? 'Use the code below to verify your email and finish creating your ShopFair account.'
       : 'Use the code below to reset your ShopFair password.';
-
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to,

@@ -55,7 +55,7 @@ export const createApp = (): Express => {
   app.use('/api/admin', adminRoutes);
   app.use('/api/support', supportRoutes);
   app.use('/api/settings', settingsRoutes);
-// ...
+
 app.use('/api/uploads', uploadsRoutes);
   app.use(errorMiddleware);
 

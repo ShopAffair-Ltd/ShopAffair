@@ -24,21 +24,21 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 const mapApiRoomToChatRoom = (apiRoom: any, currentUsername: string): ChatRoom => {
   let participants = apiRoom.participants || [];
-  
+
   if (participants.length === 0) {
     const initiator = apiRoom.initiator;
     const participant = apiRoom.participant;
-    
+
     if (initiator && initiator.username !== currentUsername) {
       participants = [{ user: initiator }];
     } else if (participant && participant.username !== currentUsername) {
       participants = [{ user: participant }];
     }
   }
-  
+
   const otherParticipant = participants.find((p: any) => p.user?.username !== currentUsername);
   const isAI = apiRoom.type === 'DIRECT' && otherParticipant?.user?.username === 'micha_ai';
-  
+
   let participantRole = 'user';
   if (isAI) {
     participantRole = 'ai';
@@ -47,8 +47,8 @@ const mapApiRoomToChatRoom = (apiRoom: any, currentUsername: string): ChatRoom =
   } else if (otherParticipant?.role) {
     participantRole = otherParticipant.role;
   }
-  
-  const unreadCount = apiRoom.messages?.filter((m: any) => !m.isRead && m.senderId !== currentUsername).length || 0;
+
+  const unreadCount = apiRoom.messages?.filter((m: any) => !m.isRead && m.sender?.username !== currentUsername).length || 0;
 
   return {
     id: apiRoom.id,
@@ -83,7 +83,16 @@ const mapApiRoomToChatRoom = (apiRoom: any, currentUsername: string): ChatRoom =
     type: apiRoom.type,
     name: apiRoom.name,
     description: apiRoom.description,
-    participants: participants
+    participants: participants,
+    activeTrade: apiRoom.associatedTrade
+      ? {
+          id: apiRoom.associatedTrade.id,
+          title: apiRoom.associatedTrade.title,
+          amount: Number(apiRoom.associatedTrade.amount),
+          status: apiRoom.associatedTrade.status,
+          image: apiRoom.associatedTrade.image ?? null
+        }
+      : null
   };
 };
 
@@ -97,11 +106,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const loadChats = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
       const response = await chatService.getUserChats();
-      const mappedRooms = response.data.chats.map((room: any) => 
+      const mappedRooms = response.data.chats.map((room: any) =>
         mapApiRoomToChatRoom(room, user.username)
       );
       setChatRooms(mappedRooms);
@@ -175,8 +184,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
               : undefined;
 
             if (optimisticMatch) {
-              setPendingMessages((prev) => {
-                const next = { ...prev };
+              setPendingMessages((prevPending) => {
+                const next = { ...prevPending };
                 delete next[optimisticMatch.id];
                 return next;
               });
@@ -200,7 +209,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     });
 
     chatSocket.on('onMessagesRead', (data: any) => {
-      setChatRooms(prev => 
+      setChatRooms(prev =>
         prev.map(room => {
           if (room.id === data.chatRoomId) {
             const iAmTheReader = data.userId === user.id;
@@ -300,7 +309,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const markAsRead = (roomId: string) => {
     if (!user) return;
-    
+
     setChatRooms((prev) =>
       prev.map((room) => {
         if (room.id === roomId) {
@@ -311,7 +320,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     );
 
     setSelectedRoomId(roomId);
-    chatService.markAsRead(roomId);
     chatSocket.markAsRead(roomId);
   };
 

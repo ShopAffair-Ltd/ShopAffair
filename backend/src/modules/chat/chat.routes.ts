@@ -23,6 +23,19 @@ import { discover, join, leave, promote, updateSettings, myAdminGroups } from '.
 
 const router = Router();
 
+// TEMP DEBUG — remove once the /conversations caller is identified
+router.use('/conversations', (req, res, next) => {
+  console.log('CALLER →', {
+    method: req.method,
+    path: req.originalUrl,
+    userAgent: req.headers['user-agent'],
+    origin: req.headers.origin,
+    referer: req.headers.referer,
+    ip: req.ip
+  });
+  next();
+});
+
 router.use(requireAuth);
 
 router.get('/', getUserChats);

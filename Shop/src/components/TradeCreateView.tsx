@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, Image as ImageIcon, Trash2, ShieldCheck, MapPin, Truck, Sparkles, Upload, X, CheckCircle2 } from 'lucide-react';
-import { TradeType, TradeCategory } from '../types';
+import { TradeType, TradeCategory, TradeVisibility, TradeItem } from '../types';
 import * as tradeService from '../services/TradeService';
 import { uploadImage } from '../services/UploadService';
 
@@ -9,26 +9,35 @@ interface TradeCreateViewProps {
   onCancel: () => void;
   onSubmit: (payload: tradeService.CreateTradePayload) => Promise<void>;
   onDone: () => void;
+  initialTrade?: TradeItem;
+  onEditSubmit?: (tradeId: string, payload: tradeService.EditTradePayload) => Promise<void>;
 }
 
-export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCreateViewProps) {
-  const [tradeType, setTradeType] = useState<TradeType>(TradeType.SUPPLY);
-  const [tradeCategory, setTradeCategory] = useState<TradeCategory>(TradeCategory.PHYSICAL);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [condition, setCondition] = useState('New');
-  const [specs, setSpecs] = useState<Array<{ key: string; value: string }>>([
-    { key: 'Size', value: '' },
-    { key: 'Color', value: '' },
-    { key: 'Qty', value: '' }
-  ]);
-  const [deliveryFee, setDeliveryFee] = useState('0');
-  const [deliveryTime, setDeliveryTime] = useState('e.g. 2-3 days');
-  const [takeOffLocation, setTakeOffLocation] = useState('e.g. Ikeja, Lagos');
-  const [deliveryLocation, setDeliveryLocation] = useState('');
+export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTrade, onEditSubmit }: TradeCreateViewProps) {
+  const isEditMode = !!initialTrade;
 
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [tradeType, setTradeType] = useState<TradeType>(initialTrade?.type ?? TradeType.SUPPLY);
+  const [tradeCategory, setTradeCategory] = useState<TradeCategory>(initialTrade?.category ?? TradeCategory.PHYSICAL);
+  const [visibility, setVisibility] = useState<TradeVisibility>(initialTrade?.visibility ?? TradeVisibility.MARKET);
+  const [title, setTitle] = useState(initialTrade?.title ?? '');
+  const [description, setDescription] = useState(initialTrade?.description ?? '');
+  const [amount, setAmount] = useState(initialTrade ? String(initialTrade.amount) : '');
+  const [condition, setCondition] = useState(initialTrade?.condition ?? 'New');
+  const [specs, setSpecs] = useState<Array<{ key: string; value: string }>>(
+    initialTrade?.specs && Object.keys(initialTrade.specs).length > 0
+      ? Object.entries(initialTrade.specs).map(([key, value]) => ({ key, value: String(value) }))
+      : [
+          { key: 'Size', value: '' },
+          { key: 'Color', value: '' },
+          { key: 'Qty', value: '' }
+        ]
+  );
+  const [deliveryFee, setDeliveryFee] = useState(initialTrade ? String(initialTrade.deliveryFee) : '0');
+  const [deliveryTime, setDeliveryTime] = useState(initialTrade?.deliveryTime ?? 'e.g. 2-3 days');
+  const [takeOffLocation, setTakeOffLocation] = useState(initialTrade?.takeOffLocation ?? 'e.g. Ikeja, Lagos');
+  const [deliveryLocation, setDeliveryLocation] = useState(initialTrade?.deliveryLocation ?? '');
+
+  const [uploadedImages, setUploadedImages] = useState<string[]>(initialTrade?.image ? [initialTrade.image] : []);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,12 +89,33 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
     setIsSubmitting(true);
 
     try {
+      if (isEditMode && initialTrade && onEditSubmit) {
+        await onEditSubmit(initialTrade.id, {
+          title,
+          description: description || `Trade listing for ${title}`,
+          amount: parseFloat(amount),
+          category: tradeCategory,
+          visibility,
+          condition,
+          specs: specRecord,
+          deliveryFee: parseFloat(deliveryFee) || 0,
+          deliveryTime,
+          takeOffLocation,
+          deliveryLocation,
+          image: uploadedImages.length > 0 ? uploadedImages[0] : undefined
+        });
+        setIsSubmitting(false);
+        onDone();
+        return;
+      }
+
       await onSubmit({
         title,
         description: description || `Trade listing for ${title}`,
         amount: parseFloat(amount),
         type: tradeType,
         category: tradeCategory,
+        visibility,
         condition,
         specs: specRecord,
         deliveryFee: parseFloat(deliveryFee) || 0,
@@ -98,7 +128,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
       setShowSuccessModal(true);
     } catch (err) {
       console.error(err);
-      setSubmitError('Could not create trade. Please try again.');
+      setSubmitError(isEditMode ? 'Could not save changes. Please try again.' : 'Could not create trade. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -113,7 +143,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h2 className="text-lg font-display font-bold text-slate-900">Create Trade</h2>
+        <h2 className="text-lg font-display font-bold text-slate-900">{isEditMode ? 'Edit Trade' : 'Create Trade'}</h2>
         <div className="w-8 h-8" />
       </div>
 
@@ -129,8 +159,9 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
         >
           <button
             type="button"
+            disabled={isEditMode}
             onClick={() => setTradeType(TradeType.SUPPLY)}
-            className={`py-2 text-xs font-sans font-bold rounded-md transition-all cursor-pointer ${
+            className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
               tradeType === TradeType.SUPPLY ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
             }`}
           >
@@ -138,8 +169,9 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
           </button>
           <button
             type="button"
+            disabled={isEditMode}
             onClick={() => setTradeType(TradeType.REQUEST)}
-            className={`py-2 text-xs font-sans font-bold rounded-md transition-all cursor-pointer ${
+            className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
               tradeType === TradeType.REQUEST ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
             }`}
           >
@@ -382,6 +414,51 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
 
         <motion.div
           variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
+          className="space-y-2"
+        >
+          <label className="block text-[10px] font-bold text-slate-400 uppercase">Who can see this trade</label>
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-2.5 p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer">
+              <input
+                type="checkbox"
+                checked={visibility === TradeVisibility.MARKET}
+                onChange={() => setVisibility(TradeVisibility.MARKET)}
+                className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-600/30"
+              />
+              <div>
+                <p className="text-xs font-sans font-bold text-slate-800">Open Market</p>
+                <p className="text-[10px] font-sans text-slate-400">Anyone browsing the market can see and trade this</p>
+              </div>
+            </label>
+            <label className="flex items-center gap-2.5 p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer">
+              <input
+                type="checkbox"
+                checked={visibility === TradeVisibility.STORE}
+                onChange={() => setVisibility(TradeVisibility.STORE)}
+                className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-600/30"
+              />
+              <div>
+                <p className="text-xs font-sans font-bold text-slate-800">My Store</p>
+                <p className="text-[10px] font-sans text-slate-400">Only visible to visitors on your store page</p>
+              </div>
+            </label>
+            <label className="flex items-center gap-2.5 p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer">
+              <input
+                type="checkbox"
+                checked={visibility === TradeVisibility.PRIVATE}
+                onChange={() => setVisibility(TradeVisibility.PRIVATE)}
+                className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-600/30"
+              />
+              <div>
+                <p className="text-xs font-sans font-bold text-slate-800">Keep Private</p>
+                <p className="text-[10px] font-sans text-slate-400">Only visible to you</p>
+              </div>
+            </label>
+          </div>
+        </motion.div>
+
+        <motion.div
+          variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
           className="p-3 bg-purple-50 text-purple-800 rounded-lg border border-purple-100 flex items-start gap-2.5"
         >
           <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5 animate-pulse" />
@@ -405,7 +482,8 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone }: TradeCre
           disabled={isSubmitting}
           className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-sans font-bold text-sm rounded-lg shadow-lg shadow-purple-100 transition-colors cursor-pointer flex items-center justify-center gap-2"
         >
-          <Sparkles className="w-4 h-4 fill-white" /> {isSubmitting ? 'Creating...' : 'Create Market Trade'}
+          <Sparkles className="w-4 h-4 fill-white" />{' '}
+          {isSubmitting ? (isEditMode ? 'Saving...' : 'Creating...') : isEditMode ? 'Save Changes' : 'Create Market Trade'}
         </motion.button>
       </div>
 

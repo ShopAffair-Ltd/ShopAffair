@@ -43,9 +43,7 @@ router.post(
       return;
     }
 
-    // Respond 200 immediately so Paystack doesn't retry unnecessarily, then
-    // process asynchronously. Errors here are logged, not thrown, since a
-    // thrown error after headers might otherwise get retried infinitely.
+   
     res.status(200).json({ received: true });
 
     void (async () => {

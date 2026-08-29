@@ -47,6 +47,7 @@ export type TradeMinAggregateOutputType = {
   status: $Enums.EscrowStatus | null
   type: $Enums.TradeType | null
   category: $Enums.TradeCategory | null
+  visibility: $Enums.TradeVisibility | null
   condition: string | null
   accountNumber: string | null
   deliveryFee: runtime.Decimal | null
@@ -71,6 +72,7 @@ export type TradeMaxAggregateOutputType = {
   status: $Enums.EscrowStatus | null
   type: $Enums.TradeType | null
   category: $Enums.TradeCategory | null
+  visibility: $Enums.TradeVisibility | null
   condition: string | null
   accountNumber: string | null
   deliveryFee: runtime.Decimal | null
@@ -95,6 +97,7 @@ export type TradeCountAggregateOutputType = {
   status: number
   type: number
   category: number
+  visibility: number
   condition: number
   specs: number
   accountNumber: number
@@ -134,6 +137,7 @@ export type TradeMinAggregateInputType = {
   status?: true
   type?: true
   category?: true
+  visibility?: true
   condition?: true
   accountNumber?: true
   deliveryFee?: true
@@ -158,6 +162,7 @@ export type TradeMaxAggregateInputType = {
   status?: true
   type?: true
   category?: true
+  visibility?: true
   condition?: true
   accountNumber?: true
   deliveryFee?: true
@@ -182,6 +187,7 @@ export type TradeCountAggregateInputType = {
   status?: true
   type?: true
   category?: true
+  visibility?: true
   condition?: true
   specs?: true
   accountNumber?: true
@@ -294,6 +300,7 @@ export type TradeGroupByOutputType = {
   status: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility: $Enums.TradeVisibility
   condition: string | null
   specs: runtime.JsonValue | null
   accountNumber: string | null
@@ -342,6 +349,7 @@ export type TradeWhereInput = {
   status?: Prisma.EnumEscrowStatusFilter<"Trade"> | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFilter<"Trade"> | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFilter<"Trade"> | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFilter<"Trade"> | $Enums.TradeVisibility
   condition?: Prisma.StringNullableFilter<"Trade"> | string | null
   specs?: Prisma.JsonNullableFilter<"Trade">
   accountNumber?: Prisma.StringNullableFilter<"Trade"> | string | null
@@ -373,6 +381,7 @@ export type TradeOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   type?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   condition?: Prisma.SortOrderInput | Prisma.SortOrder
   specs?: Prisma.SortOrderInput | Prisma.SortOrder
   accountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -407,6 +416,7 @@ export type TradeWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumEscrowStatusFilter<"Trade"> | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFilter<"Trade"> | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFilter<"Trade"> | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFilter<"Trade"> | $Enums.TradeVisibility
   condition?: Prisma.StringNullableFilter<"Trade"> | string | null
   specs?: Prisma.JsonNullableFilter<"Trade">
   accountNumber?: Prisma.StringNullableFilter<"Trade"> | string | null
@@ -438,6 +448,7 @@ export type TradeOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   type?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   condition?: Prisma.SortOrderInput | Prisma.SortOrder
   specs?: Prisma.SortOrderInput | Prisma.SortOrder
   accountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -471,6 +482,7 @@ export type TradeScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumEscrowStatusWithAggregatesFilter<"Trade"> | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeWithAggregatesFilter<"Trade"> | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryWithAggregatesFilter<"Trade"> | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityWithAggregatesFilter<"Trade"> | $Enums.TradeVisibility
   condition?: Prisma.StringNullableWithAggregatesFilter<"Trade"> | string | null
   specs?: Prisma.JsonNullableWithAggregatesFilter<"Trade">
   accountNumber?: Prisma.StringNullableWithAggregatesFilter<"Trade"> | string | null
@@ -494,6 +506,7 @@ export type TradeCreateInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -525,6 +538,7 @@ export type TradeUncheckedCreateInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -552,6 +566,7 @@ export type TradeUpdateInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -583,6 +598,7 @@ export type TradeUncheckedUpdateInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -612,6 +628,7 @@ export type TradeCreateManyInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -635,6 +652,7 @@ export type TradeUpdateManyMutationInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -660,6 +678,7 @@ export type TradeUncheckedUpdateManyInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -695,6 +714,7 @@ export type TradeCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   type?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   condition?: Prisma.SortOrder
   specs?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
@@ -726,6 +746,7 @@ export type TradeMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   type?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   condition?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
   deliveryFee?: Prisma.SortOrder
@@ -750,6 +771,7 @@ export type TradeMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   type?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   condition?: Prisma.SortOrder
   accountNumber?: Prisma.SortOrder
   deliveryFee?: Prisma.SortOrder
@@ -872,6 +894,10 @@ export type EnumTradeCategoryFieldUpdateOperationsInput = {
   set?: $Enums.TradeCategory
 }
 
+export type EnumTradeVisibilityFieldUpdateOperationsInput = {
+  set?: $Enums.TradeVisibility
+}
+
 export type TradeCreateNestedOneWithoutOrderInput = {
   create?: Prisma.XOR<Prisma.TradeCreateWithoutOrderInput, Prisma.TradeUncheckedCreateWithoutOrderInput>
   connectOrCreate?: Prisma.TradeCreateOrConnectWithoutOrderInput
@@ -943,6 +969,7 @@ export type TradeCreateWithoutCreatorInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -972,6 +999,7 @@ export type TradeUncheckedCreateWithoutCreatorInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1009,6 +1037,7 @@ export type TradeCreateWithoutBuyerInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1038,6 +1067,7 @@ export type TradeUncheckedCreateWithoutBuyerInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1096,6 +1126,7 @@ export type TradeScalarWhereInput = {
   status?: Prisma.EnumEscrowStatusFilter<"Trade"> | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFilter<"Trade"> | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFilter<"Trade"> | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFilter<"Trade"> | $Enums.TradeVisibility
   condition?: Prisma.StringNullableFilter<"Trade"> | string | null
   specs?: Prisma.JsonNullableFilter<"Trade">
   accountNumber?: Prisma.StringNullableFilter<"Trade"> | string | null
@@ -1135,6 +1166,7 @@ export type TradeCreateWithoutOrderInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1165,6 +1197,7 @@ export type TradeUncheckedCreateWithoutOrderInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1207,6 +1240,7 @@ export type TradeUpdateWithoutOrderInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1237,6 +1271,7 @@ export type TradeUncheckedUpdateWithoutOrderInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1263,6 +1298,7 @@ export type TradeCreateWithoutChatRoomInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1293,6 +1329,7 @@ export type TradeUncheckedCreateWithoutChatRoomInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1335,6 +1372,7 @@ export type TradeUpdateWithoutChatRoomInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1365,6 +1403,7 @@ export type TradeUncheckedUpdateWithoutChatRoomInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1391,6 +1430,7 @@ export type TradeCreateWithoutSharedInMessagesInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1421,6 +1461,7 @@ export type TradeUncheckedCreateWithoutSharedInMessagesInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1463,6 +1504,7 @@ export type TradeUpdateWithoutSharedInMessagesInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1493,6 +1535,7 @@ export type TradeUncheckedUpdateWithoutSharedInMessagesInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1519,6 +1562,7 @@ export type TradeCreateWithoutWalletTransactionsInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1549,6 +1593,7 @@ export type TradeUncheckedCreateWithoutWalletTransactionsInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1591,6 +1636,7 @@ export type TradeUpdateWithoutWalletTransactionsInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1621,6 +1667,7 @@ export type TradeUncheckedUpdateWithoutWalletTransactionsInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1648,6 +1695,7 @@ export type TradeCreateManyCreatorInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1672,6 +1720,7 @@ export type TradeCreateManyBuyerInput = {
   status?: $Enums.EscrowStatus
   type: $Enums.TradeType
   category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
   condition?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: string | null
@@ -1695,6 +1744,7 @@ export type TradeUpdateWithoutCreatorInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1724,6 +1774,7 @@ export type TradeUncheckedUpdateWithoutCreatorInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1752,6 +1803,7 @@ export type TradeUncheckedUpdateManyWithoutCreatorInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1775,6 +1827,7 @@ export type TradeUpdateWithoutBuyerInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1804,6 +1857,7 @@ export type TradeUncheckedUpdateWithoutBuyerInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1832,6 +1886,7 @@ export type TradeUncheckedUpdateManyWithoutBuyerInput = {
   status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
   type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
   category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
   condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1897,6 +1952,7 @@ export type TradeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   status?: boolean
   type?: boolean
   category?: boolean
+  visibility?: boolean
   condition?: boolean
   specs?: boolean
   accountNumber?: boolean
@@ -1929,6 +1985,7 @@ export type TradeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   status?: boolean
   type?: boolean
   category?: boolean
+  visibility?: boolean
   condition?: boolean
   specs?: boolean
   accountNumber?: boolean
@@ -1956,6 +2013,7 @@ export type TradeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   status?: boolean
   type?: boolean
   category?: boolean
+  visibility?: boolean
   condition?: boolean
   specs?: boolean
   accountNumber?: boolean
@@ -1983,6 +2041,7 @@ export type TradeSelectScalar = {
   status?: boolean
   type?: boolean
   category?: boolean
+  visibility?: boolean
   condition?: boolean
   specs?: boolean
   accountNumber?: boolean
@@ -1999,7 +2058,7 @@ export type TradeSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "creatorId" | "buyerId" | "amount" | "status" | "type" | "category" | "condition" | "specs" | "accountNumber" | "deliveryFee" | "deliveryTime" | "takeOffLocation" | "deliveryLocation" | "image" | "description" | "pickupCode" | "pickupAttempts" | "pausedByFreeze" | "createdAt" | "updatedAt", ExtArgs["result"]["trade"]>
+export type TradeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "creatorId" | "buyerId" | "amount" | "status" | "type" | "category" | "visibility" | "condition" | "specs" | "accountNumber" | "deliveryFee" | "deliveryTime" | "takeOffLocation" | "deliveryLocation" | "image" | "description" | "pickupCode" | "pickupAttempts" | "pausedByFreeze" | "createdAt" | "updatedAt", ExtArgs["result"]["trade"]>
 export type TradeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   creator?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   buyer?: boolean | Prisma.Trade$buyerArgs<ExtArgs>
@@ -2037,6 +2096,7 @@ export type $TradePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     status: $Enums.EscrowStatus
     type: $Enums.TradeType
     category: $Enums.TradeCategory
+    visibility: $Enums.TradeVisibility
     condition: string | null
     specs: runtime.JsonValue | null
     accountNumber: string | null
@@ -2488,6 +2548,7 @@ export interface TradeFieldRefs {
   readonly status: Prisma.FieldRef<"Trade", 'EscrowStatus'>
   readonly type: Prisma.FieldRef<"Trade", 'TradeType'>
   readonly category: Prisma.FieldRef<"Trade", 'TradeCategory'>
+  readonly visibility: Prisma.FieldRef<"Trade", 'TradeVisibility'>
   readonly condition: Prisma.FieldRef<"Trade", 'String'>
   readonly specs: Prisma.FieldRef<"Trade", 'Json'>
   readonly accountNumber: Prisma.FieldRef<"Trade", 'String'>

@@ -2372,6 +2372,7 @@ export const TradeScalarFieldEnum = {
   status: 'status',
   type: 'type',
   category: 'category',
+  visibility: 'visibility',
   condition: 'condition',
   specs: 'specs',
   accountNumber: 'accountNumber',
@@ -2865,6 +2866,20 @@ export type EnumTradeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'TradeCategory[]'
  */
 export type ListEnumTradeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TradeCategory[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TradeVisibility'
+ */
+export type EnumTradeVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TradeVisibility'>
+    
+
+
+/**
+ * Reference to a field of type 'TradeVisibility[]'
+ */
+export type ListEnumTradeVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TradeVisibility[]'>
     
 
 

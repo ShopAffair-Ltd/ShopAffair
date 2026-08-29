@@ -11,6 +11,8 @@ interface TradeContextType {
   createTrade: (
     newTrade: tradeService.CreateTradePayload
   ) => Promise<TradeItem>;
+  editTrade: (tradeId: string, updates: tradeService.EditTradePayload) => Promise<TradeItem>;
+  cancelTrade: (tradeId: string) => Promise<TradeItem>;
   fundTrade: (tradeId: string) => Promise<TradeItem>;
   verifyPickupCode: (tradeId: string, code: string) => Promise<TradeItem>;
   updateTradeStatus: (id: string, status: EscrowStatus) => Promise<TradeItem>;
@@ -53,6 +55,18 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
     return item;
   };
 
+  const editTrade: TradeContextType['editTrade'] = async (tradeId, updates) => {
+    const updated = await tradeService.editTrade(tradeId, updates);
+    setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
+    return updated;
+  };
+
+  const cancelTrade: TradeContextType['cancelTrade'] = async (tradeId) => {
+    const updated = await tradeService.cancelTrade(tradeId);
+    setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
+    return updated;
+  };
+
   const fundTrade: TradeContextType['fundTrade'] = async (tradeId) => {
     const updated = await tradeService.fundTrade(tradeId);
     setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
@@ -71,8 +85,6 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
     return updated;
   };
 
-  // Admin-only in the UI layer: gate calls to this with requireRole-equivalent
-  // checks in the component (backend also enforces this via admin RBAC).
   const forceCancelTrade: TradeContextType['forceCancelTrade'] = async (tradeId) => {
     const updated = await tradeService.forceCancelTrade(tradeId);
     setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
@@ -92,6 +104,8 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
         error,
         refreshTrades,
         createTrade,
+        editTrade,
+        cancelTrade,
         fundTrade,
         verifyPickupCode,
         updateTradeStatus,

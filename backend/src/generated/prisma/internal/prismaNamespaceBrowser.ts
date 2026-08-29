@@ -210,6 +210,7 @@ export const TradeScalarFieldEnum = {
   status: 'status',
   type: 'type',
   category: 'category',
+  visibility: 'visibility',
   condition: 'condition',
   specs: 'specs',
   accountNumber: 'accountNumber',

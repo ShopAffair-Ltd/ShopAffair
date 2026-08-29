@@ -15,6 +15,7 @@ export const createTrade = async (creatorId: string, input: CreateTradeInput) =>
       amount: input.amount,
       type: input.type,
       category: input.category,
+      visibility: input.visibility,
       condition: input.condition,
       specs: input.specs as Prisma.InputJsonValue | undefined,
       accountNumber: input.accountNumber,
@@ -34,7 +35,7 @@ export const createTrade = async (creatorId: string, input: CreateTradeInput) =>
 };
 
 export const listTrades = async (userId: string | null, query: ListTradesQuery) => {
-  const { page, limit, status, type, category, search, mine } = query;
+  const { page, limit, status, type, category, search, mine, storeOf } = query;
 
   const where: Record<string, unknown> = {
     ...(status ? { status } : {}),
@@ -48,6 +49,21 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
       throw new ApiError(401, 'Not authenticated');
     }
     where.OR = [{ creatorId: userId }, { buyerId: userId }];
+  } else if (storeOf) {
+    const storeOwner = await prisma.user.findUnique({ where: { username: storeOf }, select: { id: true } });
+    if (!storeOwner) {
+      throw new ApiError(404, 'Store not found');
+    }
+
+    where.creatorId = storeOwner.id;
+
+    if (userId !== storeOwner.id) {
+      where.visibility = { in: ['MARKET', 'STORE'] };
+    }
+  } else if (userId) {
+    where.OR = [{ visibility: 'MARKET' }, { creatorId: userId }, { buyerId: userId }];
+  } else {
+    where.visibility = 'MARKET';
   }
 
   const [items, total] = await Promise.all([
@@ -70,7 +86,62 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
   };
 };
 
-export const getTradeById = async (id: string) => {
+export const editTrade = async (tradeId: string, userId: string, input: Partial<CreateTradeInput>) => {
+  const trade = await prisma.trade.findUnique({ where: { id: tradeId } });
+
+  if (!trade) {
+    throw new ApiError(404, 'Trade not found');
+  }
+  if (trade.creatorId !== userId) {
+    throw new ApiError(403, 'You can only edit your own trade listings');
+  }
+  if (trade.status !== 'PENDING' || trade.buyerId) {
+    throw new ApiError(409, 'This trade can no longer be edited because it has already been accepted by a buyer');
+  }
+
+  return prisma.trade.update({
+    where: { id: tradeId },
+    data: {
+      title: input.title,
+      amount: input.amount,
+      category: input.category,
+      visibility: input.visibility,
+      condition: input.condition,
+      specs: input.specs as Prisma.InputJsonValue | undefined,
+      deliveryFee: input.deliveryFee,
+      deliveryTime: input.deliveryTime,
+      takeOffLocation: input.takeOffLocation,
+      deliveryLocation: input.deliveryLocation,
+      image: input.image,
+      description: input.description
+    },
+    include: {
+      creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+      buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
+    }
+  });
+};
+
+export const cancelOwnTrade = async (tradeId: string, userId: string) => {
+  const trade = await prisma.trade.findUnique({ where: { id: tradeId } });
+
+  if (!trade) {
+    throw new ApiError(404, 'Trade not found');
+  }
+  if (trade.creatorId !== userId) {
+    throw new ApiError(403, 'You can only cancel your own trade listings');
+  }
+  if (trade.status !== 'PENDING' || trade.buyerId) {
+    throw new ApiError(409, 'This trade can no longer be cancelled because it has already been accepted by a buyer');
+  }
+
+  return prisma.trade.update({
+    where: { id: tradeId },
+    data: { status: 'REFUNDED' }
+  });
+};
+
+export const getTradeById = async (id: string, userId: string | null) => {
   const trade = await prisma.trade.findUnique({
     where: { id },
     include: {
@@ -80,6 +151,10 @@ export const getTradeById = async (id: string) => {
   });
 
   if (!trade) {
+    throw new ApiError(404, 'Trade not found');
+  }
+
+  if (trade.visibility === 'PRIVATE' && trade.creatorId !== userId) {
     throw new ApiError(404, 'Trade not found');
   }
 

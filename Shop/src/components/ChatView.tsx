@@ -15,14 +15,14 @@ interface ChatViewProps {
 
 export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewProps) {
   const { user } = useAuth();
-  const { chatRooms, sendMessage, markAsRead } = useChat();
+  const { chatRooms, sendMessage, markAsRead, sendError, clearSendError } = useChat();
   const navigate = useNavigate();
   const activeProfile = user;
 
   const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [messageText, setMessageText] = useState('');
-  const [activeTab, setActiveTab] = useState<'All' | 'Chats' | 'Groups' | 'Community'>('All');
+  const [activeTab, setActiveTab] = useState<'All' | 'Chats' | 'Unread' | 'Stores' | 'Groups'>('All');
   const [showNewChat, setShowNewChat] = useState(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [showNewGroup, setShowNewGroup] = useState(false);
@@ -64,14 +64,6 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
     if (!selectedRoom) return null;
     return allRooms.find((r) => r.id === selectedRoom.id) ?? selectedRoom;
   }, [allRooms, selectedRoom]);
-
-  const pinnedChats = allRooms.filter(room => room.isPinned);
-  const recentChats = allRooms.filter(room => !room.isPinned);
-
-  const filteredRooms = allRooms.filter((room) =>
-    room.participantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    room.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   useEffect(() => {
     if (!callToast) return;
@@ -129,6 +121,11 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
     setStoreIconShake(false);
   };
 
+  const handleViewProfileFromChat = () => {
+    if (!selectedRoom) return;
+    navigate(`/store/${selectedRoom.participantUsername}`);
+  };
+
   const isSellerChat = selectedRoom?.participantRole === 'seller' && selectedRoom?.participantUsername !== activeProfile?.username;
   const isAIChat = selectedRoom?.participantRole === 'ai';
 
@@ -149,9 +146,8 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
           setSearchQuery={setSearchQuery}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          pinnedChats={pinnedChats}
-          recentChats={recentChats}
-          filteredRooms={filteredRooms}
+          allRooms={allRooms}
+          selectedRoomId={selectedRoom?.id ?? null}
           onSelectRoom={setSelectedRoom}
           onShowNewChat={() => setShowNewChat(true)}
           showOverflowMenu={showOverflowMenu}
@@ -162,28 +158,37 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
       </div>
 
       {selectedRoomLive && (
-        <ChatWindow
-          selectedRoom={selectedRoomLive}
-          activeUsername={activeProfile.username}
-          messageText={messageText}
-          setMessageText={setMessageText}
-          onSend={handleSend}
-          onBack={() => setSelectedRoom(null)}
-          onVoiceCall={handleVoiceCall}
-          onVisitStore={handleVisitStoreFromChat}
-          callToast={callToast}
-          showChatMenu={showChatMenu}
-          setShowChatMenu={setShowChatMenu}
-          showEmojiPicker={showEmojiPicker}
-          setShowEmojiPicker={setShowEmojiPicker}
-          fileInputRef={fileInputRef}
-          onFileSelect={handleFileSelect}
-          storeIconShake={storeIconShake}
-          isAIChat={isAIChat}
-          isSellerChat={isSellerChat}
-          onTypingStart={handleTypingStart}
-          onTypingStop={handleTypingStop}
-        />
+        <>
+          {sendError && (
+            <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[110] bg-red-600 text-white text-xs font-sans font-semibold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+              {sendError}
+              <button onClick={clearSendError} className="font-bold">×</button>
+            </div>
+          )}
+          <ChatWindow
+            selectedRoom={selectedRoomLive}
+            activeUsername={activeProfile.username}
+            messageText={messageText}
+            setMessageText={setMessageText}
+            onSend={handleSend}
+            onBack={() => setSelectedRoom(null)}
+            onVoiceCall={handleVoiceCall}
+            onVisitStore={handleVisitStoreFromChat}
+            onViewProfile={handleViewProfileFromChat}
+            callToast={callToast}
+            showChatMenu={showChatMenu}
+            setShowChatMenu={setShowChatMenu}
+            showEmojiPicker={showEmojiPicker}
+            setShowEmojiPicker={setShowEmojiPicker}
+            fileInputRef={fileInputRef}
+            onFileSelect={handleFileSelect}
+            storeIconShake={storeIconShake}
+            isAIChat={isAIChat}
+            isSellerChat={isSellerChat}
+            onTypingStart={handleTypingStart}
+            onTypingStop={handleTypingStop}
+          />
+        </>
       )}
 
       <ChatModals

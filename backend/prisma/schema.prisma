@@ -264,6 +264,12 @@ model Product {
   orders        Order[]
 }
 
+enum TradeVisibility {
+  PRIVATE
+  STORE
+  MARKET
+}
+
 model Trade {
   id                String         @id @default(uuid())
   title             String
@@ -275,6 +281,7 @@ model Trade {
   status            EscrowStatus   @default(DRAFT)
   type              TradeType
   category          TradeCategory
+  visibility        TradeVisibility @default(MARKET)
   condition         String?
   specs             Json?
   accountNumber     String?
@@ -294,6 +301,15 @@ model Trade {
   sharedInMessages   ChatMessage[]
   walletTransactions WalletTransaction[]
   order              Order?
+
+  @@index([creatorId])
+  @@index([buyerId])
+  @@index([status])
+  @@index([type])
+  @@index([category])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([visibility])
 }
 
 model Order {

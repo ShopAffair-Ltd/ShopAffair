@@ -1,3 +1,8 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
 import { MarketProduct } from './types';
@@ -19,6 +24,7 @@ import AuthModal from './components/AuthModal';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
 import MarketView from './components/MarketView';
 import HomeView from './components/HomeView';
+import TransferHistoryView from './components/TransferHistoryView';
 import TradeView from './components/TradeView';
 import ChatView from './components/ChatView';
 import AdminPortal from './components/AdminPortal';
@@ -86,14 +92,14 @@ function GlobalOverlays() {
   );
 }
 
-function Shell({
-  children,
+function Shell({ 
+  children, 
   showChrome,
   showBackButton = false,
   onBack,
   chatPartnerName
-}: {
-  children: React.ReactNode;
+}: { 
+  children: React.ReactNode; 
   showChrome: boolean;
   showBackButton?: boolean;
   onBack?: () => void;
@@ -105,7 +111,7 @@ function Shell({
   const activeProfile = user ?? GUEST_PROFILE;
   const isGuest = activeProfile.verificationStatus === 'GUEST';
 
-  const currentTab = window.location.pathname.split('/')[1] || 'market';
+  const currentTab = window.location.pathname.split('/')[1] || 'home';
 
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center text-slate-800 antialiased selection:bg-purple-100 font-sans">
@@ -155,6 +161,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     setChatPartnerName('');
   };
 
+  // Guests (no signed-in user) never see the real page - Home, Trade, Chat,
+  // Profile, Checkout, and My Store all depend on real account data and
+  // authenticated API calls, so rendering them for a guest previously just
+  // produced a blank screen. VerificationGate's GUEST branch shows a proper
+  // sign-in/sign-up prompt instead.
   if (!user) {
     return (
       <Shell showChrome>
@@ -173,7 +184,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Shell
+    <Shell 
       showChrome
       showBackButton={isChatOpen}
       onBack={handleBack}
@@ -194,6 +205,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       })}
     </Shell>
   );
+}
+
+function TransferHistoryRoute() {
+  const navigate = useNavigate();
+  return <TransferHistoryView onBack={() => navigate(-1)} />;
 }
 
 function MarketRoute() {
@@ -281,40 +297,40 @@ function StoreProfileRoute() {
       </Shell>
     );
   }
-  return (
-    <Shell showChrome={true}>
-      <StoreProfile
-        seller={{
-          id: sellerData.id,
-          name: sellerData.name,
-          username: sellerData.username,
-          storeName: sellerData.storeName || `${sellerData.name}'s Store`,
-          location: sellerData.location || 'Nigeria',
-          category: sellerData.storeCategory || 'General',
-          plan: sellerData.isPro ? 'Pro Plan' : 'Free Plan',
-          bio: sellerData.bio || 'No bio available',
-          rating: sellerData.rating || 0,
-          reviewsCount: sellerData.reviewsCount || 0,
-          totalSales: sellerData.totalSales || 0,
-          avatar: sellerData.name?.charAt(0) || 'S',
-          avatarColor: sellerData.avatarColor || 'bg-purple-600',
-          coverImage: sellerData.coverImage || null,
-          isVerified: sellerData.verificationStatus === 'VERIFIED',
-          followers: sellerData.followers || 0,
-          followingByMe: sellerData.followingByMe || false,
-          joinedDate: sellerData.createdAt || undefined
-        }}
-        products={products.filter((p) => p.sellerUsername === username)}
-        onBack={() => navigate('/market')}
-        onChat={(sellerUsername: string, sellerName: string) => {
-          startChatWithSeller(sellerUsername, sellerName);
-          navigate('/chat');
-        }}
-        onFollow={() => alert(`You are now following ${username}`)}
-        onProductClick={() => navigate('/market')}
-      />
-    </Shell>
-  );
+return (
+  <Shell showChrome={true}>
+    <StoreProfile
+      seller={{
+        id: sellerData.id,
+        name: sellerData.name,
+        username: sellerData.username,
+        storeName: sellerData.storeName || `${sellerData.name}'s Store`,
+        location: sellerData.location || 'Nigeria',
+        category: sellerData.storeCategory || 'General',
+        plan: sellerData.isPro ? 'Pro Plan' : 'Free Plan',
+        bio: sellerData.bio || 'No bio available',
+        rating: sellerData.rating || 0,
+        reviewsCount: sellerData.reviewsCount || 0,
+        totalSales: sellerData.totalSales || 0,
+        avatar: sellerData.name?.charAt(0) || 'S',
+        avatarColor: sellerData.avatarColor || 'bg-purple-600',
+        coverImage: sellerData.coverImage || null,
+        isVerified: sellerData.verificationStatus === 'VERIFIED',
+        followers: sellerData.followers || 0,
+        followingByMe: sellerData.followingByMe || false,
+        joinedDate: sellerData.createdAt || undefined
+      }}
+      products={products.filter((p) => p.sellerUsername === username)}
+      onBack={() => navigate(-1)}
+      onChat={(sellerUsername: string, sellerName: string) => {
+        startChatWithSeller(sellerUsername, sellerName);
+        navigate('/chat');
+      }}
+      onFollow={() => alert(`You are now following ${username}`)}
+      onProductClick={() => navigate('/market')}
+    />
+  </Shell>
+);
 }
 
 function ChatViewWrapper() {
@@ -322,7 +338,7 @@ function ChatViewWrapper() {
   const [chatPartnerName, setChatPartnerName] = useState('');
 
   return (
-    <ChatView
+    <ChatView 
       onChatSelect={(room) => setIsChatOpen(!!room)}
       onChatPartnerName={(name) => setChatPartnerName(name)}
     />
@@ -334,10 +350,16 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
-  const { openLogin, openRegister, close } = useAuthModal();
+  const { openLogin, openRegister, close: closeAuthModal } = useAuthModal();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Decide purely on token presence, not on whether `user` has loaded
+    // yet - `user` can be briefly null even for a valid session (still
+    // loading, or a transient fetch failure that intentionally preserves
+    // the token - see authService.getCurrentUser). Showing landing here
+    // based on `user` alone would incorrectly boot a real session back to
+    // the landing page whenever that fetch hasn't resolved yet.
     const token = localStorage.getItem('shopfair_token');
     setShowLanding(!token);
   }, []);
@@ -350,11 +372,10 @@ export default function App() {
     <>
       <AuthModal
         onForgotPassword={() => {
-          close();
+          closeAuthModal();
           setShowForgotPassword(true);
         }}
       />
-
       <ForgotPasswordModal
         isOpen={showForgotPassword}
         onClose={() => setShowForgotPassword(false)}
@@ -397,6 +418,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <HomeView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/transfer-history"
+              element={
+                <ProtectedRoute>
+                  <TransferHistoryRoute />
                 </ProtectedRoute>
               }
             />

@@ -255,6 +255,7 @@ export const getUserChats = async (userId: string) => {
           participants: {
             include: { user: true }
           },
+          associatedTrade: true,
           messages: {
             orderBy: { createdAt: 'desc' },
             take: 1,
@@ -301,6 +302,7 @@ export const getChatRoom = async (chatRoomId: string, userId: string) => {
       participants: {
         include: { user: true }
       },
+      associatedTrade: true,
       messages: {
         orderBy: { createdAt: 'asc' },
         where: { isDeleted: false },
@@ -831,13 +833,7 @@ export const getOrCreateTradeChat = async (tradeId: string, creatorId: string, b
   });
 };
 
-/**
- * Posts a system message (no human sender) into a trade's chat room, e.g.
- * "Escrow funded" / "Payment released". Silently no-ops if the trade has no
- * linked chat room yet, and never throws to the caller - a system message
- * failing to post should never block the real escrow action that triggered
- * it (funding, release, refund all already succeeded by the time this runs).
- */
+
 export const postTradeSystemMessage = async (tradeId: string, content: string) => {
   try {
     const chatRoom = await prisma.chatRoom.findUnique({ where: { associatedTradeId: tradeId } });

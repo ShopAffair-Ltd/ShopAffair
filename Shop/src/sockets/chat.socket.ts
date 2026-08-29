@@ -9,8 +9,6 @@ interface ChatSocketEvents {
   onChatJoined: (data: { chatRoomId: string }) => void;
   onError: (data: { message: string }) => void;
   onNewMessageNotification: (data: { chatRoomId: string; message: string; senderId: string }) => void;
-  // Not chat-specific, but delivered over this same socket connection since
-  // the app only maintains one authenticated socket per session.
   onNewNotification: (data: { id: string; title: string; message: string; type: string; createdAt: string }) => void;
 }
 
@@ -21,10 +19,19 @@ class ChatSocket {
   connect(token: string) {
     if (this.socket?.connected) return;
 
-    this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+    const socketUrl = (
+      import.meta.env.VITE_SOCKET_URL ||
+      (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
+    );
+
+    this.socket = io(socketUrl, {
       auth: { token },
       transports: ['websocket'],
-      autoConnect: true
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000
     });
 
     this.setupListeners();
@@ -37,8 +44,12 @@ class ChatSocket {
       console.log('Socket connected');
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    this.socket.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
+    });
+
+    this.socket.on('connect_error', (err) => {
+      console.error('Socket connect error:', err.message);
     });
 
     this.socket.on('new_message', (data: ChatMessage) => {
@@ -74,34 +85,44 @@ class ChatSocket {
     });
   }
 
+  private isConnected(): boolean {
+    return !!this.socket?.connected;
+  }
+
   joinChat(chatRoomId: string) {
-    if (!this.socket) return;
-    this.socket.emit('join_chat', chatRoomId);
+    if (!this.isConnected()) {
+      console.warn('joinChat called while socket disconnected');
+      return;
+    }
+    this.socket!.emit('join_chat', chatRoomId);
   }
 
   leaveChat(chatRoomId: string) {
-    if (!this.socket) return;
-    this.socket.emit('leave_chat', chatRoomId);
+    if (!this.isConnected()) return;
+    this.socket!.emit('leave_chat', chatRoomId);
   }
 
   sendMessage(chatRoomId: string, content: string, attachmentName?: string) {
-    if (!this.socket) return;
-    this.socket.emit('send_message', { chatRoomId, content, attachmentName });
+    if (!this.isConnected()) {
+      this.emit('onError', { message: 'Not connected — check your internet connection and try again.' });
+      return;
+    }
+    this.socket!.emit('send_message', { chatRoomId, content, attachmentName });
   }
 
   markAsRead(chatRoomId: string) {
-    if (!this.socket) return;
-    this.socket.emit('mark_read', { chatRoomId });
+    if (!this.isConnected()) return;
+    this.socket!.emit('mark_read', { chatRoomId });
   }
 
   startTyping(chatRoomId: string) {
-    if (!this.socket) return;
-    this.socket.emit('typing_start', { chatRoomId });
+    if (!this.isConnected()) return;
+    this.socket!.emit('typing_start', { chatRoomId });
   }
 
   stopTyping(chatRoomId: string) {
-    if (!this.socket) return;
-    this.socket.emit('typing_stop', { chatRoomId });
+    if (!this.isConnected()) return;
+    this.socket!.emit('typing_stop', { chatRoomId });
   }
 
   disconnect() {

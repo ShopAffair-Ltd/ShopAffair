@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft, Search, UserPlus, Copy, Users2, UsersIcon,
   ChevronRight, ExternalLink, X, Camera, Bell, ShieldCheck,
-  Eye, Asterisk
+  Eye, Asterisk, Clock
 } from 'lucide-react';
 import { INVITE_LINK } from './chatConstants';
 import SettingRow from './chatSettingRow';
@@ -47,6 +47,7 @@ export default function ChatModals({
   const [startChatError, setStartChatError] = useState<string | null>(null);
   const [createGroupError, setCreateGroupError] = useState<string | null>(null);
   const [createCommunityError, setCreateCommunityError] = useState<string | null>(null);
+  const [showCommunityPendingModal, setShowCommunityPendingModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [groupName, setGroupName] = useState('');
@@ -169,6 +170,7 @@ export default function ChatModals({
       await refreshChats();
       setShowNewCommunity(false);
       resetCommunityForm();
+      setShowCommunityPendingModal(true);
     } catch (error) {
       console.error('Failed to create community:', error);
       setCreateCommunityError(getApiErrorMessage(error));
@@ -554,6 +556,31 @@ export default function ChatModals({
                 Proceed
               </button>
             </div>
+          </div>
+        )}
+
+        {showCommunityPendingModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl flex flex-col items-center text-center"
+            >
+              <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                <Clock className="w-8 h-8 text-amber-500" />
+              </div>
+              <h3 className="text-base font-display font-bold text-slate-900 mb-1">Community Submitted</h3>
+              <p className="text-xs font-sans text-slate-500 mb-6">
+                Your community is now Pending Approval. We'll notify you once it's reviewed and live.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowCommunityPendingModal(false)}
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-sm rounded-lg transition-colors cursor-pointer"
+              >
+                Got it
+              </button>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>

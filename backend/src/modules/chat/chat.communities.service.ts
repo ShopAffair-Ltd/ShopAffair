@@ -175,12 +175,6 @@ export const updateGroupSettings = async (chatRoomId: string, updates: Record<st
   });
 };
 
-/**
- * Lists approved groups where the given user is an admin - used to power
- * the "share this trade to one of my groups" picker on the trade detail
- * page. Only approved groups are returned since a pending/rejected one
- * can't accept messages yet.
- */
 export const listAdminGroups = async (userId: string) => {
   const memberships = await prisma.chatRoomParticipant.findMany({
     where: { userId, role: ParticipantRole.ADMIN, leftAt: null },

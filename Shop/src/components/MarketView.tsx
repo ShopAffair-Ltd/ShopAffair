@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useMarket } from '../context/MarketContext';
 import { useChat } from '../context/ChatContext';
 import { useAuthModal } from '../context/AuthModalContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { isTradeBasedProductId, stripTradeIdPrefix } from '../services/TradeService';
 import MarketHeader from './MarketHeader';
 import MarketProductList from './MarketProductList';
@@ -89,6 +89,7 @@ export default function MarketView() {
   const { products, isLoading: productsLoading, error: productsError } = useMarket();
   const { startChatWithSeller } = useChat();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleAddToCart = (product: MarketProduct) => {
     if (isTradeBasedProductId(product.id)) {
@@ -114,6 +115,20 @@ export default function MarketView() {
   const [accountDraft, setAccountDraft] = useState(accountNumber);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hotDealSlide, setHotDealSlide] = useState(0);
+
+  useEffect(() => {
+    const openId = searchParams.get('open');
+    if (openId && products.some((p) => p.id === openId)) {
+      setSelectedProduct(products.find((p) => p.id === openId) ?? null);
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('open');
+        return next;
+      }, { replace: true });
+    } else {
+      window.scrollTo({ top: 0 });
+    }
+  }, [searchParams, products, setSearchParams]);
 
   useEffect(() => {
     const interval = setInterval(() => {

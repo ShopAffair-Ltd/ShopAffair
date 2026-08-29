@@ -13,6 +13,8 @@ interface TradeDetailViewProps {
   onFundTrade: (tradeId: string) => Promise<void>;
   onVerifyPickupCode: (tradeId: string, code: string) => Promise<void>;
   onUpdateStatus: (tradeId: string, status: EscrowStatus) => Promise<void>;
+  onEditTrade: (tradeId: string) => void;
+  onCancelTrade: (tradeId: string) => Promise<void>;
 }
 
 const PIPELINE_STEPS = [
@@ -36,11 +38,15 @@ export default function TradeDetailView({
   onBack,
   onFundTrade,
   onVerifyPickupCode,
-  onUpdateStatus
+  onUpdateStatus,
+  onEditTrade,
+  onCancelTrade
 }: TradeDetailViewProps) {
   const [actionError, setActionError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const handleFund = async () => {
     setActionError(null);
@@ -58,9 +64,6 @@ export default function TradeDetailView({
   };
 
   const handlePickupAttempt = async (code: string) => {
-    // Let the error propagate so SellerPickupCodeEntry can show its own
-    // "incorrect code" message; we only surface non-code-related failures
-    // (e.g. network error) up here.
     try {
       await onVerifyPickupCode(trade.id, code);
     } catch (err) {
@@ -75,6 +78,23 @@ export default function TradeDetailView({
     } catch (err) {
       console.error(err);
       setActionError('Could not raise dispute. Please try again.');
+    }
+  };
+
+  const handleCancelTrade = async () => {
+    setActionError(null);
+    setIsCancelling(true);
+    try {
+      await onCancelTrade(trade.id);
+      setShowCancelConfirm(false);
+    } catch (err: unknown) {
+      console.error(err);
+      const backendMessage =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setActionError(backendMessage ?? 'Could not cancel this trade. Please try again.');
+      setShowCancelConfirm(false);
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -111,6 +131,39 @@ export default function TradeDetailView({
       </div>
 
       <ShareToGroupModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} tradeId={trade.id} />
+
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl space-y-4"
+          >
+            <div>
+              <h3 className="text-base font-display font-bold text-slate-900">Cancel this trade?</h3>
+              <p className="text-xs font-sans text-slate-500 mt-1.5 leading-relaxed">
+                This will permanently cancel "{trade.title}". Buyers will no longer be able to fund or view this listing.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                disabled={isCancelling}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-60 text-slate-700 font-sans font-bold text-xs rounded-lg cursor-pointer"
+              >
+                Keep Trade
+              </button>
+              <button
+                onClick={handleCancelTrade}
+                disabled={isCancelling}
+                className="w-full py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-sans font-bold text-xs rounded-lg cursor-pointer"
+              >
+                {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <motion.div
         initial="hidden"
@@ -225,8 +278,24 @@ export default function TradeDetailView({
         <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }} className="space-y-2 pt-4">
           {trade.status === EscrowStatus.PENDING &&
             (isSeller ? (
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg text-center">
-                <p className="text-xs font-sans text-slate-500">This is your listing. Waiting for a buyer to fund escrow.</p>
+              <div className="space-y-2">
+                <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg text-center">
+                  <p className="text-xs font-sans text-slate-500">This is your listing. Waiting for a buyer to fund escrow.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => onEditTrade(trade.id)}
+                    className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-bold text-xs rounded-lg cursor-pointer text-center"
+                  >
+                    Edit Trade
+                  </button>
+                  <button
+                    onClick={() => setShowCancelConfirm(true)}
+                    className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 font-sans font-bold text-xs rounded-lg border border-red-100 cursor-pointer text-center"
+                  >
+                    Cancel Trade
+                  </button>
+                </div>
               </div>
             ) : (
               <button

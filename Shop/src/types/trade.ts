@@ -9,6 +9,12 @@ export enum TradeCategory {
   SERVICE = 'Service Offering'
 }
 
+export enum TradeVisibility {
+  PRIVATE = 'PRIVATE',
+  STORE = 'STORE',
+  MARKET = 'MARKET'
+}
+
 export enum EscrowStatus {
   DRAFT = 'DRAFT',
   PENDING = 'PENDING',
@@ -30,6 +36,7 @@ export interface TradeItem {
   status: EscrowStatus;
   type: TradeType;
   category: TradeCategory;
+  visibility: TradeVisibility;
   condition?: string;
   specs?: Record<string, string>;
   accountNumber?: string;

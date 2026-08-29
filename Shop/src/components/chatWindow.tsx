@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Phone, MoreVertical, Bot, Sparkles, Star,
-  Smile, Paperclip, Send, Store, PinOff, Trash2, Ban, Package, ChevronRight
+  Smile, Paperclip, Send, Store, PinOff, Trash2, Ban, Package, ChevronRight, Check, CheckCheck
 } from 'lucide-react';
 import { ChatRoom } from '../types';
 import { formatMessageTime } from './chatConstants';
@@ -17,6 +17,7 @@ interface ChatWindowProps {
   onBack: () => void;
   onVoiceCall: () => void;
   onVisitStore: () => void;
+  onViewProfile: () => void;
   callToast: string | null;
   showChatMenu: boolean;
   setShowChatMenu: (show: boolean) => void;
@@ -40,6 +41,7 @@ export default function ChatWindow({
   onBack,
   onVoiceCall,
   onVisitStore,
+  onViewProfile,
   callToast,
   showChatMenu,
   setShowChatMenu,
@@ -68,7 +70,8 @@ export default function ChatWindow({
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 26, stiffness: 240 }}
-      className="fixed inset-0 z-[100] bg-white flex flex-col h-full overflow-hidden"
+      className="fixed inset-0 z-[100] bg-white flex flex-col overflow-hidden"
+      style={{ height: '100dvh' }}
     >
       <div className={`sticky top-0 z-10 px-4 py-3 border-b border-slate-100 flex items-center justify-between ${
         isAIChat ? 'bg-gradient-to-r from-purple-50 to-purple-100' : 'bg-white'
@@ -80,11 +83,15 @@ export default function ChatWindow({
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 relative shrink-0 ${
-            isAIChat
-              ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-purple-300'
-              : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 border-purple-200'
-          }`}>
+          <div
+            onClick={!isAIChat ? onViewProfile : undefined}
+            className={`w-11 h-11 rounded-full flex items-center justify-center border-2 relative shrink-0 ${
+              !isAIChat ? 'cursor-pointer' : ''
+            } ${
+              isAIChat
+                ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-purple-300'
+                : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 border-purple-200'
+            }`}>
             {isAIChat ? (
               <Bot className="w-5.5 h-5.5" />
             ) : (
@@ -101,9 +108,13 @@ export default function ChatWindow({
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className={`block text-[15px] font-sans font-bold leading-tight truncate ${
-                isAIChat ? 'text-purple-700' : 'text-slate-800'
-              }`}>
+              <span
+                onClick={!isAIChat ? onViewProfile : undefined}
+                className={`block text-[15px] font-sans font-bold leading-tight truncate ${
+                  !isAIChat ? 'cursor-pointer hover:underline' : ''
+                } ${
+                  isAIChat ? 'text-purple-700' : 'text-slate-800'
+                }`}>
                 {selectedRoom.participantName}
               </span>
               {isAIChat && (
@@ -237,6 +248,30 @@ export default function ChatWindow({
         </div>
       </div>
 
+      {selectedRoom.activeTrade && !['COMPLETED', 'REFUNDED'].includes(selectedRoom.activeTrade.status) && (
+        <button
+          onClick={() => navigate(`/trade?open=${selectedRoom.activeTrade!.id}`)}
+          className="w-full flex items-center gap-3 px-4 py-2.5 bg-amber-50 border-b border-amber-100 hover:bg-amber-100/70 transition-colors text-left"
+        >
+          <div className="w-8 h-8 rounded-lg bg-white border border-amber-200 overflow-hidden shrink-0 flex items-center justify-center">
+            {selectedRoom.activeTrade.image ? (
+              <img src={selectedRoom.activeTrade.image} alt={selectedRoom.activeTrade.title} className="w-full h-full object-cover" />
+            ) : (
+              <Package className="w-4 h-4 text-amber-400" />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-sans font-bold text-amber-600 uppercase tracking-wide">
+              Active Trade · {selectedRoom.activeTrade.status}
+            </p>
+            <p className="text-xs font-sans font-semibold text-slate-800 truncate">
+              {selectedRoom.activeTrade.title} · ₦{selectedRoom.activeTrade.amount.toLocaleString()}
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
+        </button>
+      )}
+
       <AnimatePresence>
         {callToast && (
           <motion.div
@@ -329,11 +364,18 @@ export default function ChatWindow({
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               </div>
               {time && (
-                <span className={`text-[12px] font-sans mt-2 px-1 ${
+                <div className={`flex items-center gap-1 mt-2 px-1 ${
                   isAI ? 'text-purple-400' : 'text-slate-400'
                 }`}>
-                  {time}
-                </span>
+                  <span className="text-[12px] font-sans">{time}</span>
+                  {isMe && !msg.id.startsWith('temp_') && (
+                    msg.isRead ? (
+                      <CheckCheck className="w-3.5 h-3.5 text-purple-500" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5 text-slate-400" />
+                    )
+                  )}
+                </div>
               )}
             </div>
           );

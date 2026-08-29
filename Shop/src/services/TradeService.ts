@@ -1,5 +1,5 @@
 import { api } from './api';
-import { TradeItem, TradeType, TradeCategory, EscrowStatus, MarketProduct } from '../types';
+import { TradeItem, TradeType, TradeCategory, TradeVisibility, EscrowStatus, MarketProduct } from '../types';
 
 const typeToApi: Record<TradeType, string> = {
   [TradeType.SUPPLY]: 'SUPPLY',
@@ -34,6 +34,7 @@ interface RawTrade {
   status: string;
   type: string;
   category: string;
+  visibility?: string;
   condition?: string | null;
   specs?: Record<string, unknown> | null;
   accountNumber?: string | null;
@@ -56,12 +57,13 @@ const mapToTradeItem = (raw: RawTrade): TradeItem => ({
   title: raw.title,
   creatorUsername: raw.creator.username,
   creatorName: raw.creator.name,
-  creatorRating: 4.8, // no rating system on the backend yet
+  creatorRating: 4.8,
   reviewsCount: 0,
   amount: Number(raw.amount),
   status: raw.status as EscrowStatus,
   type: typeToDisplay[raw.type] ?? TradeType.SUPPLY,
   category: categoryToDisplay[raw.category] ?? TradeCategory.PHYSICAL,
+  visibility: (raw.visibility as TradeVisibility) ?? TradeVisibility.MARKET,
   condition: raw.condition ?? undefined,
   specs: raw.specs as Record<string, string> | undefined,
   accountNumber: raw.accountNumber ?? undefined,
@@ -86,6 +88,7 @@ export interface ListTradesParams {
   category?: TradeCategory;
   search?: string;
   mine?: boolean;
+  storeOf?: string;
 }
 
 export interface ListTradesResult {
@@ -102,6 +105,7 @@ export const fetchTrades = async (params: ListTradesParams = {}): Promise<ListTr
   if (params.category) query.category = categoryToApi[params.category];
   if (params.search) query.search = params.search;
   if (params.mine) query.mine = 'true';
+  if (params.storeOf) query.storeOf = params.storeOf;
 
   const { data } = await api.get<{ items: RawTrade[]; pagination: ListTradesResult['pagination'] }>(
     '/trades',
@@ -121,6 +125,7 @@ export interface CreateTradePayload {
   amount: number;
   type: TradeType;
   category: TradeCategory;
+  visibility?: TradeVisibility;
   condition?: string;
   specs?: Record<string, unknown>;
   accountNumber?: string;
@@ -139,6 +144,23 @@ export const createTrade = async (payload: CreateTradePayload): Promise<TradeIte
     category: categoryToApi[payload.category]
   });  
 
+  return mapToTradeItem(data.trade);
+};
+
+export type EditTradePayload = Partial<Omit<CreateTradePayload, 'type'>>;
+
+export const editTrade = async (tradeId: string, payload: EditTradePayload): Promise<TradeItem> => {
+  const body: Record<string, unknown> = { ...payload };
+  if (payload.category) {
+    body.category = categoryToApi[payload.category];
+  }
+
+  const { data } = await api.patch<{ trade: RawTrade }>(`/trades/${tradeId}`, body);
+  return mapToTradeItem(data.trade);
+};
+
+export const cancelTrade = async (tradeId: string): Promise<TradeItem> => {
+  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/cancel`);
   return mapToTradeItem(data.trade);
 };
 

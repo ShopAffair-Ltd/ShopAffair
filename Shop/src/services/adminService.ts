@@ -103,7 +103,6 @@ export const fetchAuditLogs = async (page = 1, limit = 20) => {
   return data;
 };
 
-// ---- Withdrawals ----
 
 export interface AdminWithdrawal {
   id: string; amount: string | number; status: string; reference: string | null; createdAt: string;
@@ -115,7 +114,6 @@ export const fetchAllWithdrawals = async (page = 1, limit = 20) => {
   return data;
 };
 
-// ---- Products ----
 
 export interface AdminProduct {
   id: string; title: string; price: string | number; category: string; createdAt: string;
@@ -131,7 +129,6 @@ export const deleteProduct = async (productId: string): Promise<void> => {
   await api.delete(`/admin/products/${productId}`);
 };
 
-// ---- Reviews ----
 
 export interface AdminReview {
   id: string; rating: number; content: string; createdAt: string;
@@ -147,7 +144,6 @@ export const deleteReview = async (reviewId: string): Promise<void> => {
   await api.delete(`/admin/reviews/${reviewId}`);
 };
 
-// ---- Orders ----
 
 export interface AdminOrder {
   id: string; orderRef: string; price: string | number; status: string; createdAt: string;
@@ -159,7 +155,7 @@ export const fetchAllOrders = async (page = 1, limit = 20) => {
   return data;
 };
 
-// ---- Vendors ----
+
 
 export interface AdminVendor {
   id: string; username: string; name: string; email: string; isPro: boolean;
@@ -172,7 +168,6 @@ export const fetchVendors = async (page = 1, limit = 20) => {
   return data;
 };
 
-// ---- Categories ----
 
 export interface ProductCategory {
   name: string;
@@ -184,7 +179,7 @@ export const fetchCategories = async (): Promise<ProductCategory[]> => {
   return data.categories;
 };
 
-// ---- Transactions (Payments) ----
+
 
 export interface AdminTransaction {
   id: string;
@@ -202,7 +197,7 @@ export const fetchAllTransactions = async (page = 1, limit = 20) => {
   return data;
 };
 
-// ---- System health ----
+
 
 export interface SystemHealth {
   failedTransactions: number;

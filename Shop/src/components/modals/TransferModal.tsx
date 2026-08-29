@@ -14,9 +14,33 @@ interface TransferModalProps {
   ) => Promise<{ ok: boolean; message: string }>;
   onAddAuditLog: (action: string, details: string, actor?: string) => void;
   activeUsername: string;
+  accountHolderName?: string;
 }
 
-export default function TransferModal({ isOpen, onClose, onTransfer, onAddAuditLog, activeUsername }: TransferModalProps) {
+const looksLikeNameMatch = (a: string, b: string): boolean => {
+  const tokenize = (s: string) =>
+    s
+      .toUpperCase()
+      .replace(/['’]/g, '')
+      .replace(/[^A-Z\s]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+  const tokensA = tokenize(a);
+  const tokensB = tokenize(b);
+  if (tokensA.length === 0 || tokensB.length === 0) return false;
+  const setB = new Set(tokensB);
+  const shared = tokensA.filter((t) => setB.has(t)).length;
+  return shared >= (Math.min(tokensA.length, tokensB.length) <= 1 ? 1 : 2);
+};
+
+export default function TransferModal({
+  isOpen,
+  onClose,
+  onTransfer,
+  onAddAuditLog,
+  activeUsername,
+  accountHolderName
+}: TransferModalProps) {
   const [transferAmount, setTransferAmount] = useState('');
   const [transferBeneficiary, setTransferBeneficiary] = useState('');
   const [selectedBankCode, setSelectedBankCode] = useState('');
@@ -24,9 +48,6 @@ export default function TransferModal({ isOpen, onClose, onTransfer, onAddAuditL
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Account resolution state: once the account number reaches 10 digits and
-  // a bank is picked, we confirm the real account holder's name with
-  // Paystack before allowing the transfer to be authorized.
   const [resolvedName, setResolvedName] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
 
@@ -152,12 +173,27 @@ export default function TransferModal({ isOpen, onClose, onTransfer, onAddAuditL
                 </div>
               )}
 
-              {resolvedName && (
-                <div className="p-2.5 bg-green-50 rounded-xl border border-green-100 flex items-center gap-2 text-green-700 text-[11px] font-semibold">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  {resolvedName}
-                </div>
-              )}
+              {resolvedName && (() => {
+                const nameMismatch =
+                  !!accountHolderName && !looksLikeNameMatch(resolvedName, accountHolderName);
+
+                if (nameMismatch) {
+                  return (
+                    <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center gap-2 text-amber-800 text-[11px] font-semibold">
+                      <X className="w-4 h-4 shrink-0" />
+                      "{resolvedName}" doesn't look like your registered name — withdrawals to
+                      other people's accounts aren't allowed.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="p-2.5 bg-green-50 rounded-xl border border-green-100 flex items-center gap-2 text-green-700 text-[11px] font-semibold">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    {resolvedName}
+                  </div>
+                );
+              })()}
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Disbursement Amount (₦)</label>

@@ -7,6 +7,7 @@ export interface ChatMessage {
   content: string;
   timestamp: string | number;
   attachmentName?: string;
+  isRead?: boolean;
   sharedTrade?: {
     id: string;
     title: string;
@@ -36,4 +37,11 @@ export interface ChatRoom {
   reviewCount?: number;
   sellerId?: string;
   participantId?: string;
+  activeTrade?: {
+    id: string;
+    title: string;
+    amount: number;
+    status: string;
+    image: string | null;
+  } | null;
 }

@@ -15,6 +15,13 @@ export interface ChatRoom {
   messages: ChatMessage[];
   isPinned?: boolean;
   unreadCount?: number;
+  associatedTrade?: {
+    id: string;
+    title: string;
+    amount: string | number;
+    status: string;
+    image: string | null;
+  } | null;
 }
 
 export interface ChatParticipant {

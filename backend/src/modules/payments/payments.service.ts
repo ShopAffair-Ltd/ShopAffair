@@ -4,6 +4,7 @@ import { Prisma } from '../../generated/prisma/client.js';
 import { env } from '../../config/env';
 import { ApiError } from '../../utils/ApiError';
 import { notify } from '../notifications/notifications.service';
+import { namesLikelyMatch } from '../../utils/nameMatch';
 import * as paystack from './providers/paystack.provider';
 
 const generateReference = () => `SF-FUND-${crypto.randomBytes(8).toString('hex')}`;
@@ -295,6 +296,14 @@ export const requestWithdrawal = async (params: {
   }
 
   const resolved = await paystack.resolveAccountNumber(accountNumber, bankCode);
+
+  if (!namesLikelyMatch(resolved.account_name, user.name)) {
+    throw new ApiError(
+      403,
+      `This account is registered to "${resolved.account_name}", which doesn't match your account name. ` +
+        `Withdrawals are only allowed to an account in your own name.`
+    );
+  }
 
   let recipientCode = user.paystackRecipientCode;
   const isSameAccountAsBefore =

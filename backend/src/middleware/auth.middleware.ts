@@ -4,12 +4,7 @@ import { env } from '../config/env';
 import { prisma } from '../config/db';
 import type { AuthPayload } from '../types/express';
 
-// Checking isFrozen on every authenticated request means a freeze takes
-// effect immediately, even for someone already holding a valid JWT -
-// without this, "fully locked out" would only apply to new logins, and a
-// frozen user could keep trading/chatting until their token naturally
-// expires (up to 7 days). The extra query is a deliberate tradeoff:
-// correctness of an urgent moderation action over shaving one DB round trip.
+
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const header = req.headers.authorization;
 

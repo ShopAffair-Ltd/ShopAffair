@@ -163,3 +163,12 @@ export const OtpPurpose = {
 } as const
 
 export type OtpPurpose = (typeof OtpPurpose)[keyof typeof OtpPurpose]
+
+
+export const TradeVisibility = {
+  PRIVATE: 'PRIVATE',
+  STORE: 'STORE',
+  MARKET: 'MARKET'
+} as const
+
+export type TradeVisibility = (typeof TradeVisibility)[keyof typeof TradeVisibility]
