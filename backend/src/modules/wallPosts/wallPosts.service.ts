@@ -112,6 +112,13 @@ export const addComment = async (userId: string, postId: string, input: CreateCo
     throw new ApiError(404, 'Post not found');
   }
 
+  const isBlocked = await prisma.block.findUnique({
+    where: { blockerId_blockedId: { blockerId: post.sellerId, blockedId: userId } }
+  });
+  if (isBlocked) {
+    throw new ApiError(403, 'You have been blocked from commenting on this store');
+  }
+
   await prisma.wallPostComment.create({
     data: { postId, authorId: userId, content: input.content }
   });

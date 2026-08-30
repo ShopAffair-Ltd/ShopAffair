@@ -16,6 +16,7 @@ interface ChatContextType {
   totalUnreadChats: number;
   loading: boolean;
   refreshChats: () => Promise<void>;
+  loadFullChatHistory: (roomId: string) => Promise<void>;
   sendError: string | null;
   clearSendError: () => void;
 }
@@ -110,9 +111,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const response = await chatService.getUserChats();
+      console.log('[loadChats] raw response.data.chats:', response.data.chats);
       const mappedRooms = response.data.chats.map((room: any) =>
         mapApiRoomToChatRoom(room, user.username)
       );
+      console.log('[loadChats] mapped rooms (messages per room):', mappedRooms.map(r => ({ id: r.id, messages: r.messages })));
       setChatRooms(mappedRooms);
     } catch (error) {
       console.error('Failed to load chats:', error);
@@ -144,10 +147,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return;
 
-    chatSocket.on('onNewMessage', (message: any) => {
+    const handleNewMessage = (message: any) => {
+      console.log('[socket] onNewMessage received:', message);
+
       setChatRooms(prev => {
         const existing = prev.find(r => r.id === message.chatRoomId);
+        console.log('[socket] room before update:', existing?.messages);
+
         if (!existing) {
+          console.log('[socket] room not found in state, calling loadChats()');
           loadChats();
           return prev;
         }
@@ -172,7 +180,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             : null
         };
 
-        return prev.map(room => {
+        const next = prev.map(room => {
           if (room.id === message.chatRoomId) {
             const isMine = message.senderId === user.id;
             const shouldMarkRead = !isMine && selectedRoomId === message.chatRoomId;
@@ -205,10 +213,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           }
           return room;
         });
-      });
-    });
 
-    chatSocket.on('onMessagesRead', (data: any) => {
+        console.log('[socket] room after update:', next.find(r => r.id === message.chatRoomId)?.messages);
+        return next;
+      });
+    };
+
+    const handleMessagesRead = (data: any) => {
       setChatRooms(prev =>
         prev.map(room => {
           if (room.id === data.chatRoomId) {
@@ -226,9 +237,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           return room;
         })
       );
-    });
+    };
 
-    chatSocket.on('onError', (data: { message: string }) => {
+    const handleError = (data: { message: string }) => {
+      console.log('[socket] onError:', data);
       setPendingMessages((prevPending) => {
         const pendingIds = Object.keys(prevPending);
         if (pendingIds.length > 0) {
@@ -242,12 +254,16 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return {};
       });
       setSendError(data.message);
-    });
+    };
+
+    chatSocket.on('onNewMessage', handleNewMessage);
+    chatSocket.on('onMessagesRead', handleMessagesRead);
+    chatSocket.on('onError', handleError);
 
     return () => {
-      chatSocket.off('onNewMessage', () => {});
-      chatSocket.off('onMessagesRead', () => {});
-      chatSocket.off('onError', () => {});
+      chatSocket.off('onNewMessage', handleNewMessage);
+      chatSocket.off('onMessagesRead', handleMessagesRead);
+      chatSocket.off('onError', handleError);
     };
   }, [user, selectedRoomId]);
 
@@ -255,6 +271,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (!user) return;
 
     const tempId = `temp_${Date.now()}`;
+    console.log('[sendMessage] optimistic add, tempId:', tempId, 'text:', text);
 
     setChatRooms(prev =>
       prev.map((room) => {
@@ -323,6 +340,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     chatSocket.markAsRead(roomId);
   };
 
+  const loadFullChatHistory = async (roomId: string) => {
+    if (!user) return;
+
+    console.log('[loadFullChatHistory] fetching full history for room:', roomId);
+    try {
+      const response = await chatService.getChatRoom(roomId);
+      console.log('[loadFullChatHistory] raw response:', response.data.chatRoom);
+      const fullRoom = mapApiRoomToChatRoom(response.data.chatRoom, user.username);
+      console.log('[loadFullChatHistory] mapped messages:', fullRoom.messages);
+
+      setChatRooms((prev) =>
+        prev.map((room) => (room.id === roomId ? { ...room, messages: fullRoom.messages } : room))
+      );
+    } catch (error) {
+      console.error('Failed to load full chat history:', error);
+    }
+  };
+
   const refreshChats = loadChats;
 
   const totalUnread = chatRooms.reduce((sum, r) => sum + r.unreadCount, 0);
@@ -340,6 +375,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       totalUnreadChats: totalUnread,
       loading,
       refreshChats,
+      loadFullChatHistory,
       sendError,
       clearSendError: () => setSendError(null)
     }}>

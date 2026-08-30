@@ -15,7 +15,7 @@ interface ChatViewProps {
 
 export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewProps) {
   const { user } = useAuth();
-  const { chatRooms, sendMessage, markAsRead, sendError, clearSendError } = useChat();
+  const { chatRooms, sendMessage, markAsRead, sendError, clearSendError, loadFullChatHistory } = useChat();
   const navigate = useNavigate();
   const activeProfile = user;
 
@@ -41,6 +41,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
         previousRoomIdRef.current = selectedRoom.id;
         chatSocket.joinChat(selectedRoom.id);
         markAsRead(selectedRoom.id);
+        loadFullChatHistory(selectedRoom.id);
       }
       if (onChatSelect) onChatSelect(selectedRoom);
       if (onChatPartnerName) onChatPartnerName(selectedRoom.participantName);
@@ -54,7 +55,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
         chatSocket.leaveChat(selectedRoom.id);
       }
     };
-  }, [selectedRoom, markAsRead, onChatSelect, onChatPartnerName]);
+  }, [selectedRoom, markAsRead, onChatSelect, onChatPartnerName, loadFullChatHistory]);
 
   const allRooms = React.useMemo(() => {
     return chatRooms;

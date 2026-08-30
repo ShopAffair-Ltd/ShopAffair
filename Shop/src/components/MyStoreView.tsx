@@ -12,7 +12,10 @@ import {
   SlidersHorizontal,
   Share,
   Pencil,
-  Trash2
+  Trash2,
+  Users,
+  Ban,
+  ShieldOff
 } from 'lucide-react';
 import { UserProfile, MarketProduct } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -26,6 +29,8 @@ import { Avatar, WallPostComponent } from './storeComponents';
 import AddProductSheet from './storeAddProductSheet';
 import * as wallPostService from '../services/wallPostService';
 import type { WallPost as ApiWallPost } from '../services/wallPostService';
+import { fetchMyFollowers, StoreFollower } from '../services/followService';
+import { chatService } from '../services/chatService';
 
 function mapApiPost(apiPost: ApiWallPost, currentUserId: string): WallPost {
   return {
@@ -68,6 +73,33 @@ export default function MyStoreView() {
   const [productSheetOpen, setProductSheetOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<MarketProduct | null>(null);
   const [keepPrivate, setKeepPrivate] = useState(false);
+  const [followers, setFollowers] = useState<StoreFollower[]>([]);
+  const [followersLoading, setFollowersLoading] = useState(true);
+  const [blockActionId, setBlockActionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchMyFollowers()
+      .then(setFollowers)
+      .catch(() => setFollowers([]))
+      .finally(() => setFollowersLoading(false));
+  }, []);
+
+  const handleToggleBlock = async (follower: StoreFollower) => {
+    setBlockActionId(follower.id);
+    try {
+      if (follower.isBlocked) {
+        await chatService.unblockUser(follower.id);
+      } else {
+        await chatService.blockUser(follower.id);
+      }
+      setFollowers((prev) =>
+        prev.map((f) => (f.id === follower.id ? { ...f, isBlocked: !f.isBlocked } : f))
+      );
+    } catch {
+    } finally {
+      setBlockActionId(null);
+    }
+  };
 
   useEffect(() => {
     if (!activeProfile) return;
@@ -486,6 +518,53 @@ export default function MyStoreView() {
                   ))}
                   {storeProducts.length === 0 && (
                     <p className="text-[11px] font-sans text-slate-400 text-center py-4">No products yet.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-100 rounded-xl overflow-hidden">
+                <div className="px-3 pt-3 pb-1 flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wide">
+                    Followers ({followers.length})
+                  </span>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {followersLoading ? (
+                    <p className="text-[11px] font-sans text-slate-400 text-center py-4">Loading followers...</p>
+                  ) : followers.length === 0 ? (
+                    <p className="text-[11px] font-sans text-slate-400 text-center py-4">No followers yet.</p>
+                  ) : (
+                    followers.map((f) => (
+                      <div key={f.id} className="flex items-center gap-2.5 px-3 py-2.5">
+                        <div
+                          className="w-9 h-9 rounded-full flex items-center justify-center text-white font-sans font-bold text-xs shrink-0 overflow-hidden"
+                          style={{ backgroundColor: f.avatarColor ?? '#7C3AED' }}
+                        >
+                          {f.profilePicture ? (
+                            <img src={f.profilePicture} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            f.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="block text-[11px] font-sans font-bold text-slate-800 truncate">@{f.username}</span>
+                          <span className="block text-[9px] font-sans text-slate-400">{f.name}</span>
+                        </div>
+                        <button
+                          onClick={() => handleToggleBlock(f)}
+                          disabled={blockActionId === f.id}
+                          title={f.isBlocked ? 'Unblock from store chat' : 'Block from store chat'}
+                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer outline-none shrink-0 disabled:opacity-50 transition-colors ${
+                            f.isBlocked
+                              ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100'
+                              : 'bg-white border-slate-100 text-slate-500 hover:text-rose-600'
+                          }`}
+                        >
+                          {f.isBlocked ? <ShieldOff className="w-3 h-3" /> : <Ban className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>

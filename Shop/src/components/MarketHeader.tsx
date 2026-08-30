@@ -103,11 +103,22 @@ export default function MarketHeader({
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentSlide}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                  className="absolute inset-0 flex flex-col justify-center"
+                  initial={{ x: 40, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -40, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.5}
+                  onDragEnd={(_, info) => {
+                    const SWIPE_THRESHOLD = 40;
+                    if (info.offset.x < -SWIPE_THRESHOLD) {
+                      goToSlide((currentSlide + 1) % carouselMessages.length);
+                    } else if (info.offset.x > SWIPE_THRESHOLD) {
+                      goToSlide((currentSlide - 1 + carouselMessages.length) % carouselMessages.length);
+                    }
+                  }}
+                  className="absolute inset-0 flex flex-col justify-center cursor-grab active:cursor-grabbing touch-pan-y"
                 >
                   <div className="flex items-center gap-1.5">
                     <h1 className="text-base font-sans font-black text-slate-950 tracking-tight leading-none">

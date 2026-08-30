@@ -15,6 +15,7 @@ interface ChatSocketEvents {
 class ChatSocket {
   private socket: Socket | null = null;
   private listeners: Partial<Record<keyof ChatSocketEvents, ((data: any) => void)[]>> = {};
+  private pendingRooms: Set<string> = new Set();
 
   connect(token: string) {
     if (this.socket?.connected) return;
@@ -42,6 +43,10 @@ class ChatSocket {
 
     this.socket.on('connect', () => {
       console.log('Socket connected');
+      this.pendingRooms.forEach((roomId) => {
+        this.socket!.emit('join_chat', roomId);
+      });
+      this.pendingRooms.clear();
     });
 
     this.socket.on('disconnect', (reason) => {
@@ -91,13 +96,14 @@ class ChatSocket {
 
   joinChat(chatRoomId: string) {
     if (!this.isConnected()) {
-      console.warn('joinChat called while socket disconnected');
+      this.pendingRooms.add(chatRoomId);
       return;
     }
     this.socket!.emit('join_chat', chatRoomId);
   }
 
   leaveChat(chatRoomId: string) {
+    this.pendingRooms.delete(chatRoomId);
     if (!this.isConnected()) return;
     this.socket!.emit('leave_chat', chatRoomId);
   }
@@ -126,6 +132,7 @@ class ChatSocket {
   }
 
   disconnect() {
+    this.pendingRooms.clear();
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;

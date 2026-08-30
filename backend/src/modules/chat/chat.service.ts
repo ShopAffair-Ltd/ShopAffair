@@ -1,6 +1,7 @@
 import { prisma } from '../../config/db.js';
 import { ChatRoomType, ParticipantRole } from '../../generated/prisma/enums.js';
 import { ApiError } from '../../utils/ApiError.js';
+import { notify } from '../notifications/notifications.service.js';
 
 const isUUID = (str: string) => {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
@@ -241,6 +242,13 @@ export const createCommunity = async (userId: string, data: {
         include: { user: true }
       }
     }
+  });
+
+  await notify({
+    userId,
+    title: 'Group pending approval',
+    message: `"${data.name}" has been created and is awaiting admin approval before it goes live. You'll be notified once it's reviewed.`,
+    type: 'INFO'
   });
 
   return chatRoom;
