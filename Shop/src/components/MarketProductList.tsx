@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { MarketProduct, UserProfile, CartItem } from '../types';
 import QuickTransferModal from './QuickTransferModal';
+import { useFavorites } from '../context/FavoritesContext';
 
 interface SubCategory {
   name: string;
@@ -124,6 +125,7 @@ export default function MarketProductList({
   onVisitStore
 }: MarketProductListProps) {
 
+  const { isFavorited, toggleFavorite } = useFavorites();
   const activeGroupData = categoryGroups.find((g) => g.name === activeGroup);
 
   const openGroup = (groupName: string) => {
@@ -338,6 +340,22 @@ export default function MarketProductList({
                           referrerPolicy="no-referrer"
                           className="w-full h-full object-cover"
                         />
+                        {isLoggedIn && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(prod.id);
+                            }}
+                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-sm hover:bg-white transition-colors cursor-pointer"
+                            aria-label={isFavorited(prod.id) ? 'Remove from favorites' : 'Add to favorites'}
+                          >
+                            <Heart
+                              className={`w-3 h-3 transition-colors ${
+                                isFavorited(prod.id) ? 'fill-red-500 stroke-red-500' : 'stroke-slate-500'
+                              }`}
+                            />
+                          </button>
+                        )}
                       </div>
 
                       <div className="p-2 flex flex-col justify-between flex-1">

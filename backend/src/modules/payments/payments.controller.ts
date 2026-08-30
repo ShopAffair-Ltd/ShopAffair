@@ -7,7 +7,8 @@ import {
   resolveAccountSchema,
   resolveAccountAllBanksSchema,
   withdrawSchema,
-  subscribeSchema
+  subscribeSchema,
+  redeemSchema
 } from './payments.validation';
 import {
   initiateWalletFunding,
@@ -25,6 +26,7 @@ import {
   listAllWithdrawals,
   listAllTransactions
 } from './payments.service';
+import { redeemPromoCode } from '../settings/settings.service';
 
 const requireUser = (req: Request) => {
   if (!req.user) {
@@ -127,5 +129,12 @@ export const getAllTransactions = asyncHandler(async (req: Request, res: Respons
   const page = Number(req.query.page ?? 1);
   const limit = Number(req.query.limit ?? 20);
   const result = await listAllTransactions(page, limit);
+  res.status(200).json(result);
+});
+
+export const redeemPromo = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const { code } = redeemSchema.parse(req.body);
+  const result = await redeemPromoCode(user.id, code);
   res.status(200).json(result);
 });

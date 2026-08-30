@@ -43,6 +43,11 @@ export type ReviewHelpful = Prisma.ReviewHelpfulModel
  */
 export type Product = Prisma.ProductModel
 /**
+ * Model Favorite
+ * 
+ */
+export type Favorite = Prisma.FavoriteModel
+/**
  * Model Trade
  * 
  */
@@ -132,6 +137,11 @@ export type PlatformSetting = Prisma.PlatformSettingModel
  * 
  */
 export type PromoCode = Prisma.PromoCodeModel
+/**
+ * Model PromoRedemption
+ * 
+ */
+export type PromoRedemption = Prisma.PromoRedemptionModel
 /**
  * Model Otp
  * 

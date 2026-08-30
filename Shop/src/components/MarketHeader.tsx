@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, ShoppingCart, Heart, Eye, EyeOff, ChevronLeft, Pencil, X, 
@@ -26,6 +27,8 @@ interface MarketHeaderProps {
   setAccountDraft: (val: string) => void;
   saveAccountNumber: () => void;
   cancelAccountEdit: () => void;
+  activeFilterCount?: number;
+  onOpenFilters?: () => void;
 }
 
 export default function MarketHeader({
@@ -46,8 +49,11 @@ export default function MarketHeader({
   accountDraft,
   setAccountDraft,
   saveAccountNumber,
-  cancelAccountEdit
+  cancelAccountEdit,
+  activeFilterCount = 0,
+  onOpenFilters
 }: MarketHeaderProps) {
+  const navigate = useNavigate();
   return (
     <div className="px-4 pt-4 pb-2 sticky top-0 bg-[#F8F9FC] z-10 border-b border-slate-50">
       {isLoggedIn ? (
@@ -71,7 +77,7 @@ export default function MarketHeader({
 
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => alert("Your saved favorites lists will appear here.")}
+              onClick={() => navigate('/favorites')}
               className="w-8 h-8 rounded-lg bg-[#F4F4F6] flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
             >
               <Heart className="w-3.5 h-3.5" />
@@ -184,8 +190,16 @@ export default function MarketHeader({
           <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
         </div>
         {isLoggedIn && (
-          <button className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shrink-0 transition-colors cursor-pointer">
+          <button
+            onClick={onOpenFilters}
+            className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shrink-0 transition-colors cursor-pointer relative"
+          >
             <SlidersHorizontal className="w-4 h-4" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#7C3AED] text-white text-[8px] font-sans font-extrabold w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-xs border border-white">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
         )}
       </div>

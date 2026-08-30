@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { isTradeBasedProductId, stripTradeIdPrefix } from '../services/TradeService';
 import MarketHeader from './MarketHeader';
 import MarketProductList from './MarketProductList';
+import MarketFilterPanel from './MarketFilterPanel';
 
 const carouselMessages = [
   { text: 'ShopAffairShop', subtext: 'Your trusted marketplace', icon: 'Store' },
@@ -103,6 +104,11 @@ export default function MarketView() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Trending');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [filterMinPrice, setFilterMinPrice] = useState('');
+  const [filterMaxPrice, setFilterMaxPrice] = useState('');
+  const [filterCondition, setFilterCondition] = useState<MarketProduct['condition'] | ''>('');
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<MarketProduct | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
@@ -203,17 +209,33 @@ export default function MarketView() {
     }
   ];
 
+  const activeFilterCount = [filterLocation, filterMinPrice, filterMaxPrice, filterCondition].filter(Boolean).length;
+
+  const matchesFilters = (item: { location?: string; price: number; condition?: string }) => {
+    if (filterLocation && !(item.location ?? '').toLowerCase().includes(filterLocation.toLowerCase())) {
+      return false;
+    }
+    if (filterMinPrice && item.price < Number(filterMinPrice)) {
+      return false;
+    }
+    if (filterMaxPrice && item.price > Number(filterMaxPrice)) {
+      return false;
+    }
+    if (filterCondition && item.condition && item.condition !== filterCondition) {
+      return false;
+    }
+    return true;
+  };
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (selectedCategory === 'Trending') {
-      return matchesSearch;
-    }
+    const matchesCategory =
+      selectedCategory === 'Trending' || product.category.toLowerCase() === selectedCategory.toLowerCase();
 
-    const matchesCategory = product.category.toLowerCase() === selectedCategory.toLowerCase();
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesFilters(product);
   });
 
   const filteredDemands = mockDemands.filter((demand) => {
@@ -221,11 +243,9 @@ export default function MarketView() {
       demand.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       demand.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (selectedCategory === 'Trending') {
-      return matchesSearch;
-    }
+    const matchesCategory =
+      selectedCategory === 'Trending' || demand.category.toLowerCase() === selectedCategory.toLowerCase();
 
-    const matchesCategory = demand.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -279,6 +299,27 @@ export default function MarketView() {
         cancelAccountEdit={() => {
           setAccountDraft(accountNumber);
           setEditingAccount(false);
+        }}
+        activeFilterCount={activeFilterCount}
+        onOpenFilters={() => setShowFilterPanel(true)}
+      />
+
+      <MarketFilterPanel
+        isOpen={showFilterPanel}
+        onClose={() => setShowFilterPanel(false)}
+        location={filterLocation}
+        setLocation={setFilterLocation}
+        minPrice={filterMinPrice}
+        setMinPrice={setFilterMinPrice}
+        maxPrice={filterMaxPrice}
+        setMaxPrice={setFilterMaxPrice}
+        condition={filterCondition}
+        setCondition={setFilterCondition}
+        onClear={() => {
+          setFilterLocation('');
+          setFilterMinPrice('');
+          setFilterMaxPrice('');
+          setFilterCondition('');
         }}
       />
 

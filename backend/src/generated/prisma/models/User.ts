@@ -28,6 +28,7 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   walletBalance: runtime.Decimal | null
+  promoBalance: runtime.Decimal | null
   totalTrades: number | null
   completedTrades: number | null
   completionRate: number | null
@@ -39,6 +40,7 @@ export type UserAvgAggregateOutputType = {
 
 export type UserSumAggregateOutputType = {
   walletBalance: runtime.Decimal | null
+  promoBalance: runtime.Decimal | null
   totalTrades: number | null
   completedTrades: number | null
   completionRate: number | null
@@ -74,7 +76,9 @@ export type UserMinAggregateOutputType = {
   withdrawalAccountName: string | null
   paystackRecipientCode: string | null
   walletBalance: runtime.Decimal | null
+  promoBalance: runtime.Decimal | null
   isPro: boolean | null
+  storePlan: string | null
   avatarColor: string | null
   phoneNumber: string | null
   profilePicture: string | null
@@ -124,7 +128,9 @@ export type UserMaxAggregateOutputType = {
   withdrawalAccountName: string | null
   paystackRecipientCode: string | null
   walletBalance: runtime.Decimal | null
+  promoBalance: runtime.Decimal | null
   isPro: boolean | null
+  storePlan: string | null
   avatarColor: string | null
   phoneNumber: string | null
   profilePicture: string | null
@@ -174,7 +180,9 @@ export type UserCountAggregateOutputType = {
   withdrawalAccountName: number
   paystackRecipientCode: number
   walletBalance: number
+  promoBalance: number
   isPro: number
+  storePlan: number
   avatarColor: number
   phoneNumber: number
   profilePicture: number
@@ -202,6 +210,7 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   walletBalance?: true
+  promoBalance?: true
   totalTrades?: true
   completedTrades?: true
   completionRate?: true
@@ -213,6 +222,7 @@ export type UserAvgAggregateInputType = {
 
 export type UserSumAggregateInputType = {
   walletBalance?: true
+  promoBalance?: true
   totalTrades?: true
   completedTrades?: true
   completionRate?: true
@@ -248,7 +258,9 @@ export type UserMinAggregateInputType = {
   withdrawalAccountName?: true
   paystackRecipientCode?: true
   walletBalance?: true
+  promoBalance?: true
   isPro?: true
+  storePlan?: true
   avatarColor?: true
   phoneNumber?: true
   profilePicture?: true
@@ -298,7 +310,9 @@ export type UserMaxAggregateInputType = {
   withdrawalAccountName?: true
   paystackRecipientCode?: true
   walletBalance?: true
+  promoBalance?: true
   isPro?: true
+  storePlan?: true
   avatarColor?: true
   phoneNumber?: true
   profilePicture?: true
@@ -348,7 +362,9 @@ export type UserCountAggregateInputType = {
   withdrawalAccountName?: true
   paystackRecipientCode?: true
   walletBalance?: true
+  promoBalance?: true
   isPro?: true
+  storePlan?: true
   avatarColor?: true
   phoneNumber?: true
   profilePicture?: true
@@ -485,7 +501,9 @@ export type UserGroupByOutputType = {
   withdrawalAccountName: string | null
   paystackRecipientCode: string | null
   walletBalance: runtime.Decimal
+  promoBalance: runtime.Decimal
   isPro: boolean
+  storePlan: string | null
   avatarColor: string | null
   phoneNumber: string | null
   profilePicture: string | null
@@ -558,7 +576,9 @@ export type UserWhereInput = {
   withdrawalAccountName?: Prisma.StringNullableFilter<"User"> | string | null
   paystackRecipientCode?: Prisma.StringNullableFilter<"User"> | string | null
   walletBalance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFilter<"User"> | boolean
+  storePlan?: Prisma.StringNullableFilter<"User"> | string | null
   avatarColor?: Prisma.StringNullableFilter<"User"> | string | null
   phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
   profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
@@ -611,8 +631,10 @@ export type UserWhereInput = {
   supportReplies?: Prisma.SupportTicketReplyListRelationFilter
   platformSettingsEdited?: Prisma.PlatformSettingListRelationFilter
   promoCodesCreated?: Prisma.PromoCodeListRelationFilter
+  promoRedemptions?: Prisma.PromoRedemptionListRelationFilter
   blockedBy?: Prisma.BlockListRelationFilter
   blocking?: Prisma.BlockListRelationFilter
+  favorites?: Prisma.FavoriteListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -641,7 +663,9 @@ export type UserOrderByWithRelationInput = {
   withdrawalAccountName?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackRecipientCode?: Prisma.SortOrderInput | Prisma.SortOrder
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   isPro?: Prisma.SortOrder
+  storePlan?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarColor?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -694,8 +718,10 @@ export type UserOrderByWithRelationInput = {
   supportReplies?: Prisma.SupportTicketReplyOrderByRelationAggregateInput
   platformSettingsEdited?: Prisma.PlatformSettingOrderByRelationAggregateInput
   promoCodesCreated?: Prisma.PromoCodeOrderByRelationAggregateInput
+  promoRedemptions?: Prisma.PromoRedemptionOrderByRelationAggregateInput
   blockedBy?: Prisma.BlockOrderByRelationAggregateInput
   blocking?: Prisma.BlockOrderByRelationAggregateInput
+  favorites?: Prisma.FavoriteOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -727,7 +753,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   withdrawalAccountName?: Prisma.StringNullableFilter<"User"> | string | null
   paystackRecipientCode?: Prisma.StringNullableFilter<"User"> | string | null
   walletBalance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFilter<"User"> | boolean
+  storePlan?: Prisma.StringNullableFilter<"User"> | string | null
   avatarColor?: Prisma.StringNullableFilter<"User"> | string | null
   phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
   profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
@@ -780,8 +808,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   supportReplies?: Prisma.SupportTicketReplyListRelationFilter
   platformSettingsEdited?: Prisma.PlatformSettingListRelationFilter
   promoCodesCreated?: Prisma.PromoCodeListRelationFilter
+  promoRedemptions?: Prisma.PromoRedemptionListRelationFilter
   blockedBy?: Prisma.BlockListRelationFilter
   blocking?: Prisma.BlockListRelationFilter
+  favorites?: Prisma.FavoriteListRelationFilter
 }, "id" | "tempId" | "username" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -810,7 +840,9 @@ export type UserOrderByWithAggregationInput = {
   withdrawalAccountName?: Prisma.SortOrderInput | Prisma.SortOrder
   paystackRecipientCode?: Prisma.SortOrderInput | Prisma.SortOrder
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   isPro?: Prisma.SortOrder
+  storePlan?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarColor?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePicture?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -868,7 +900,9 @@ export type UserScalarWhereWithAggregatesInput = {
   withdrawalAccountName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   paystackRecipientCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   walletBalance?: Prisma.DecimalWithAggregatesFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalWithAggregatesFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  storePlan?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarColor?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   profilePicture?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -917,7 +951,9 @@ export type UserCreateInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -970,8 +1006,10 @@ export type UserCreateInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -1000,7 +1038,9 @@ export type UserUncheckedCreateInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -1052,8 +1092,10 @@ export type UserUncheckedCreateInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -1081,7 +1123,9 @@ export type UserUpdateInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1134,8 +1178,10 @@ export type UserUpdateInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -1164,7 +1210,9 @@ export type UserUncheckedUpdateInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1216,8 +1264,10 @@ export type UserUncheckedUpdateInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1246,7 +1296,9 @@ export type UserCreateManyInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -1295,7 +1347,9 @@ export type UserUpdateManyMutationInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1345,7 +1399,9 @@ export type UserUncheckedUpdateManyInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1410,7 +1466,9 @@ export type UserCountOrderByAggregateInput = {
   withdrawalAccountName?: Prisma.SortOrder
   paystackRecipientCode?: Prisma.SortOrder
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   isPro?: Prisma.SortOrder
+  storePlan?: Prisma.SortOrder
   avatarColor?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   profilePicture?: Prisma.SortOrder
@@ -1436,6 +1494,7 @@ export type UserCountOrderByAggregateInput = {
 
 export type UserAvgOrderByAggregateInput = {
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   totalTrades?: Prisma.SortOrder
   completedTrades?: Prisma.SortOrder
   completionRate?: Prisma.SortOrder
@@ -1471,7 +1530,9 @@ export type UserMaxOrderByAggregateInput = {
   withdrawalAccountName?: Prisma.SortOrder
   paystackRecipientCode?: Prisma.SortOrder
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   isPro?: Prisma.SortOrder
+  storePlan?: Prisma.SortOrder
   avatarColor?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   profilePicture?: Prisma.SortOrder
@@ -1521,7 +1582,9 @@ export type UserMinOrderByAggregateInput = {
   withdrawalAccountName?: Prisma.SortOrder
   paystackRecipientCode?: Prisma.SortOrder
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   isPro?: Prisma.SortOrder
+  storePlan?: Prisma.SortOrder
   avatarColor?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   profilePicture?: Prisma.SortOrder
@@ -1547,6 +1610,7 @@ export type UserMinOrderByAggregateInput = {
 
 export type UserSumOrderByAggregateInput = {
   walletBalance?: Prisma.SortOrder
+  promoBalance?: Prisma.SortOrder
   totalTrades?: Prisma.SortOrder
   completedTrades?: Prisma.SortOrder
   completionRate?: Prisma.SortOrder
@@ -1769,6 +1833,20 @@ export type UserUpdateOneRequiredWithoutProductsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutProductsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductsInput, Prisma.UserUpdateWithoutProductsInput>, Prisma.UserUncheckedUpdateWithoutProductsInput>
+}
+
+export type UserCreateNestedOneWithoutFavoritesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFavoritesInput, Prisma.UserUncheckedCreateWithoutFavoritesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFavoritesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutFavoritesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFavoritesInput, Prisma.UserUncheckedCreateWithoutFavoritesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFavoritesInput
+  upsert?: Prisma.UserUpsertWithoutFavoritesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFavoritesInput, Prisma.UserUpdateWithoutFavoritesInput>, Prisma.UserUncheckedUpdateWithoutFavoritesInput>
 }
 
 export type UserCreateNestedOneWithoutTradesCreatedInput = {
@@ -2135,6 +2213,20 @@ export type UserUpdateOneRequiredWithoutPromoCodesCreatedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPromoCodesCreatedInput, Prisma.UserUpdateWithoutPromoCodesCreatedInput>, Prisma.UserUncheckedUpdateWithoutPromoCodesCreatedInput>
 }
 
+export type UserCreateNestedOneWithoutPromoRedemptionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPromoRedemptionsInput, Prisma.UserUncheckedCreateWithoutPromoRedemptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPromoRedemptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPromoRedemptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPromoRedemptionsInput, Prisma.UserUncheckedCreateWithoutPromoRedemptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPromoRedemptionsInput
+  upsert?: Prisma.UserUpsertWithoutPromoRedemptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPromoRedemptionsInput, Prisma.UserUpdateWithoutPromoRedemptionsInput>, Prisma.UserUncheckedUpdateWithoutPromoRedemptionsInput>
+}
+
 export type UserCreateWithoutFrozenUsersInput = {
   id?: string
   tempId: string
@@ -2160,7 +2252,9 @@ export type UserCreateWithoutFrozenUsersInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2212,8 +2306,10 @@ export type UserCreateWithoutFrozenUsersInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFrozenUsersInput = {
@@ -2242,7 +2338,9 @@ export type UserUncheckedCreateWithoutFrozenUsersInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2293,8 +2391,10 @@ export type UserUncheckedCreateWithoutFrozenUsersInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFrozenUsersInput = {
@@ -2327,7 +2427,9 @@ export type UserCreateWithoutFrozenByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2379,8 +2481,10 @@ export type UserCreateWithoutFrozenByInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFrozenByInput = {
@@ -2408,7 +2512,9 @@ export type UserUncheckedCreateWithoutFrozenByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2460,8 +2566,10 @@ export type UserUncheckedCreateWithoutFrozenByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFrozenByInput = {
@@ -2510,7 +2618,9 @@ export type UserUpdateWithoutFrozenUsersInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2562,8 +2672,10 @@ export type UserUpdateWithoutFrozenUsersInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFrozenUsersInput = {
@@ -2592,7 +2704,9 @@ export type UserUncheckedUpdateWithoutFrozenUsersInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2643,8 +2757,10 @@ export type UserUncheckedUpdateWithoutFrozenUsersInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutFrozenByInput = {
@@ -2692,7 +2808,9 @@ export type UserScalarWhereInput = {
   withdrawalAccountName?: Prisma.StringNullableFilter<"User"> | string | null
   paystackRecipientCode?: Prisma.StringNullableFilter<"User"> | string | null
   walletBalance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFilter<"User"> | boolean
+  storePlan?: Prisma.StringNullableFilter<"User"> | string | null
   avatarColor?: Prisma.StringNullableFilter<"User"> | string | null
   phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
   profilePicture?: Prisma.StringNullableFilter<"User"> | string | null
@@ -2741,7 +2859,9 @@ export type UserCreateWithoutFollowingInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2793,8 +2913,10 @@ export type UserCreateWithoutFollowingInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -2823,7 +2945,9 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2874,8 +2998,10 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -2908,7 +3034,9 @@ export type UserCreateWithoutFollowedByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -2960,8 +3088,10 @@ export type UserCreateWithoutFollowedByInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowedByInput = {
@@ -2990,7 +3120,9 @@ export type UserUncheckedCreateWithoutFollowedByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -3041,8 +3173,10 @@ export type UserUncheckedCreateWithoutFollowedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowedByInput = {
@@ -3086,7 +3220,9 @@ export type UserUpdateWithoutFollowingInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3138,8 +3274,10 @@ export type UserUpdateWithoutFollowingInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -3168,7 +3306,9 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3219,8 +3359,10 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFollowedByInput = {
@@ -3259,7 +3401,9 @@ export type UserUpdateWithoutFollowedByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3311,8 +3455,10 @@ export type UserUpdateWithoutFollowedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowedByInput = {
@@ -3341,7 +3487,9 @@ export type UserUncheckedUpdateWithoutFollowedByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3392,8 +3540,10 @@ export type UserUncheckedUpdateWithoutFollowedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReviewsGivenInput = {
@@ -3421,7 +3571,9 @@ export type UserCreateWithoutReviewsGivenInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -3473,8 +3625,10 @@ export type UserCreateWithoutReviewsGivenInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewsGivenInput = {
@@ -3503,7 +3657,9 @@ export type UserUncheckedCreateWithoutReviewsGivenInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -3554,8 +3710,10 @@ export type UserUncheckedCreateWithoutReviewsGivenInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewsGivenInput = {
@@ -3588,7 +3746,9 @@ export type UserCreateWithoutReviewsReceivedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -3640,8 +3800,10 @@ export type UserCreateWithoutReviewsReceivedInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewsReceivedInput = {
@@ -3670,7 +3832,9 @@ export type UserUncheckedCreateWithoutReviewsReceivedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -3721,8 +3885,10 @@ export type UserUncheckedCreateWithoutReviewsReceivedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewsReceivedInput = {
@@ -3766,7 +3932,9 @@ export type UserUpdateWithoutReviewsGivenInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3818,8 +3986,10 @@ export type UserUpdateWithoutReviewsGivenInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsGivenInput = {
@@ -3848,7 +4018,9 @@ export type UserUncheckedUpdateWithoutReviewsGivenInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3899,8 +4071,10 @@ export type UserUncheckedUpdateWithoutReviewsGivenInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReviewsReceivedInput = {
@@ -3939,7 +4113,9 @@ export type UserUpdateWithoutReviewsReceivedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3991,8 +4167,10 @@ export type UserUpdateWithoutReviewsReceivedInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
@@ -4021,7 +4199,9 @@ export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4072,8 +4252,10 @@ export type UserUncheckedUpdateWithoutReviewsReceivedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReviewHelpfulVotesInput = {
@@ -4101,7 +4283,9 @@ export type UserCreateWithoutReviewHelpfulVotesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -4153,8 +4337,10 @@ export type UserCreateWithoutReviewHelpfulVotesInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewHelpfulVotesInput = {
@@ -4183,7 +4369,9 @@ export type UserUncheckedCreateWithoutReviewHelpfulVotesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -4234,8 +4422,10 @@ export type UserUncheckedCreateWithoutReviewHelpfulVotesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewHelpfulVotesInput = {
@@ -4279,7 +4469,9 @@ export type UserUpdateWithoutReviewHelpfulVotesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4331,8 +4523,10 @@ export type UserUpdateWithoutReviewHelpfulVotesInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewHelpfulVotesInput = {
@@ -4361,7 +4555,9 @@ export type UserUncheckedUpdateWithoutReviewHelpfulVotesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4412,8 +4608,10 @@ export type UserUncheckedUpdateWithoutReviewHelpfulVotesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProductsInput = {
@@ -4441,7 +4639,9 @@ export type UserCreateWithoutProductsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -4493,8 +4693,10 @@ export type UserCreateWithoutProductsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProductsInput = {
@@ -4523,7 +4725,9 @@ export type UserUncheckedCreateWithoutProductsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -4574,8 +4778,10 @@ export type UserUncheckedCreateWithoutProductsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProductsInput = {
@@ -4619,7 +4825,9 @@ export type UserUpdateWithoutProductsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4671,8 +4879,10 @@ export type UserUpdateWithoutProductsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProductsInput = {
@@ -4701,7 +4911,9 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4752,6 +4964,364 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutFavoritesInput = {
+  id?: string
+  tempId: string
+  name: string
+  username: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
+  rejectionReason?: string | null
+  isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
+  frozenReason?: string | null
+  frozenAt?: Date | string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  paystackCustomerCode?: string | null
+  withdrawalBankName?: string | null
+  withdrawalBankCode?: string | null
+  withdrawalAccountNumber?: string | null
+  withdrawalAccountName?: string | null
+  paystackRecipientCode?: string | null
+  walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: boolean
+  storePlan?: string | null
+  avatarColor?: string | null
+  phoneNumber?: string | null
+  profilePicture?: string | null
+  totalTrades?: number | null
+  completedTrades?: number | null
+  completionRate?: number | null
+  tier?: number | null
+  deliveryAddress?: string | null
+  verificationDocumentName?: string | null
+  verificationSubmittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  storeName?: string | null
+  bio?: string | null
+  location?: string | null
+  storeCategory?: string | null
+  coverImage?: string | null
+  lastSeenAt?: Date | string | null
+  rating?: number
+  reviewsCount?: number
+  totalSales?: number
+  frozenBy?: Prisma.UserCreateNestedOneWithoutFrozenUsersInput
+  frozenUsers?: Prisma.UserCreateNestedManyWithoutFrozenByInput
+  products?: Prisma.ProductCreateNestedManyWithoutSellerInput
+  tradesCreated?: Prisma.TradeCreateNestedManyWithoutCreatorInput
+  tradesBought?: Prisma.TradeCreateNestedManyWithoutBuyerInput
+  buyerOrders?: Prisma.OrderCreateNestedManyWithoutBuyerInput
+  sellerOrders?: Prisma.OrderCreateNestedManyWithoutSellerInput
+  chatRoomsInitiated?: Prisma.ChatRoomCreateNestedManyWithoutInitiatorInput
+  chatRoomsJoined?: Prisma.ChatRoomCreateNestedManyWithoutParticipantInput
+  chatRoomsCreated?: Prisma.ChatRoomCreateNestedManyWithoutCreatorInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  auditLogsActedBy?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  auditLogsAbout?: Prisma.AuditLogCreateNestedManyWithoutTargetUserInput
+  walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  followedBy?: Prisma.FollowCreateNestedManyWithoutFollowedUserInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  reviewsGiven?: Prisma.ReviewCreateNestedManyWithoutReviewerInput
+  reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutSellerInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulCreateNestedManyWithoutUserInput
+  wallPosts?: Prisma.WallPostCreateNestedManyWithoutSellerInput
+  wallPostLikes?: Prisma.WallPostLikeCreateNestedManyWithoutUserInput
+  wallPostComments?: Prisma.WallPostCommentCreateNestedManyWithoutAuthorInput
+  chatParticipants?: Prisma.ChatRoomParticipantCreateNestedManyWithoutUserInput
+  chatInvites?: Prisma.ChatInviteCreateNestedManyWithoutCreatedByInput
+  communitiesApproved?: Prisma.ChatRoomCreateNestedManyWithoutApprovedByInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutUserInput
+  supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
+  platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
+  promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+}
+
+export type UserUncheckedCreateWithoutFavoritesInput = {
+  id?: string
+  tempId: string
+  name: string
+  username: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
+  rejectionReason?: string | null
+  isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
+  frozenReason?: string | null
+  frozenAt?: Date | string | null
+  frozenById?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  paystackCustomerCode?: string | null
+  withdrawalBankName?: string | null
+  withdrawalBankCode?: string | null
+  withdrawalAccountNumber?: string | null
+  withdrawalAccountName?: string | null
+  paystackRecipientCode?: string | null
+  walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: boolean
+  storePlan?: string | null
+  avatarColor?: string | null
+  phoneNumber?: string | null
+  profilePicture?: string | null
+  totalTrades?: number | null
+  completedTrades?: number | null
+  completionRate?: number | null
+  tier?: number | null
+  deliveryAddress?: string | null
+  verificationDocumentName?: string | null
+  verificationSubmittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  storeName?: string | null
+  bio?: string | null
+  location?: string | null
+  storeCategory?: string | null
+  coverImage?: string | null
+  lastSeenAt?: Date | string | null
+  rating?: number
+  reviewsCount?: number
+  totalSales?: number
+  frozenUsers?: Prisma.UserUncheckedCreateNestedManyWithoutFrozenByInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutSellerInput
+  tradesCreated?: Prisma.TradeUncheckedCreateNestedManyWithoutCreatorInput
+  tradesBought?: Prisma.TradeUncheckedCreateNestedManyWithoutBuyerInput
+  buyerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutBuyerInput
+  sellerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutSellerInput
+  chatRoomsInitiated?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutInitiatorInput
+  chatRoomsJoined?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutParticipantInput
+  chatRoomsCreated?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutCreatorInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  auditLogsActedBy?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  auditLogsAbout?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTargetUserInput
+  walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  followedBy?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowedUserInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  reviewsGiven?: Prisma.ReviewUncheckedCreateNestedManyWithoutReviewerInput
+  reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutSellerInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulUncheckedCreateNestedManyWithoutUserInput
+  wallPosts?: Prisma.WallPostUncheckedCreateNestedManyWithoutSellerInput
+  wallPostLikes?: Prisma.WallPostLikeUncheckedCreateNestedManyWithoutUserInput
+  wallPostComments?: Prisma.WallPostCommentUncheckedCreateNestedManyWithoutAuthorInput
+  chatParticipants?: Prisma.ChatRoomParticipantUncheckedCreateNestedManyWithoutUserInput
+  chatInvites?: Prisma.ChatInviteUncheckedCreateNestedManyWithoutCreatedByInput
+  communitiesApproved?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutApprovedByInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutUserInput
+  supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
+  platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+}
+
+export type UserCreateOrConnectWithoutFavoritesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutFavoritesInput, Prisma.UserUncheckedCreateWithoutFavoritesInput>
+}
+
+export type UserUpsertWithoutFavoritesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutFavoritesInput, Prisma.UserUncheckedUpdateWithoutFavoritesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutFavoritesInput, Prisma.UserUncheckedCreateWithoutFavoritesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutFavoritesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutFavoritesInput, Prisma.UserUncheckedUpdateWithoutFavoritesInput>
+}
+
+export type UserUpdateWithoutFavoritesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tempId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completedTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tier?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationDocumentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  storeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storeCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  totalSales?: Prisma.IntFieldUpdateOperationsInput | number
+  frozenBy?: Prisma.UserUpdateOneWithoutFrozenUsersNestedInput
+  frozenUsers?: Prisma.UserUpdateManyWithoutFrozenByNestedInput
+  products?: Prisma.ProductUpdateManyWithoutSellerNestedInput
+  tradesCreated?: Prisma.TradeUpdateManyWithoutCreatorNestedInput
+  tradesBought?: Prisma.TradeUpdateManyWithoutBuyerNestedInput
+  buyerOrders?: Prisma.OrderUpdateManyWithoutBuyerNestedInput
+  sellerOrders?: Prisma.OrderUpdateManyWithoutSellerNestedInput
+  chatRoomsInitiated?: Prisma.ChatRoomUpdateManyWithoutInitiatorNestedInput
+  chatRoomsJoined?: Prisma.ChatRoomUpdateManyWithoutParticipantNestedInput
+  chatRoomsCreated?: Prisma.ChatRoomUpdateManyWithoutCreatorNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  auditLogsActedBy?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  auditLogsAbout?: Prisma.AuditLogUpdateManyWithoutTargetUserNestedInput
+  walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  followedBy?: Prisma.FollowUpdateManyWithoutFollowedUserNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  reviewsGiven?: Prisma.ReviewUpdateManyWithoutReviewerNestedInput
+  reviewsReceived?: Prisma.ReviewUpdateManyWithoutSellerNestedInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulUpdateManyWithoutUserNestedInput
+  wallPosts?: Prisma.WallPostUpdateManyWithoutSellerNestedInput
+  wallPostLikes?: Prisma.WallPostLikeUpdateManyWithoutUserNestedInput
+  wallPostComments?: Prisma.WallPostCommentUpdateManyWithoutAuthorNestedInput
+  chatParticipants?: Prisma.ChatRoomParticipantUpdateManyWithoutUserNestedInput
+  chatInvites?: Prisma.ChatInviteUpdateManyWithoutCreatedByNestedInput
+  communitiesApproved?: Prisma.ChatRoomUpdateManyWithoutApprovedByNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutUserNestedInput
+  supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
+  platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
+  promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutFavoritesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tempId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completedTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tier?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationDocumentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  storeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storeCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  totalSales?: Prisma.IntFieldUpdateOperationsInput | number
+  frozenUsers?: Prisma.UserUncheckedUpdateManyWithoutFrozenByNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutSellerNestedInput
+  tradesCreated?: Prisma.TradeUncheckedUpdateManyWithoutCreatorNestedInput
+  tradesBought?: Prisma.TradeUncheckedUpdateManyWithoutBuyerNestedInput
+  buyerOrders?: Prisma.OrderUncheckedUpdateManyWithoutBuyerNestedInput
+  sellerOrders?: Prisma.OrderUncheckedUpdateManyWithoutSellerNestedInput
+  chatRoomsInitiated?: Prisma.ChatRoomUncheckedUpdateManyWithoutInitiatorNestedInput
+  chatRoomsJoined?: Prisma.ChatRoomUncheckedUpdateManyWithoutParticipantNestedInput
+  chatRoomsCreated?: Prisma.ChatRoomUncheckedUpdateManyWithoutCreatorNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  auditLogsActedBy?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  auditLogsAbout?: Prisma.AuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
+  walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  followedBy?: Prisma.FollowUncheckedUpdateManyWithoutFollowedUserNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  reviewsGiven?: Prisma.ReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutSellerNestedInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulUncheckedUpdateManyWithoutUserNestedInput
+  wallPosts?: Prisma.WallPostUncheckedUpdateManyWithoutSellerNestedInput
+  wallPostLikes?: Prisma.WallPostLikeUncheckedUpdateManyWithoutUserNestedInput
+  wallPostComments?: Prisma.WallPostCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  chatParticipants?: Prisma.ChatRoomParticipantUncheckedUpdateManyWithoutUserNestedInput
+  chatInvites?: Prisma.ChatInviteUncheckedUpdateManyWithoutCreatedByNestedInput
+  communitiesApproved?: Prisma.ChatRoomUncheckedUpdateManyWithoutApprovedByNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutUserNestedInput
+  supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
+  platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
 }
@@ -4781,7 +5351,9 @@ export type UserCreateWithoutTradesCreatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -4833,8 +5405,10 @@ export type UserCreateWithoutTradesCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTradesCreatedInput = {
@@ -4863,7 +5437,9 @@ export type UserUncheckedCreateWithoutTradesCreatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -4914,8 +5490,10 @@ export type UserUncheckedCreateWithoutTradesCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTradesCreatedInput = {
@@ -4948,7 +5526,9 @@ export type UserCreateWithoutTradesBoughtInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -5000,8 +5580,10 @@ export type UserCreateWithoutTradesBoughtInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTradesBoughtInput = {
@@ -5030,7 +5612,9 @@ export type UserUncheckedCreateWithoutTradesBoughtInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -5081,8 +5665,10 @@ export type UserUncheckedCreateWithoutTradesBoughtInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTradesBoughtInput = {
@@ -5126,7 +5712,9 @@ export type UserUpdateWithoutTradesCreatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5178,8 +5766,10 @@ export type UserUpdateWithoutTradesCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTradesCreatedInput = {
@@ -5208,7 +5798,9 @@ export type UserUncheckedUpdateWithoutTradesCreatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5259,8 +5851,10 @@ export type UserUncheckedUpdateWithoutTradesCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutTradesBoughtInput = {
@@ -5299,7 +5893,9 @@ export type UserUpdateWithoutTradesBoughtInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5351,8 +5947,10 @@ export type UserUpdateWithoutTradesBoughtInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTradesBoughtInput = {
@@ -5381,7 +5979,9 @@ export type UserUncheckedUpdateWithoutTradesBoughtInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5432,8 +6032,10 @@ export type UserUncheckedUpdateWithoutTradesBoughtInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBuyerOrdersInput = {
@@ -5461,7 +6063,9 @@ export type UserCreateWithoutBuyerOrdersInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -5513,8 +6117,10 @@ export type UserCreateWithoutBuyerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBuyerOrdersInput = {
@@ -5543,7 +6149,9 @@ export type UserUncheckedCreateWithoutBuyerOrdersInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -5594,8 +6202,10 @@ export type UserUncheckedCreateWithoutBuyerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBuyerOrdersInput = {
@@ -5628,7 +6238,9 @@ export type UserCreateWithoutSellerOrdersInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -5680,8 +6292,10 @@ export type UserCreateWithoutSellerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSellerOrdersInput = {
@@ -5710,7 +6324,9 @@ export type UserUncheckedCreateWithoutSellerOrdersInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -5761,8 +6377,10 @@ export type UserUncheckedCreateWithoutSellerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSellerOrdersInput = {
@@ -5806,7 +6424,9 @@ export type UserUpdateWithoutBuyerOrdersInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5858,8 +6478,10 @@ export type UserUpdateWithoutBuyerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBuyerOrdersInput = {
@@ -5888,7 +6510,9 @@ export type UserUncheckedUpdateWithoutBuyerOrdersInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5939,8 +6563,10 @@ export type UserUncheckedUpdateWithoutBuyerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutSellerOrdersInput = {
@@ -5979,7 +6605,9 @@ export type UserUpdateWithoutSellerOrdersInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6031,8 +6659,10 @@ export type UserUpdateWithoutSellerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSellerOrdersInput = {
@@ -6061,7 +6691,9 @@ export type UserUncheckedUpdateWithoutSellerOrdersInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6112,8 +6744,10 @@ export type UserUncheckedUpdateWithoutSellerOrdersInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatRoomsInitiatedInput = {
@@ -6141,7 +6775,9 @@ export type UserCreateWithoutChatRoomsInitiatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6193,8 +6829,10 @@ export type UserCreateWithoutChatRoomsInitiatedInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatRoomsInitiatedInput = {
@@ -6223,7 +6861,9 @@ export type UserUncheckedCreateWithoutChatRoomsInitiatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6274,8 +6914,10 @@ export type UserUncheckedCreateWithoutChatRoomsInitiatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatRoomsInitiatedInput = {
@@ -6308,7 +6950,9 @@ export type UserCreateWithoutChatRoomsJoinedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6360,8 +7004,10 @@ export type UserCreateWithoutChatRoomsJoinedInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatRoomsJoinedInput = {
@@ -6390,7 +7036,9 @@ export type UserUncheckedCreateWithoutChatRoomsJoinedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6441,8 +7089,10 @@ export type UserUncheckedCreateWithoutChatRoomsJoinedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatRoomsJoinedInput = {
@@ -6475,7 +7125,9 @@ export type UserCreateWithoutChatRoomsCreatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6527,8 +7179,10 @@ export type UserCreateWithoutChatRoomsCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatRoomsCreatedInput = {
@@ -6557,7 +7211,9 @@ export type UserUncheckedCreateWithoutChatRoomsCreatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6608,8 +7264,10 @@ export type UserUncheckedCreateWithoutChatRoomsCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatRoomsCreatedInput = {
@@ -6642,7 +7300,9 @@ export type UserCreateWithoutCommunitiesApprovedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6694,8 +7354,10 @@ export type UserCreateWithoutCommunitiesApprovedInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommunitiesApprovedInput = {
@@ -6724,7 +7386,9 @@ export type UserUncheckedCreateWithoutCommunitiesApprovedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -6775,8 +7439,10 @@ export type UserUncheckedCreateWithoutCommunitiesApprovedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommunitiesApprovedInput = {
@@ -6820,7 +7486,9 @@ export type UserUpdateWithoutChatRoomsInitiatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6872,8 +7540,10 @@ export type UserUpdateWithoutChatRoomsInitiatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatRoomsInitiatedInput = {
@@ -6902,7 +7572,9 @@ export type UserUncheckedUpdateWithoutChatRoomsInitiatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6953,8 +7625,10 @@ export type UserUncheckedUpdateWithoutChatRoomsInitiatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutChatRoomsJoinedInput = {
@@ -6993,7 +7667,9 @@ export type UserUpdateWithoutChatRoomsJoinedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7045,8 +7721,10 @@ export type UserUpdateWithoutChatRoomsJoinedInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatRoomsJoinedInput = {
@@ -7075,7 +7753,9 @@ export type UserUncheckedUpdateWithoutChatRoomsJoinedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7126,8 +7806,10 @@ export type UserUncheckedUpdateWithoutChatRoomsJoinedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutChatRoomsCreatedInput = {
@@ -7166,7 +7848,9 @@ export type UserUpdateWithoutChatRoomsCreatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7218,8 +7902,10 @@ export type UserUpdateWithoutChatRoomsCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatRoomsCreatedInput = {
@@ -7248,7 +7934,9 @@ export type UserUncheckedUpdateWithoutChatRoomsCreatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7299,8 +7987,10 @@ export type UserUncheckedUpdateWithoutChatRoomsCreatedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutCommunitiesApprovedInput = {
@@ -7339,7 +8029,9 @@ export type UserUpdateWithoutCommunitiesApprovedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7391,8 +8083,10 @@ export type UserUpdateWithoutCommunitiesApprovedInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommunitiesApprovedInput = {
@@ -7421,7 +8115,9 @@ export type UserUncheckedUpdateWithoutCommunitiesApprovedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7472,8 +8168,10 @@ export type UserUncheckedUpdateWithoutCommunitiesApprovedInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatParticipantsInput = {
@@ -7501,7 +8199,9 @@ export type UserCreateWithoutChatParticipantsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -7553,8 +8253,10 @@ export type UserCreateWithoutChatParticipantsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatParticipantsInput = {
@@ -7583,7 +8285,9 @@ export type UserUncheckedCreateWithoutChatParticipantsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -7634,8 +8338,10 @@ export type UserUncheckedCreateWithoutChatParticipantsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatParticipantsInput = {
@@ -7679,7 +8385,9 @@ export type UserUpdateWithoutChatParticipantsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7731,8 +8439,10 @@ export type UserUpdateWithoutChatParticipantsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatParticipantsInput = {
@@ -7761,7 +8471,9 @@ export type UserUncheckedUpdateWithoutChatParticipantsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7812,8 +8524,10 @@ export type UserUncheckedUpdateWithoutChatParticipantsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatMessagesInput = {
@@ -7841,7 +8555,9 @@ export type UserCreateWithoutChatMessagesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -7893,8 +8609,10 @@ export type UserCreateWithoutChatMessagesInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatMessagesInput = {
@@ -7923,7 +8641,9 @@ export type UserUncheckedCreateWithoutChatMessagesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -7974,8 +8694,10 @@ export type UserUncheckedCreateWithoutChatMessagesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatMessagesInput = {
@@ -8019,7 +8741,9 @@ export type UserUpdateWithoutChatMessagesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8071,8 +8795,10 @@ export type UserUpdateWithoutChatMessagesInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatMessagesInput = {
@@ -8101,7 +8827,9 @@ export type UserUncheckedUpdateWithoutChatMessagesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8152,8 +8880,10 @@ export type UserUncheckedUpdateWithoutChatMessagesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatInvitesInput = {
@@ -8181,7 +8911,9 @@ export type UserCreateWithoutChatInvitesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -8233,8 +8965,10 @@ export type UserCreateWithoutChatInvitesInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatInvitesInput = {
@@ -8263,7 +8997,9 @@ export type UserUncheckedCreateWithoutChatInvitesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -8314,8 +9050,10 @@ export type UserUncheckedCreateWithoutChatInvitesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatInvitesInput = {
@@ -8359,7 +9097,9 @@ export type UserUpdateWithoutChatInvitesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8411,8 +9151,10 @@ export type UserUpdateWithoutChatInvitesInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatInvitesInput = {
@@ -8441,7 +9183,9 @@ export type UserUncheckedUpdateWithoutChatInvitesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8492,8 +9236,10 @@ export type UserUncheckedUpdateWithoutChatInvitesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBlockingInput = {
@@ -8521,7 +9267,9 @@ export type UserCreateWithoutBlockingInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -8574,7 +9322,9 @@ export type UserCreateWithoutBlockingInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockingInput = {
@@ -8603,7 +9353,9 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -8655,7 +9407,9 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockingInput = {
@@ -8688,7 +9442,9 @@ export type UserCreateWithoutBlockedByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -8741,7 +9497,9 @@ export type UserCreateWithoutBlockedByInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockedByInput = {
@@ -8770,7 +9528,9 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -8822,7 +9582,9 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockedByInput = {
@@ -8866,7 +9628,9 @@ export type UserUpdateWithoutBlockingInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8919,7 +9683,9 @@ export type UserUpdateWithoutBlockingInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockingInput = {
@@ -8948,7 +9714,9 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9000,7 +9768,9 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutBlockedByInput = {
@@ -9039,7 +9809,9 @@ export type UserUpdateWithoutBlockedByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9092,7 +9864,9 @@ export type UserUpdateWithoutBlockedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedByInput = {
@@ -9121,7 +9895,9 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9173,7 +9949,9 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -9201,7 +9979,9 @@ export type UserCreateWithoutNotificationsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -9253,8 +10033,10 @@ export type UserCreateWithoutNotificationsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -9283,7 +10065,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -9334,8 +10118,10 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -9379,7 +10165,9 @@ export type UserUpdateWithoutNotificationsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9431,8 +10219,10 @@ export type UserUpdateWithoutNotificationsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -9461,7 +10251,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9512,8 +10304,10 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsActedByInput = {
@@ -9541,7 +10335,9 @@ export type UserCreateWithoutAuditLogsActedByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -9593,8 +10389,10 @@ export type UserCreateWithoutAuditLogsActedByInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsActedByInput = {
@@ -9623,7 +10421,9 @@ export type UserUncheckedCreateWithoutAuditLogsActedByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -9674,8 +10474,10 @@ export type UserUncheckedCreateWithoutAuditLogsActedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsActedByInput = {
@@ -9708,7 +10510,9 @@ export type UserCreateWithoutAuditLogsAboutInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -9760,8 +10564,10 @@ export type UserCreateWithoutAuditLogsAboutInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsAboutInput = {
@@ -9790,7 +10596,9 @@ export type UserUncheckedCreateWithoutAuditLogsAboutInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -9841,8 +10649,10 @@ export type UserUncheckedCreateWithoutAuditLogsAboutInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsAboutInput = {
@@ -9886,7 +10696,9 @@ export type UserUpdateWithoutAuditLogsActedByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9938,8 +10750,10 @@ export type UserUpdateWithoutAuditLogsActedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsActedByInput = {
@@ -9968,7 +10782,9 @@ export type UserUncheckedUpdateWithoutAuditLogsActedByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10019,8 +10835,10 @@ export type UserUncheckedUpdateWithoutAuditLogsActedByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutAuditLogsAboutInput = {
@@ -10059,7 +10877,9 @@ export type UserUpdateWithoutAuditLogsAboutInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10111,8 +10931,10 @@ export type UserUpdateWithoutAuditLogsAboutInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsAboutInput = {
@@ -10141,7 +10963,9 @@ export type UserUncheckedUpdateWithoutAuditLogsAboutInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10192,8 +11016,10 @@ export type UserUncheckedUpdateWithoutAuditLogsAboutInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWallPostsInput = {
@@ -10221,7 +11047,9 @@ export type UserCreateWithoutWallPostsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -10273,8 +11101,10 @@ export type UserCreateWithoutWallPostsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWallPostsInput = {
@@ -10303,7 +11133,9 @@ export type UserUncheckedCreateWithoutWallPostsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -10354,8 +11186,10 @@ export type UserUncheckedCreateWithoutWallPostsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWallPostsInput = {
@@ -10399,7 +11233,9 @@ export type UserUpdateWithoutWallPostsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10451,8 +11287,10 @@ export type UserUpdateWithoutWallPostsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWallPostsInput = {
@@ -10481,7 +11319,9 @@ export type UserUncheckedUpdateWithoutWallPostsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10532,8 +11372,10 @@ export type UserUncheckedUpdateWithoutWallPostsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWallPostLikesInput = {
@@ -10561,7 +11403,9 @@ export type UserCreateWithoutWallPostLikesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -10613,8 +11457,10 @@ export type UserCreateWithoutWallPostLikesInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWallPostLikesInput = {
@@ -10643,7 +11489,9 @@ export type UserUncheckedCreateWithoutWallPostLikesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -10694,8 +11542,10 @@ export type UserUncheckedCreateWithoutWallPostLikesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWallPostLikesInput = {
@@ -10739,7 +11589,9 @@ export type UserUpdateWithoutWallPostLikesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10791,8 +11643,10 @@ export type UserUpdateWithoutWallPostLikesInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWallPostLikesInput = {
@@ -10821,7 +11675,9 @@ export type UserUncheckedUpdateWithoutWallPostLikesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -10872,8 +11728,10 @@ export type UserUncheckedUpdateWithoutWallPostLikesInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWallPostCommentsInput = {
@@ -10901,7 +11759,9 @@ export type UserCreateWithoutWallPostCommentsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -10953,8 +11813,10 @@ export type UserCreateWithoutWallPostCommentsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWallPostCommentsInput = {
@@ -10983,7 +11845,9 @@ export type UserUncheckedCreateWithoutWallPostCommentsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -11034,8 +11898,10 @@ export type UserUncheckedCreateWithoutWallPostCommentsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWallPostCommentsInput = {
@@ -11079,7 +11945,9 @@ export type UserUpdateWithoutWallPostCommentsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11131,8 +11999,10 @@ export type UserUpdateWithoutWallPostCommentsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWallPostCommentsInput = {
@@ -11161,7 +12031,9 @@ export type UserUncheckedUpdateWithoutWallPostCommentsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11212,8 +12084,10 @@ export type UserUncheckedUpdateWithoutWallPostCommentsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSubscriptionsInput = {
@@ -11241,7 +12115,9 @@ export type UserCreateWithoutSubscriptionsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -11293,8 +12169,10 @@ export type UserCreateWithoutSubscriptionsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -11323,7 +12201,9 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -11374,8 +12254,10 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -11419,7 +12301,9 @@ export type UserUpdateWithoutSubscriptionsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11471,8 +12355,10 @@ export type UserUpdateWithoutSubscriptionsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -11501,7 +12387,9 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11552,8 +12440,10 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWalletTransactionsInput = {
@@ -11581,7 +12471,9 @@ export type UserCreateWithoutWalletTransactionsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -11633,8 +12525,10 @@ export type UserCreateWithoutWalletTransactionsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWalletTransactionsInput = {
@@ -11663,7 +12557,9 @@ export type UserUncheckedCreateWithoutWalletTransactionsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -11714,8 +12610,10 @@ export type UserUncheckedCreateWithoutWalletTransactionsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWalletTransactionsInput = {
@@ -11759,7 +12657,9 @@ export type UserUpdateWithoutWalletTransactionsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11811,8 +12711,10 @@ export type UserUpdateWithoutWalletTransactionsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWalletTransactionsInput = {
@@ -11841,7 +12743,9 @@ export type UserUncheckedUpdateWithoutWalletTransactionsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -11892,8 +12796,10 @@ export type UserUncheckedUpdateWithoutWalletTransactionsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSupportTicketsInput = {
@@ -11921,7 +12827,9 @@ export type UserCreateWithoutSupportTicketsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -11973,8 +12881,10 @@ export type UserCreateWithoutSupportTicketsInput = {
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSupportTicketsInput = {
@@ -12003,7 +12913,9 @@ export type UserUncheckedCreateWithoutSupportTicketsInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -12054,8 +12966,10 @@ export type UserUncheckedCreateWithoutSupportTicketsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSupportTicketsInput = {
@@ -12099,7 +13013,9 @@ export type UserUpdateWithoutSupportTicketsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12151,8 +13067,10 @@ export type UserUpdateWithoutSupportTicketsInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportTicketsInput = {
@@ -12181,7 +13099,9 @@ export type UserUncheckedUpdateWithoutSupportTicketsInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12232,8 +13152,10 @@ export type UserUncheckedUpdateWithoutSupportTicketsInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSupportRepliesInput = {
@@ -12261,7 +13183,9 @@ export type UserCreateWithoutSupportRepliesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -12313,8 +13237,10 @@ export type UserCreateWithoutSupportRepliesInput = {
   supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutUserInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSupportRepliesInput = {
@@ -12343,7 +13269,9 @@ export type UserUncheckedCreateWithoutSupportRepliesInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -12394,8 +13322,10 @@ export type UserUncheckedCreateWithoutSupportRepliesInput = {
   supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutUserInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSupportRepliesInput = {
@@ -12439,7 +13369,9 @@ export type UserUpdateWithoutSupportRepliesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12491,8 +13423,10 @@ export type UserUpdateWithoutSupportRepliesInput = {
   supportTickets?: Prisma.SupportTicketUpdateManyWithoutUserNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupportRepliesInput = {
@@ -12521,7 +13455,9 @@ export type UserUncheckedUpdateWithoutSupportRepliesInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12572,8 +13508,10 @@ export type UserUncheckedUpdateWithoutSupportRepliesInput = {
   supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutUserNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPlatformSettingsEditedInput = {
@@ -12601,7 +13539,9 @@ export type UserCreateWithoutPlatformSettingsEditedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -12653,8 +13593,10 @@ export type UserCreateWithoutPlatformSettingsEditedInput = {
   supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutUserInput
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPlatformSettingsEditedInput = {
@@ -12683,7 +13625,9 @@ export type UserUncheckedCreateWithoutPlatformSettingsEditedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -12734,8 +13678,10 @@ export type UserUncheckedCreateWithoutPlatformSettingsEditedInput = {
   supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutUserInput
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPlatformSettingsEditedInput = {
@@ -12779,7 +13725,9 @@ export type UserUpdateWithoutPlatformSettingsEditedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12831,8 +13779,10 @@ export type UserUpdateWithoutPlatformSettingsEditedInput = {
   supportTickets?: Prisma.SupportTicketUpdateManyWithoutUserNestedInput
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlatformSettingsEditedInput = {
@@ -12861,7 +13811,9 @@ export type UserUncheckedUpdateWithoutPlatformSettingsEditedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12912,8 +13864,10 @@ export type UserUncheckedUpdateWithoutPlatformSettingsEditedInput = {
   supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutUserNestedInput
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPromoCodesCreatedInput = {
@@ -12941,7 +13895,9 @@ export type UserCreateWithoutPromoCodesCreatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -12993,8 +13949,10 @@ export type UserCreateWithoutPromoCodesCreatedInput = {
   supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutUserInput
   supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPromoCodesCreatedInput = {
@@ -13023,7 +13981,9 @@ export type UserUncheckedCreateWithoutPromoCodesCreatedInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -13074,8 +14034,10 @@ export type UserUncheckedCreateWithoutPromoCodesCreatedInput = {
   supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutUserInput
   supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutUserInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPromoCodesCreatedInput = {
@@ -13119,7 +14081,9 @@ export type UserUpdateWithoutPromoCodesCreatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13171,8 +14135,10 @@ export type UserUpdateWithoutPromoCodesCreatedInput = {
   supportTickets?: Prisma.SupportTicketUpdateManyWithoutUserNestedInput
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPromoCodesCreatedInput = {
@@ -13201,7 +14167,9 @@ export type UserUncheckedUpdateWithoutPromoCodesCreatedInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13252,8 +14220,366 @@ export type UserUncheckedUpdateWithoutPromoCodesCreatedInput = {
   supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutUserNestedInput
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPromoRedemptionsInput = {
+  id?: string
+  tempId: string
+  name: string
+  username: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
+  rejectionReason?: string | null
+  isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
+  frozenReason?: string | null
+  frozenAt?: Date | string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  paystackCustomerCode?: string | null
+  withdrawalBankName?: string | null
+  withdrawalBankCode?: string | null
+  withdrawalAccountNumber?: string | null
+  withdrawalAccountName?: string | null
+  paystackRecipientCode?: string | null
+  walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: boolean
+  storePlan?: string | null
+  avatarColor?: string | null
+  phoneNumber?: string | null
+  profilePicture?: string | null
+  totalTrades?: number | null
+  completedTrades?: number | null
+  completionRate?: number | null
+  tier?: number | null
+  deliveryAddress?: string | null
+  verificationDocumentName?: string | null
+  verificationSubmittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  storeName?: string | null
+  bio?: string | null
+  location?: string | null
+  storeCategory?: string | null
+  coverImage?: string | null
+  lastSeenAt?: Date | string | null
+  rating?: number
+  reviewsCount?: number
+  totalSales?: number
+  frozenBy?: Prisma.UserCreateNestedOneWithoutFrozenUsersInput
+  frozenUsers?: Prisma.UserCreateNestedManyWithoutFrozenByInput
+  products?: Prisma.ProductCreateNestedManyWithoutSellerInput
+  tradesCreated?: Prisma.TradeCreateNestedManyWithoutCreatorInput
+  tradesBought?: Prisma.TradeCreateNestedManyWithoutBuyerInput
+  buyerOrders?: Prisma.OrderCreateNestedManyWithoutBuyerInput
+  sellerOrders?: Prisma.OrderCreateNestedManyWithoutSellerInput
+  chatRoomsInitiated?: Prisma.ChatRoomCreateNestedManyWithoutInitiatorInput
+  chatRoomsJoined?: Prisma.ChatRoomCreateNestedManyWithoutParticipantInput
+  chatRoomsCreated?: Prisma.ChatRoomCreateNestedManyWithoutCreatorInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  auditLogsActedBy?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  auditLogsAbout?: Prisma.AuditLogCreateNestedManyWithoutTargetUserInput
+  walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  followedBy?: Prisma.FollowCreateNestedManyWithoutFollowedUserInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  reviewsGiven?: Prisma.ReviewCreateNestedManyWithoutReviewerInput
+  reviewsReceived?: Prisma.ReviewCreateNestedManyWithoutSellerInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulCreateNestedManyWithoutUserInput
+  wallPosts?: Prisma.WallPostCreateNestedManyWithoutSellerInput
+  wallPostLikes?: Prisma.WallPostLikeCreateNestedManyWithoutUserInput
+  wallPostComments?: Prisma.WallPostCommentCreateNestedManyWithoutAuthorInput
+  chatParticipants?: Prisma.ChatRoomParticipantCreateNestedManyWithoutUserInput
+  chatInvites?: Prisma.ChatInviteCreateNestedManyWithoutCreatedByInput
+  communitiesApproved?: Prisma.ChatRoomCreateNestedManyWithoutApprovedByInput
+  supportTickets?: Prisma.SupportTicketCreateNestedManyWithoutUserInput
+  supportReplies?: Prisma.SupportTicketReplyCreateNestedManyWithoutAuthorInput
+  platformSettingsEdited?: Prisma.PlatformSettingCreateNestedManyWithoutUpdatedByInput
+  promoCodesCreated?: Prisma.PromoCodeCreateNestedManyWithoutCreatedByInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPromoRedemptionsInput = {
+  id?: string
+  tempId: string
+  name: string
+  username: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  verificationStatus?: $Enums.VerificationStatus
+  emailVerified?: boolean
+  rejectionReason?: string | null
+  isFrozen?: boolean
+  isDraft?: boolean
+  draftExpiresAt?: Date | string | null
+  frozenReason?: string | null
+  frozenAt?: Date | string | null
+  frozenById?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  paystackCustomerCode?: string | null
+  withdrawalBankName?: string | null
+  withdrawalBankCode?: string | null
+  withdrawalAccountNumber?: string | null
+  withdrawalAccountName?: string | null
+  paystackRecipientCode?: string | null
+  walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: boolean
+  storePlan?: string | null
+  avatarColor?: string | null
+  phoneNumber?: string | null
+  profilePicture?: string | null
+  totalTrades?: number | null
+  completedTrades?: number | null
+  completionRate?: number | null
+  tier?: number | null
+  deliveryAddress?: string | null
+  verificationDocumentName?: string | null
+  verificationSubmittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  storeName?: string | null
+  bio?: string | null
+  location?: string | null
+  storeCategory?: string | null
+  coverImage?: string | null
+  lastSeenAt?: Date | string | null
+  rating?: number
+  reviewsCount?: number
+  totalSales?: number
+  frozenUsers?: Prisma.UserUncheckedCreateNestedManyWithoutFrozenByInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutSellerInput
+  tradesCreated?: Prisma.TradeUncheckedCreateNestedManyWithoutCreatorInput
+  tradesBought?: Prisma.TradeUncheckedCreateNestedManyWithoutBuyerInput
+  buyerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutBuyerInput
+  sellerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutSellerInput
+  chatRoomsInitiated?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutInitiatorInput
+  chatRoomsJoined?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutParticipantInput
+  chatRoomsCreated?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutCreatorInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSenderInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  auditLogsActedBy?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  auditLogsAbout?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTargetUserInput
+  walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  followedBy?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowedUserInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  reviewsGiven?: Prisma.ReviewUncheckedCreateNestedManyWithoutReviewerInput
+  reviewsReceived?: Prisma.ReviewUncheckedCreateNestedManyWithoutSellerInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulUncheckedCreateNestedManyWithoutUserInput
+  wallPosts?: Prisma.WallPostUncheckedCreateNestedManyWithoutSellerInput
+  wallPostLikes?: Prisma.WallPostLikeUncheckedCreateNestedManyWithoutUserInput
+  wallPostComments?: Prisma.WallPostCommentUncheckedCreateNestedManyWithoutAuthorInput
+  chatParticipants?: Prisma.ChatRoomParticipantUncheckedCreateNestedManyWithoutUserInput
+  chatInvites?: Prisma.ChatInviteUncheckedCreateNestedManyWithoutCreatedByInput
+  communitiesApproved?: Prisma.ChatRoomUncheckedCreateNestedManyWithoutApprovedByInput
+  supportTickets?: Prisma.SupportTicketUncheckedCreateNestedManyWithoutUserInput
+  supportReplies?: Prisma.SupportTicketReplyUncheckedCreateNestedManyWithoutAuthorInput
+  platformSettingsEdited?: Prisma.PlatformSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  promoCodesCreated?: Prisma.PromoCodeUncheckedCreateNestedManyWithoutCreatedByInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPromoRedemptionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPromoRedemptionsInput, Prisma.UserUncheckedCreateWithoutPromoRedemptionsInput>
+}
+
+export type UserUpsertWithoutPromoRedemptionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPromoRedemptionsInput, Prisma.UserUncheckedUpdateWithoutPromoRedemptionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPromoRedemptionsInput, Prisma.UserUncheckedCreateWithoutPromoRedemptionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPromoRedemptionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPromoRedemptionsInput, Prisma.UserUncheckedUpdateWithoutPromoRedemptionsInput>
+}
+
+export type UserUpdateWithoutPromoRedemptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tempId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completedTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tier?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationDocumentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  storeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storeCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  totalSales?: Prisma.IntFieldUpdateOperationsInput | number
+  frozenBy?: Prisma.UserUpdateOneWithoutFrozenUsersNestedInput
+  frozenUsers?: Prisma.UserUpdateManyWithoutFrozenByNestedInput
+  products?: Prisma.ProductUpdateManyWithoutSellerNestedInput
+  tradesCreated?: Prisma.TradeUpdateManyWithoutCreatorNestedInput
+  tradesBought?: Prisma.TradeUpdateManyWithoutBuyerNestedInput
+  buyerOrders?: Prisma.OrderUpdateManyWithoutBuyerNestedInput
+  sellerOrders?: Prisma.OrderUpdateManyWithoutSellerNestedInput
+  chatRoomsInitiated?: Prisma.ChatRoomUpdateManyWithoutInitiatorNestedInput
+  chatRoomsJoined?: Prisma.ChatRoomUpdateManyWithoutParticipantNestedInput
+  chatRoomsCreated?: Prisma.ChatRoomUpdateManyWithoutCreatorNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  auditLogsActedBy?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  auditLogsAbout?: Prisma.AuditLogUpdateManyWithoutTargetUserNestedInput
+  walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  followedBy?: Prisma.FollowUpdateManyWithoutFollowedUserNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  reviewsGiven?: Prisma.ReviewUpdateManyWithoutReviewerNestedInput
+  reviewsReceived?: Prisma.ReviewUpdateManyWithoutSellerNestedInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulUpdateManyWithoutUserNestedInput
+  wallPosts?: Prisma.WallPostUpdateManyWithoutSellerNestedInput
+  wallPostLikes?: Prisma.WallPostLikeUpdateManyWithoutUserNestedInput
+  wallPostComments?: Prisma.WallPostCommentUpdateManyWithoutAuthorNestedInput
+  chatParticipants?: Prisma.ChatRoomParticipantUpdateManyWithoutUserNestedInput
+  chatInvites?: Prisma.ChatInviteUpdateManyWithoutCreatedByNestedInput
+  communitiesApproved?: Prisma.ChatRoomUpdateManyWithoutApprovedByNestedInput
+  supportTickets?: Prisma.SupportTicketUpdateManyWithoutUserNestedInput
+  supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
+  platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
+  promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPromoRedemptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tempId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  verificationStatus?: Prisma.EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFrozen?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDraft?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  draftExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frozenReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  frozenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  frozenById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalBankCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completedTrades?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completionRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  tier?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  deliveryAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationDocumentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  storeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storeCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  reviewsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  totalSales?: Prisma.IntFieldUpdateOperationsInput | number
+  frozenUsers?: Prisma.UserUncheckedUpdateManyWithoutFrozenByNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutSellerNestedInput
+  tradesCreated?: Prisma.TradeUncheckedUpdateManyWithoutCreatorNestedInput
+  tradesBought?: Prisma.TradeUncheckedUpdateManyWithoutBuyerNestedInput
+  buyerOrders?: Prisma.OrderUncheckedUpdateManyWithoutBuyerNestedInput
+  sellerOrders?: Prisma.OrderUncheckedUpdateManyWithoutSellerNestedInput
+  chatRoomsInitiated?: Prisma.ChatRoomUncheckedUpdateManyWithoutInitiatorNestedInput
+  chatRoomsJoined?: Prisma.ChatRoomUncheckedUpdateManyWithoutParticipantNestedInput
+  chatRoomsCreated?: Prisma.ChatRoomUncheckedUpdateManyWithoutCreatorNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  auditLogsActedBy?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  auditLogsAbout?: Prisma.AuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
+  walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  followedBy?: Prisma.FollowUncheckedUpdateManyWithoutFollowedUserNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  reviewsGiven?: Prisma.ReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewsReceived?: Prisma.ReviewUncheckedUpdateManyWithoutSellerNestedInput
+  reviewHelpfulVotes?: Prisma.ReviewHelpfulUncheckedUpdateManyWithoutUserNestedInput
+  wallPosts?: Prisma.WallPostUncheckedUpdateManyWithoutSellerNestedInput
+  wallPostLikes?: Prisma.WallPostLikeUncheckedUpdateManyWithoutUserNestedInput
+  wallPostComments?: Prisma.WallPostCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  chatParticipants?: Prisma.ChatRoomParticipantUncheckedUpdateManyWithoutUserNestedInput
+  chatInvites?: Prisma.ChatInviteUncheckedUpdateManyWithoutCreatedByNestedInput
+  communitiesApproved?: Prisma.ChatRoomUncheckedUpdateManyWithoutApprovedByNestedInput
+  supportTickets?: Prisma.SupportTicketUncheckedUpdateManyWithoutUserNestedInput
+  supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
+  platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyFrozenByInput = {
@@ -13281,7 +14607,9 @@ export type UserCreateManyFrozenByInput = {
   withdrawalAccountName?: string | null
   paystackRecipientCode?: string | null
   walletBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: boolean
+  storePlan?: string | null
   avatarColor?: string | null
   phoneNumber?: string | null
   profilePicture?: string | null
@@ -13330,7 +14658,9 @@ export type UserUpdateWithoutFrozenByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13382,8 +14712,10 @@ export type UserUpdateWithoutFrozenByInput = {
   supportReplies?: Prisma.SupportTicketReplyUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFrozenByInput = {
@@ -13411,7 +14743,9 @@ export type UserUncheckedUpdateWithoutFrozenByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13463,8 +14797,10 @@ export type UserUncheckedUpdateWithoutFrozenByInput = {
   supportReplies?: Prisma.SupportTicketReplyUncheckedUpdateManyWithoutAuthorNestedInput
   platformSettingsEdited?: Prisma.PlatformSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   promoCodesCreated?: Prisma.PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+  promoRedemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutUserNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutFrozenByInput = {
@@ -13492,7 +14828,9 @@ export type UserUncheckedUpdateManyWithoutFrozenByInput = {
   withdrawalAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackRecipientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   walletBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  promoBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  storePlan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePicture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -13552,8 +14890,10 @@ export type UserCountOutputType = {
   supportReplies: number
   platformSettingsEdited: number
   promoCodesCreated: number
+  promoRedemptions: number
   blockedBy: number
   blocking: number
+  favorites: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -13587,8 +14927,10 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   supportReplies?: boolean | UserCountOutputTypeCountSupportRepliesArgs
   platformSettingsEdited?: boolean | UserCountOutputTypeCountPlatformSettingsEditedArgs
   promoCodesCreated?: boolean | UserCountOutputTypeCountPromoCodesCreatedArgs
+  promoRedemptions?: boolean | UserCountOutputTypeCountPromoRedemptionsArgs
   blockedBy?: boolean | UserCountOutputTypeCountBlockedByArgs
   blocking?: boolean | UserCountOutputTypeCountBlockingArgs
+  favorites?: boolean | UserCountOutputTypeCountFavoritesArgs
 }
 
 /**
@@ -13814,6 +15156,13 @@ export type UserCountOutputTypeCountPromoCodesCreatedArgs<ExtArgs extends runtim
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountPromoRedemptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PromoRedemptionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountBlockedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BlockWhereInput
 }
@@ -13823,6 +15172,13 @@ export type UserCountOutputTypeCountBlockedByArgs<ExtArgs extends runtime.Types.
  */
 export type UserCountOutputTypeCountBlockingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BlockWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountFavoritesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FavoriteWhereInput
 }
 
 
@@ -13852,7 +15208,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   withdrawalAccountName?: boolean
   paystackRecipientCode?: boolean
   walletBalance?: boolean
+  promoBalance?: boolean
   isPro?: boolean
+  storePlan?: boolean
   avatarColor?: boolean
   phoneNumber?: boolean
   profilePicture?: boolean
@@ -13905,8 +15263,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   supportReplies?: boolean | Prisma.User$supportRepliesArgs<ExtArgs>
   platformSettingsEdited?: boolean | Prisma.User$platformSettingsEditedArgs<ExtArgs>
   promoCodesCreated?: boolean | Prisma.User$promoCodesCreatedArgs<ExtArgs>
+  promoRedemptions?: boolean | Prisma.User$promoRedemptionsArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   blocking?: boolean | Prisma.User$blockingArgs<ExtArgs>
+  favorites?: boolean | Prisma.User$favoritesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -13936,7 +15296,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   withdrawalAccountName?: boolean
   paystackRecipientCode?: boolean
   walletBalance?: boolean
+  promoBalance?: boolean
   isPro?: boolean
+  storePlan?: boolean
   avatarColor?: boolean
   phoneNumber?: boolean
   profilePicture?: boolean
@@ -13987,7 +15349,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   withdrawalAccountName?: boolean
   paystackRecipientCode?: boolean
   walletBalance?: boolean
+  promoBalance?: boolean
   isPro?: boolean
+  storePlan?: boolean
   avatarColor?: boolean
   phoneNumber?: boolean
   profilePicture?: boolean
@@ -14038,7 +15402,9 @@ export type UserSelectScalar = {
   withdrawalAccountName?: boolean
   paystackRecipientCode?: boolean
   walletBalance?: boolean
+  promoBalance?: boolean
   isPro?: boolean
+  storePlan?: boolean
   avatarColor?: boolean
   phoneNumber?: boolean
   profilePicture?: boolean
@@ -14062,7 +15428,7 @@ export type UserSelectScalar = {
   totalSales?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tempId" | "name" | "username" | "email" | "passwordHash" | "role" | "verificationStatus" | "emailVerified" | "rejectionReason" | "isFrozen" | "isDraft" | "draftExpiresAt" | "frozenReason" | "frozenAt" | "frozenById" | "bankName" | "accountNumber" | "paystackCustomerCode" | "withdrawalBankName" | "withdrawalBankCode" | "withdrawalAccountNumber" | "withdrawalAccountName" | "paystackRecipientCode" | "walletBalance" | "isPro" | "avatarColor" | "phoneNumber" | "profilePicture" | "totalTrades" | "completedTrades" | "completionRate" | "tier" | "deliveryAddress" | "verificationDocumentName" | "verificationSubmittedAt" | "createdAt" | "updatedAt" | "storeName" | "bio" | "location" | "storeCategory" | "coverImage" | "lastSeenAt" | "rating" | "reviewsCount" | "totalSales", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tempId" | "name" | "username" | "email" | "passwordHash" | "role" | "verificationStatus" | "emailVerified" | "rejectionReason" | "isFrozen" | "isDraft" | "draftExpiresAt" | "frozenReason" | "frozenAt" | "frozenById" | "bankName" | "accountNumber" | "paystackCustomerCode" | "withdrawalBankName" | "withdrawalBankCode" | "withdrawalAccountNumber" | "withdrawalAccountName" | "paystackRecipientCode" | "walletBalance" | "promoBalance" | "isPro" | "storePlan" | "avatarColor" | "phoneNumber" | "profilePicture" | "totalTrades" | "completedTrades" | "completionRate" | "tier" | "deliveryAddress" | "verificationDocumentName" | "verificationSubmittedAt" | "createdAt" | "updatedAt" | "storeName" | "bio" | "location" | "storeCategory" | "coverImage" | "lastSeenAt" | "rating" | "reviewsCount" | "totalSales", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   frozenBy?: boolean | Prisma.User$frozenByArgs<ExtArgs>
   frozenUsers?: boolean | Prisma.User$frozenUsersArgs<ExtArgs>
@@ -14095,8 +15461,10 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   supportReplies?: boolean | Prisma.User$supportRepliesArgs<ExtArgs>
   platformSettingsEdited?: boolean | Prisma.User$platformSettingsEditedArgs<ExtArgs>
   promoCodesCreated?: boolean | Prisma.User$promoCodesCreatedArgs<ExtArgs>
+  promoRedemptions?: boolean | Prisma.User$promoRedemptionsArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   blocking?: boolean | Prisma.User$blockingArgs<ExtArgs>
+  favorites?: boolean | Prisma.User$favoritesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -14140,8 +15508,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     supportReplies: Prisma.$SupportTicketReplyPayload<ExtArgs>[]
     platformSettingsEdited: Prisma.$PlatformSettingPayload<ExtArgs>[]
     promoCodesCreated: Prisma.$PromoCodePayload<ExtArgs>[]
+    promoRedemptions: Prisma.$PromoRedemptionPayload<ExtArgs>[]
     blockedBy: Prisma.$BlockPayload<ExtArgs>[]
     blocking: Prisma.$BlockPayload<ExtArgs>[]
+    favorites: Prisma.$FavoritePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -14169,7 +15539,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     withdrawalAccountName: string | null
     paystackRecipientCode: string | null
     walletBalance: runtime.Decimal
+    promoBalance: runtime.Decimal
     isPro: boolean
+    storePlan: string | null
     avatarColor: string | null
     phoneNumber: string | null
     profilePicture: string | null
@@ -14616,8 +15988,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   supportReplies<T extends Prisma.User$supportRepliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supportRepliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupportTicketReplyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   platformSettingsEdited<T extends Prisma.User$platformSettingsEditedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$platformSettingsEditedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   promoCodesCreated<T extends Prisma.User$promoCodesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$promoCodesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromoCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  promoRedemptions<T extends Prisma.User$promoRedemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$promoRedemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromoRedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   blockedBy<T extends Prisma.User$blockedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   blocking<T extends Prisma.User$blockingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  favorites<T extends Prisma.User$favoritesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14672,7 +16046,9 @@ export interface UserFieldRefs {
   readonly withdrawalAccountName: Prisma.FieldRef<"User", 'String'>
   readonly paystackRecipientCode: Prisma.FieldRef<"User", 'String'>
   readonly walletBalance: Prisma.FieldRef<"User", 'Decimal'>
+  readonly promoBalance: Prisma.FieldRef<"User", 'Decimal'>
   readonly isPro: Prisma.FieldRef<"User", 'Boolean'>
+  readonly storePlan: Prisma.FieldRef<"User", 'String'>
   readonly avatarColor: Prisma.FieldRef<"User", 'String'>
   readonly phoneNumber: Prisma.FieldRef<"User", 'String'>
   readonly profilePicture: Prisma.FieldRef<"User", 'String'>
@@ -15834,6 +17210,30 @@ export type User$promoCodesCreatedArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
+ * User.promoRedemptions
+ */
+export type User$promoRedemptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PromoRedemption
+   */
+  select?: Prisma.PromoRedemptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PromoRedemption
+   */
+  omit?: Prisma.PromoRedemptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoRedemptionInclude<ExtArgs> | null
+  where?: Prisma.PromoRedemptionWhereInput
+  orderBy?: Prisma.PromoRedemptionOrderByWithRelationInput | Prisma.PromoRedemptionOrderByWithRelationInput[]
+  cursor?: Prisma.PromoRedemptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PromoRedemptionScalarFieldEnum | Prisma.PromoRedemptionScalarFieldEnum[]
+}
+
+/**
  * User.blockedBy
  */
 export type User$blockedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -15879,6 +17279,30 @@ export type User$blockingArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.BlockScalarFieldEnum | Prisma.BlockScalarFieldEnum[]
+}
+
+/**
+ * User.favorites
+ */
+export type User$favoritesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Favorite
+   */
+  select?: Prisma.FavoriteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Favorite
+   */
+  omit?: Prisma.FavoriteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FavoriteInclude<ExtArgs> | null
+  where?: Prisma.FavoriteWhereInput
+  orderBy?: Prisma.FavoriteOrderByWithRelationInput | Prisma.FavoriteOrderByWithRelationInput[]
+  cursor?: Prisma.FavoriteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FavoriteScalarFieldEnum | Prisma.FavoriteScalarFieldEnum[]
 }
 
 /**

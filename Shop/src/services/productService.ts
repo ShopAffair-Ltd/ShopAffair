@@ -32,6 +32,7 @@ interface RawProduct {
   image: string;
   category: string;
   condition: string;
+  location?: string | null;
   specs?: Record<string, unknown> | null;
   description: string;
   seller: RawSeller;
@@ -49,6 +50,7 @@ const mapToMarketProduct = (raw: RawProduct): MarketProduct => ({
   image: raw.image,
   category: raw.category,
   condition: conditionToDisplay[raw.condition] ?? 'New',
+  location: raw.location ?? undefined,
   specs: raw.specs as Record<string, string> | undefined,
   description: raw.description
 });
@@ -60,6 +62,9 @@ export interface ListProductsParams {
   condition?: MarketProduct['condition'];
   sellerId?: string;
   search?: string;
+  location?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ListProductsResult {
@@ -80,6 +85,9 @@ export const fetchProducts = async (params: ListProductsParams = {}): Promise<Li
   if (params.condition) query.condition = conditionToApi[params.condition];
   if (params.sellerId) query.sellerId = params.sellerId;
   if (params.search) query.search = params.search;
+  if (params.location) query.location = params.location;
+  if (params.minPrice !== undefined) query.minPrice = String(params.minPrice);
+  if (params.maxPrice !== undefined) query.maxPrice = String(params.maxPrice);
 
   const { data } = await api.get<{ items: RawProduct[]; pagination: ListProductsResult['pagination'] }>(
     '/products',
@@ -103,6 +111,7 @@ export interface CreateProductPayload {
   image: string;
   category: string;
   condition: MarketProduct['condition'];
+  location?: string;
   specs?: Record<string, unknown>;
   description: string;
 }

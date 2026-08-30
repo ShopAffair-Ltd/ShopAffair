@@ -11,6 +11,7 @@ export const createProduct = async (sellerId: string, input: CreateProductInput)
       image: input.image,
       category: input.category,
       condition: input.condition,
+      location: input.location,
       specs: input.specs as Prisma.InputJsonValue | undefined,
       description: input.description,
       sellerId
@@ -19,13 +20,17 @@ export const createProduct = async (sellerId: string, input: CreateProductInput)
 };
 
 export const listProducts = async (query: ListProductsQuery) => {
-  const { page, limit, category, condition, sellerId, search } = query;
+  const { page, limit, category, condition, sellerId, search, location, minPrice, maxPrice } = query;
 
-  const where = {
+  const where: Prisma.ProductWhereInput = {
     ...(category ? { category } : {}),
     ...(condition ? { condition } : {}),
     ...(sellerId ? { sellerId } : {}),
-    ...(search ? { title: { contains: search, mode: 'insensitive' as const } } : {})
+    ...(search ? { title: { contains: search, mode: 'insensitive' as const } } : {}),
+    ...(location ? { location: { contains: location, mode: 'insensitive' as const } } : {}),
+    ...(minPrice !== undefined || maxPrice !== undefined
+      ? { price: { ...(minPrice !== undefined ? { gte: minPrice } : {}), ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } }
+      : {})
   };
 
   const [items, total] = await Promise.all([

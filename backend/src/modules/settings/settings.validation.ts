@@ -11,6 +11,7 @@ export const broadcastSchema = z.object({
 
 export const createPromoSchema = z.object({
   code: z.string().min(2),
-  discountPct: z.number().int().min(1).max(100),
+  creditAmount: z.number().positive().max(1_000_000),
+  maxUses: z.number().int().positive().optional(),
   expiresAt: z.string().datetime().optional()
 });

@@ -10,6 +10,7 @@ export interface UserProfile {
   role: 'buyer' | 'seller' | 'admin';
   verificationStatus: 'GUEST' | 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED';
   walletBalance: number;
+  promoBalance?: number;
   isPro: boolean;
   avatarColor: string;
   bankName?: string;

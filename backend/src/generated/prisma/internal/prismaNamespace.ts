@@ -402,6 +402,7 @@ export const ModelName = {
   Review: 'Review',
   ReviewHelpful: 'ReviewHelpful',
   Product: 'Product',
+  Favorite: 'Favorite',
   Trade: 'Trade',
   Order: 'Order',
   ChatRoom: 'ChatRoom',
@@ -420,6 +421,7 @@ export const ModelName = {
   SupportTicketReply: 'SupportTicketReply',
   PlatformSetting: 'PlatformSetting',
   PromoCode: 'PromoCode',
+  PromoRedemption: 'PromoRedemption',
   Otp: 'Otp'
 } as const
 
@@ -436,7 +438,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "follow" | "review" | "reviewHelpful" | "product" | "trade" | "order" | "chatRoom" | "chatRoomParticipant" | "chatMessage" | "chatInvite" | "block" | "notification" | "auditLog" | "wallPost" | "wallPostLike" | "wallPostComment" | "subscription" | "walletTransaction" | "supportTicket" | "supportTicketReply" | "platformSetting" | "promoCode" | "otp"
+    modelProps: "user" | "follow" | "review" | "reviewHelpful" | "product" | "favorite" | "trade" | "order" | "chatRoom" | "chatRoomParticipant" | "chatMessage" | "chatInvite" | "block" | "notification" | "auditLog" | "wallPost" | "wallPostLike" | "wallPostComment" | "subscription" | "walletTransaction" | "supportTicket" | "supportTicketReply" | "platformSetting" | "promoCode" | "promoRedemption" | "otp"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -807,6 +809,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductCountAggregateOutputType> | number
+        }
+      }
+    }
+    Favorite: {
+      payload: Prisma.$FavoritePayload<ExtArgs>
+      fields: Prisma.FavoriteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FavoriteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FavoriteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>
+        }
+        findFirst: {
+          args: Prisma.FavoriteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FavoriteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>
+        }
+        findMany: {
+          args: Prisma.FavoriteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>[]
+        }
+        create: {
+          args: Prisma.FavoriteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>
+        }
+        createMany: {
+          args: Prisma.FavoriteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FavoriteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>[]
+        }
+        delete: {
+          args: Prisma.FavoriteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>
+        }
+        update: {
+          args: Prisma.FavoriteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>
+        }
+        deleteMany: {
+          args: Prisma.FavoriteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FavoriteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FavoriteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>[]
+        }
+        upsert: {
+          args: Prisma.FavoriteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FavoritePayload>
+        }
+        aggregate: {
+          args: Prisma.FavoriteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFavorite>
+        }
+        groupBy: {
+          args: Prisma.FavoriteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FavoriteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FavoriteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FavoriteCountAggregateOutputType> | number
         }
       }
     }
@@ -2142,6 +2218,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PromoRedemption: {
+      payload: Prisma.$PromoRedemptionPayload<ExtArgs>
+      fields: Prisma.PromoRedemptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PromoRedemptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PromoRedemptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>
+        }
+        findFirst: {
+          args: Prisma.PromoRedemptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PromoRedemptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>
+        }
+        findMany: {
+          args: Prisma.PromoRedemptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>[]
+        }
+        create: {
+          args: Prisma.PromoRedemptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>
+        }
+        createMany: {
+          args: Prisma.PromoRedemptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PromoRedemptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>[]
+        }
+        delete: {
+          args: Prisma.PromoRedemptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>
+        }
+        update: {
+          args: Prisma.PromoRedemptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PromoRedemptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PromoRedemptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PromoRedemptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PromoRedemptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PromoRedemptionPayload>
+        }
+        aggregate: {
+          args: Prisma.PromoRedemptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePromoRedemption>
+        }
+        groupBy: {
+          args: Prisma.PromoRedemptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PromoRedemptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PromoRedemptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PromoRedemptionCountAggregateOutputType> | number
+        }
+      }
+    }
     Otp: {
       payload: Prisma.$OtpPayload<ExtArgs>
       fields: Prisma.OtpFieldRefs
@@ -2281,7 +2431,9 @@ export const UserScalarFieldEnum = {
   withdrawalAccountName: 'withdrawalAccountName',
   paystackRecipientCode: 'paystackRecipientCode',
   walletBalance: 'walletBalance',
+  promoBalance: 'promoBalance',
   isPro: 'isPro',
+  storePlan: 'storePlan',
   avatarColor: 'avatarColor',
   phoneNumber: 'phoneNumber',
   profilePicture: 'profilePicture',
@@ -2354,6 +2506,7 @@ export const ProductScalarFieldEnum = {
   image: 'image',
   category: 'category',
   condition: 'condition',
+  location: 'location',
   specs: 'specs',
   description: 'description',
   createdAt: 'createdAt',
@@ -2361,6 +2514,17 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const FavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  tradeId: 'tradeId',
+  createdAt: 'createdAt'
+} as const
+
+export type FavoriteScalarFieldEnum = (typeof FavoriteScalarFieldEnum)[keyof typeof FavoriteScalarFieldEnum]
 
 
 export const TradeScalarFieldEnum = {
@@ -2623,7 +2787,9 @@ export type PlatformSettingScalarFieldEnum = (typeof PlatformSettingScalarFieldE
 export const PromoCodeScalarFieldEnum = {
   id: 'id',
   code: 'code',
-  discountPct: 'discountPct',
+  creditAmount: 'creditAmount',
+  maxUses: 'maxUses',
+  usedCount: 'usedCount',
   active: 'active',
   createdById: 'createdById',
   createdAt: 'createdAt',
@@ -2631,6 +2797,17 @@ export const PromoCodeScalarFieldEnum = {
 } as const
 
 export type PromoCodeScalarFieldEnum = (typeof PromoCodeScalarFieldEnum)[keyof typeof PromoCodeScalarFieldEnum]
+
+
+export const PromoRedemptionScalarFieldEnum = {
+  id: 'id',
+  promoCodeId: 'promoCodeId',
+  userId: 'userId',
+  creditAmount: 'creditAmount',
+  createdAt: 'createdAt'
+} as const
+
+export type PromoRedemptionScalarFieldEnum = (typeof PromoRedemptionScalarFieldEnum)[keyof typeof PromoRedemptionScalarFieldEnum]
 
 
 export const OtpScalarFieldEnum = {
@@ -3178,6 +3355,7 @@ export type GlobalOmitConfig = {
   review?: Prisma.ReviewOmit
   reviewHelpful?: Prisma.ReviewHelpfulOmit
   product?: Prisma.ProductOmit
+  favorite?: Prisma.FavoriteOmit
   trade?: Prisma.TradeOmit
   order?: Prisma.OrderOmit
   chatRoom?: Prisma.ChatRoomOmit
@@ -3196,6 +3374,7 @@ export type GlobalOmitConfig = {
   supportTicketReply?: Prisma.SupportTicketReplyOmit
   platformSetting?: Prisma.PlatformSettingOmit
   promoCode?: Prisma.PromoCodeOmit
+  promoRedemption?: Prisma.PromoRedemptionOmit
   otp?: Prisma.OtpOmit
 }
 

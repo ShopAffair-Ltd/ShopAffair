@@ -52,6 +52,7 @@ export const generateVirtualAccount = async (): Promise<VirtualAccount> => {
 
 export interface WalletBalance {
   walletBalance: string | number;
+  promoBalance: string | number;
   accountNumber: string | null;
   bankName: string | null;
 }
@@ -167,4 +168,9 @@ export const fetchSubscriptionStatus = async (): Promise<SubscriptionStatus> => 
 
 export const subscribeToStorePlan = async (planId: StorePlanId): Promise<void> => {
   await api.post('/payments/subscription', { planId });
+};
+
+export const redeemPromoCode = async (code: string): Promise<{ creditAmount: number }> => {
+  const { data } = await api.post<{ creditAmount: number }>('/payments/promo/redeem', { code });
+  return data;
 };

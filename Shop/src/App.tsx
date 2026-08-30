@@ -23,6 +23,7 @@ import VerificationGate from './components/layout/VerificationGate';
 import AuthModal from './components/AuthModal';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
 import MarketView from './components/MarketView';
+import FavoritesView from './components/FavoritesView';
 import HomeView from './components/HomeView';
 import TransferHistoryView from './components/TransferHistoryView';
 import TradeView from './components/TradeView';
@@ -36,6 +37,7 @@ import StoreProfile from './components/StoreProfile';
 import StoreUpgradeModal from './components/modals/StoreUpgradeModal';
 import DepositModal from './components/modals/DepositModal';
 import TransferModal from './components/modals/TransferModal';
+import RedeemPromoModal from './components/modals/RedeemPromoModal';
 import WalletCallback from './components/wallet/WalletCallback';
 
 import { UserProfile, ChatRoom } from './types';
@@ -57,7 +59,7 @@ const GUEST_PROFILE: UserProfile = {
 function GlobalOverlays() {
   const { addAuditLog } = useAdmin();
   const { storeUpgradeOpen, selectedStorePlan, activating, activateError, closeStoreUpgrade, selectPlan, activatePlan } = useStore();
-  const { depositOpen, transferOpen, closeDeposit, closeTransfer, deposit, transfer } = useWallet();
+  const { depositOpen, transferOpen, redeemOpen, closeDeposit, closeTransfer, closeRedeem, deposit, transfer, redeemPromo } = useWallet();
   const { user } = useAuth();
   const activeProfile = user ?? GUEST_PROFILE;
   const navigate = useNavigate();
@@ -91,6 +93,7 @@ function GlobalOverlays() {
         activeUsername={activeProfile.username}
         accountHolderName={activeProfile.name}
       />
+      <RedeemPromoModal isOpen={redeemOpen} onClose={closeRedeem} onRedeem={redeemPromo} />
     </>
   );
 }
@@ -407,6 +410,14 @@ export default function App() {
           {isPreloaderActive && <Preloader onComplete={() => setIsPreloaderActive(false)} />}
           <Routes>
             <Route path="/market" element={<MarketRoute />} />
+            <Route
+              path="/favorites"
+              element={
+                <ProtectedRoute>
+                  <FavoritesView />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/store/:username" element={<StoreProfileRoute />} />
             <Route
               path="/wallet/callback"

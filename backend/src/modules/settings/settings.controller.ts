@@ -43,8 +43,8 @@ export const getPromoCodes = asyncHandler(async (_req: Request, res: Response) =
 
 export const addPromoCode = asyncHandler(async (req: Request, res: Response) => {
   const admin = requireUser(req);
-  const { code, discountPct, expiresAt } = createPromoSchema.parse(req.body);
-  const promo = await createPromoCode(admin.id, code, discountPct, expiresAt ? new Date(expiresAt) : undefined);
+  const { code, creditAmount, maxUses, expiresAt } = createPromoSchema.parse(req.body);
+  const promo = await createPromoCode(admin.id, code, creditAmount, maxUses, expiresAt ? new Date(expiresAt) : undefined);
   res.status(201).json({ promo });
 });
 

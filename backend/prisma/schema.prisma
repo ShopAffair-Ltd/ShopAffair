@@ -32,6 +32,12 @@ enum TradeCategory {
   SERVICE
 }
 
+enum TradeVisibility {
+  PRIVATE
+  STORE
+  MARKET
+}
+
 enum EscrowStatus {
   DRAFT
   PENDING
@@ -78,6 +84,7 @@ enum TransactionType {
   REFUND
   SUBSCRIPTION
   PLATFORM_FEE
+  PROMO_CREDIT
 }
 
 enum TransactionStatus {
@@ -143,7 +150,9 @@ model User {
   withdrawalAccountName     String?
   paystackRecipientCode     String?
   walletBalance             Decimal             @default(0) @db.Decimal(14, 2)
+  promoBalance              Decimal             @default(0) @db.Decimal(14, 2)
   isPro                     Boolean             @default(false)
+  storePlan                 String?
   avatarColor               String?
   phoneNumber               String?
   profilePicture            String?
@@ -195,8 +204,10 @@ model User {
   supportReplies       SupportTicketReply[]
   platformSettingsEdited PlatformSetting[]
   promoCodesCreated    PromoCode[]          @relation("PromoCreator")
+  promoRedemptions     PromoRedemption[]
   blockedBy            Block[]              @relation("Blocked")
   blocking             Block[]              @relation("Blocker")
+  favorites            Favorite[]
 }
 
 model Follow {
@@ -257,18 +268,32 @@ model Product {
   image         String
   category      String
   condition     ProductCondition
+  location      String?
   specs         Json?
   description   String
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
   orders        Order[]
+  favorites     Favorite[]
+
+  @@index([category])
+  @@index([location])
 }
 
-enum TradeVisibility {
-  PRIVATE
-  STORE
-  MARKET
+model Favorite {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tradeId     String?
+  trade       Trade?    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, productId])
+  @@unique([userId, tradeId])
+  @@index([userId])
 }
 
 model Trade {
@@ -302,6 +327,7 @@ model Trade {
   sharedInMessages   ChatMessage[]
   walletTransactions WalletTransaction[]
   order              Order?
+  favorites          Favorite[]
 
   @@index([creatorId])
   @@index([buyerId])
@@ -311,6 +337,10 @@ model Trade {
   @@index([createdAt])
   @@index([status, createdAt])
   @@index([visibility])
+  @@index([takeOffLocation])
+  @@index([visibility, createdAt])
+  @@index([creatorId, createdAt])
+  @@index([buyerId, createdAt])
 }
 
 model Order {
@@ -561,12 +591,29 @@ model PlatformSetting {
 model PromoCode {
   id          String    @id @default(uuid())
   code        String    @unique
-  discountPct Int
+  creditAmount Decimal  @db.Decimal(14, 2)
+  maxUses     Int?
+  usedCount   Int       @default(0)
   active      Boolean   @default(true)
   createdById String
   createdBy   User      @relation("PromoCreator", fields: [createdById], references: [id])
   createdAt   DateTime  @default(now())
   expiresAt   DateTime?
+
+  redemptions PromoRedemption[]
+}
+
+model PromoRedemption {
+  id          String     @id @default(uuid())
+  promoCodeId String
+  promoCode   PromoCode  @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  creditAmount Decimal   @db.Decimal(14, 2)
+  createdAt   DateTime   @default(now())
+
+  @@unique([promoCodeId, userId])
+  @@index([userId])
 }
 
 model Otp {

@@ -251,7 +251,7 @@ export const listWalletTransactions = async (userId: string, page: number, limit
 export const getWalletBalance = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { walletBalance: true, accountNumber: true, bankName: true }
+    select: { walletBalance: true, promoBalance: true, accountNumber: true, bankName: true }
   });
   if (!user) {
     throw new ApiError(404, 'User not found');
@@ -476,8 +476,14 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
   if (user.storePlan === plan.id) {
     throw new ApiError(409, `You already have an active ${plan.name} subscription`);
   }
-  if (new Prisma.Decimal(user.walletBalance).lessThan(plan.price)) {
-    throw new ApiError(402, `Insufficient wallet balance. The ${plan.name} costs ₦${plan.price.toLocaleString()}.`);
+
+  const planPrice = new Prisma.Decimal(plan.price);
+  const totalAvailable = new Prisma.Decimal(user.walletBalance).plus(user.promoBalance);
+  if (totalAvailable.lessThan(planPrice)) {
+    throw new ApiError(
+      402,
+      `Insufficient balance. The ${plan.name} costs ₦${plan.price.toLocaleString()}, and your wallet + promo balance total ₦${totalAvailable.toFixed(2)}.`
+    );
   }
 
   const reference = generateSubscriptionReference();
@@ -487,13 +493,29 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
     if (!fresh || fresh.storePlan === plan.id) {
       throw new ApiError(409, `You already have an active ${plan.name} subscription`);
     }
-    if (new Prisma.Decimal(fresh.walletBalance).lessThan(plan.price)) {
-      throw new ApiError(402, 'Insufficient wallet balance');
+
+    const freshPromoBalance = new Prisma.Decimal(fresh.promoBalance);
+    const freshWalletBalance = new Prisma.Decimal(fresh.walletBalance);
+    const freshTotal = freshWalletBalance.plus(freshPromoBalance);
+
+    if (freshTotal.lessThan(planPrice)) {
+      throw new ApiError(402, 'Insufficient balance');
     }
+
+    // Spend promo balance first, since it can ONLY be used for in-app
+    // services like this — falling back to regular wallet balance for
+    // whatever the promo balance doesn't cover.
+    const fromPromo = freshPromoBalance.lessThan(planPrice) ? freshPromoBalance : planPrice;
+    const fromWallet = planPrice.minus(fromPromo);
 
     await tx.user.update({
       where: { id: userId },
-      data: { walletBalance: { decrement: plan.price }, isPro: true, storePlan: plan.id }
+      data: {
+        promoBalance: { decrement: fromPromo },
+        walletBalance: { decrement: fromWallet },
+        isPro: true,
+        storePlan: plan.id
+      }
     });
 
     await tx.walletTransaction.create({

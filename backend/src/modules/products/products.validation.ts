@@ -8,6 +8,7 @@ export const createProductSchema = z.object({
   image: z.url(),
   category: z.string().min(2).max(60),
   condition: conditionEnum,
+  location: z.string().max(200).optional(),
   specs: z.record(z.string(), z.unknown()).optional(),
   description: z.string().min(10).max(5000)
 });
@@ -23,7 +24,10 @@ export const listProductsQuerySchema = z.object({
   category: z.string().min(1).max(60).optional(),
   condition: conditionEnum.optional(),
   sellerId: z.uuid().optional(),
-  search: z.string().min(1).max(120).optional()
+  search: z.string().min(1).max(120).optional(),
+  location: z.string().min(1).max(200).optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional()
 });
 
 export const productIdParamSchema = z.object({

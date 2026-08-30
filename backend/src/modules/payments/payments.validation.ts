@@ -36,6 +36,10 @@ export const subscribeSchema = z.object({
   planId: z.enum(['TRIAL', 'STARTER'])
 });
 
+export const redeemSchema = z.object({
+  code: z.string().min(3).max(30)
+});
+
 export type FundWalletInput = z.infer<typeof fundWalletSchema>;
 export type VerifyFundingInput = z.infer<typeof verifyFundingSchema>;
 export type PayFromWalletInput = z.infer<typeof payFromWalletSchema>;
@@ -44,3 +48,4 @@ export type ResolveAccountInput = z.infer<typeof resolveAccountSchema>;
 export type ResolveAccountAllBanksInput = z.infer<typeof resolveAccountAllBanksSchema>;
 export type WithdrawInput = z.infer<typeof withdrawSchema>;
 export type SubscribeInput = z.infer<typeof subscribeSchema>;
+export type RedeemInput = z.infer<typeof redeemSchema>;

@@ -27,17 +27,23 @@ export type AggregatePromoCode = {
 }
 
 export type PromoCodeAvgAggregateOutputType = {
-  discountPct: number | null
+  creditAmount: runtime.Decimal | null
+  maxUses: number | null
+  usedCount: number | null
 }
 
 export type PromoCodeSumAggregateOutputType = {
-  discountPct: number | null
+  creditAmount: runtime.Decimal | null
+  maxUses: number | null
+  usedCount: number | null
 }
 
 export type PromoCodeMinAggregateOutputType = {
   id: string | null
   code: string | null
-  discountPct: number | null
+  creditAmount: runtime.Decimal | null
+  maxUses: number | null
+  usedCount: number | null
   active: boolean | null
   createdById: string | null
   createdAt: Date | null
@@ -47,7 +53,9 @@ export type PromoCodeMinAggregateOutputType = {
 export type PromoCodeMaxAggregateOutputType = {
   id: string | null
   code: string | null
-  discountPct: number | null
+  creditAmount: runtime.Decimal | null
+  maxUses: number | null
+  usedCount: number | null
   active: boolean | null
   createdById: string | null
   createdAt: Date | null
@@ -57,7 +65,9 @@ export type PromoCodeMaxAggregateOutputType = {
 export type PromoCodeCountAggregateOutputType = {
   id: number
   code: number
-  discountPct: number
+  creditAmount: number
+  maxUses: number
+  usedCount: number
   active: number
   createdById: number
   createdAt: number
@@ -67,17 +77,23 @@ export type PromoCodeCountAggregateOutputType = {
 
 
 export type PromoCodeAvgAggregateInputType = {
-  discountPct?: true
+  creditAmount?: true
+  maxUses?: true
+  usedCount?: true
 }
 
 export type PromoCodeSumAggregateInputType = {
-  discountPct?: true
+  creditAmount?: true
+  maxUses?: true
+  usedCount?: true
 }
 
 export type PromoCodeMinAggregateInputType = {
   id?: true
   code?: true
-  discountPct?: true
+  creditAmount?: true
+  maxUses?: true
+  usedCount?: true
   active?: true
   createdById?: true
   createdAt?: true
@@ -87,7 +103,9 @@ export type PromoCodeMinAggregateInputType = {
 export type PromoCodeMaxAggregateInputType = {
   id?: true
   code?: true
-  discountPct?: true
+  creditAmount?: true
+  maxUses?: true
+  usedCount?: true
   active?: true
   createdById?: true
   createdAt?: true
@@ -97,7 +115,9 @@ export type PromoCodeMaxAggregateInputType = {
 export type PromoCodeCountAggregateInputType = {
   id?: true
   code?: true
-  discountPct?: true
+  creditAmount?: true
+  maxUses?: true
+  usedCount?: true
   active?: true
   createdById?: true
   createdAt?: true
@@ -194,7 +214,9 @@ export type PromoCodeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type PromoCodeGroupByOutputType = {
   id: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal
+  maxUses: number | null
+  usedCount: number
   active: boolean
   createdById: string
   createdAt: Date
@@ -227,23 +249,29 @@ export type PromoCodeWhereInput = {
   NOT?: Prisma.PromoCodeWhereInput | Prisma.PromoCodeWhereInput[]
   id?: Prisma.StringFilter<"PromoCode"> | string
   code?: Prisma.StringFilter<"PromoCode"> | string
-  discountPct?: Prisma.IntFilter<"PromoCode"> | number
+  creditAmount?: Prisma.DecimalFilter<"PromoCode"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.IntNullableFilter<"PromoCode"> | number | null
+  usedCount?: Prisma.IntFilter<"PromoCode"> | number
   active?: Prisma.BoolFilter<"PromoCode"> | boolean
   createdById?: Prisma.StringFilter<"PromoCode"> | string
   createdAt?: Prisma.DateTimeFilter<"PromoCode"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"PromoCode"> | Date | string | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  redemptions?: Prisma.PromoRedemptionListRelationFilter
 }
 
 export type PromoCodeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrderInput | Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdBy?: Prisma.UserOrderByWithRelationInput
+  redemptions?: Prisma.PromoRedemptionOrderByRelationAggregateInput
 }
 
 export type PromoCodeWhereUniqueInput = Prisma.AtLeast<{
@@ -252,18 +280,23 @@ export type PromoCodeWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PromoCodeWhereInput | Prisma.PromoCodeWhereInput[]
   OR?: Prisma.PromoCodeWhereInput[]
   NOT?: Prisma.PromoCodeWhereInput | Prisma.PromoCodeWhereInput[]
-  discountPct?: Prisma.IntFilter<"PromoCode"> | number
+  creditAmount?: Prisma.DecimalFilter<"PromoCode"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.IntNullableFilter<"PromoCode"> | number | null
+  usedCount?: Prisma.IntFilter<"PromoCode"> | number
   active?: Prisma.BoolFilter<"PromoCode"> | boolean
   createdById?: Prisma.StringFilter<"PromoCode"> | string
   createdAt?: Prisma.DateTimeFilter<"PromoCode"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"PromoCode"> | Date | string | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  redemptions?: Prisma.PromoRedemptionListRelationFilter
 }, "id" | "code">
 
 export type PromoCodeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrderInput | Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -281,7 +314,9 @@ export type PromoCodeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PromoCodeScalarWhereWithAggregatesInput | Prisma.PromoCodeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PromoCode"> | string
   code?: Prisma.StringWithAggregatesFilter<"PromoCode"> | string
-  discountPct?: Prisma.IntWithAggregatesFilter<"PromoCode"> | number
+  creditAmount?: Prisma.DecimalWithAggregatesFilter<"PromoCode"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.IntNullableWithAggregatesFilter<"PromoCode"> | number | null
+  usedCount?: Prisma.IntWithAggregatesFilter<"PromoCode"> | number
   active?: Prisma.BoolWithAggregatesFilter<"PromoCode"> | boolean
   createdById?: Prisma.StringWithAggregatesFilter<"PromoCode"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PromoCode"> | Date | string
@@ -291,47 +326,61 @@ export type PromoCodeScalarWhereWithAggregatesInput = {
 export type PromoCodeCreateInput = {
   id?: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
   active?: boolean
   createdAt?: Date | string
   expiresAt?: Date | string | null
   createdBy: Prisma.UserCreateNestedOneWithoutPromoCodesCreatedInput
+  redemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutPromoCodeInput
 }
 
 export type PromoCodeUncheckedCreateInput = {
   id?: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
   active?: boolean
   createdById: string
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  redemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutPromoCodeInput
 }
 
 export type PromoCodeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPromoCodesCreatedNestedInput
+  redemptions?: Prisma.PromoRedemptionUpdateManyWithoutPromoCodeNestedInput
 }
 
 export type PromoCodeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  redemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutPromoCodeNestedInput
 }
 
 export type PromoCodeCreateManyInput = {
   id?: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
   active?: boolean
   createdById: string
   createdAt?: Date | string
@@ -341,7 +390,9 @@ export type PromoCodeCreateManyInput = {
 export type PromoCodeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -350,7 +401,9 @@ export type PromoCodeUpdateManyMutationInput = {
 export type PromoCodeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -370,7 +423,9 @@ export type PromoCodeOrderByRelationAggregateInput = {
 export type PromoCodeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -378,13 +433,17 @@ export type PromoCodeCountOrderByAggregateInput = {
 }
 
 export type PromoCodeAvgOrderByAggregateInput = {
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
 }
 
 export type PromoCodeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -394,7 +453,9 @@ export type PromoCodeMaxOrderByAggregateInput = {
 export type PromoCodeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -402,7 +463,14 @@ export type PromoCodeMinOrderByAggregateInput = {
 }
 
 export type PromoCodeSumOrderByAggregateInput = {
-  discountPct?: Prisma.SortOrder
+  creditAmount?: Prisma.SortOrder
+  maxUses?: Prisma.SortOrder
+  usedCount?: Prisma.SortOrder
+}
+
+export type PromoCodeScalarRelationFilter = {
+  is?: Prisma.PromoCodeWhereInput
+  isNot?: Prisma.PromoCodeWhereInput
 }
 
 export type PromoCodeCreateNestedManyWithoutCreatedByInput = {
@@ -447,22 +515,42 @@ export type PromoCodeUncheckedUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.PromoCodeScalarWhereInput | Prisma.PromoCodeScalarWhereInput[]
 }
 
+export type PromoCodeCreateNestedOneWithoutRedemptionsInput = {
+  create?: Prisma.XOR<Prisma.PromoCodeCreateWithoutRedemptionsInput, Prisma.PromoCodeUncheckedCreateWithoutRedemptionsInput>
+  connectOrCreate?: Prisma.PromoCodeCreateOrConnectWithoutRedemptionsInput
+  connect?: Prisma.PromoCodeWhereUniqueInput
+}
+
+export type PromoCodeUpdateOneRequiredWithoutRedemptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PromoCodeCreateWithoutRedemptionsInput, Prisma.PromoCodeUncheckedCreateWithoutRedemptionsInput>
+  connectOrCreate?: Prisma.PromoCodeCreateOrConnectWithoutRedemptionsInput
+  upsert?: Prisma.PromoCodeUpsertWithoutRedemptionsInput
+  connect?: Prisma.PromoCodeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PromoCodeUpdateToOneWithWhereWithoutRedemptionsInput, Prisma.PromoCodeUpdateWithoutRedemptionsInput>, Prisma.PromoCodeUncheckedUpdateWithoutRedemptionsInput>
+}
+
 export type PromoCodeCreateWithoutCreatedByInput = {
   id?: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
   active?: boolean
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  redemptions?: Prisma.PromoRedemptionCreateNestedManyWithoutPromoCodeInput
 }
 
 export type PromoCodeUncheckedCreateWithoutCreatedByInput = {
   id?: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
   active?: boolean
   createdAt?: Date | string
   expiresAt?: Date | string | null
+  redemptions?: Prisma.PromoRedemptionUncheckedCreateNestedManyWithoutPromoCodeInput
 }
 
 export type PromoCodeCreateOrConnectWithoutCreatedByInput = {
@@ -497,17 +585,85 @@ export type PromoCodeScalarWhereInput = {
   NOT?: Prisma.PromoCodeScalarWhereInput | Prisma.PromoCodeScalarWhereInput[]
   id?: Prisma.StringFilter<"PromoCode"> | string
   code?: Prisma.StringFilter<"PromoCode"> | string
-  discountPct?: Prisma.IntFilter<"PromoCode"> | number
+  creditAmount?: Prisma.DecimalFilter<"PromoCode"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.IntNullableFilter<"PromoCode"> | number | null
+  usedCount?: Prisma.IntFilter<"PromoCode"> | number
   active?: Prisma.BoolFilter<"PromoCode"> | boolean
   createdById?: Prisma.StringFilter<"PromoCode"> | string
   createdAt?: Prisma.DateTimeFilter<"PromoCode"> | Date | string
   expiresAt?: Prisma.DateTimeNullableFilter<"PromoCode"> | Date | string | null
 }
 
+export type PromoCodeCreateWithoutRedemptionsInput = {
+  id?: string
+  code: string
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
+  active?: boolean
+  createdAt?: Date | string
+  expiresAt?: Date | string | null
+  createdBy: Prisma.UserCreateNestedOneWithoutPromoCodesCreatedInput
+}
+
+export type PromoCodeUncheckedCreateWithoutRedemptionsInput = {
+  id?: string
+  code: string
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
+  active?: boolean
+  createdById: string
+  createdAt?: Date | string
+  expiresAt?: Date | string | null
+}
+
+export type PromoCodeCreateOrConnectWithoutRedemptionsInput = {
+  where: Prisma.PromoCodeWhereUniqueInput
+  create: Prisma.XOR<Prisma.PromoCodeCreateWithoutRedemptionsInput, Prisma.PromoCodeUncheckedCreateWithoutRedemptionsInput>
+}
+
+export type PromoCodeUpsertWithoutRedemptionsInput = {
+  update: Prisma.XOR<Prisma.PromoCodeUpdateWithoutRedemptionsInput, Prisma.PromoCodeUncheckedUpdateWithoutRedemptionsInput>
+  create: Prisma.XOR<Prisma.PromoCodeCreateWithoutRedemptionsInput, Prisma.PromoCodeUncheckedCreateWithoutRedemptionsInput>
+  where?: Prisma.PromoCodeWhereInput
+}
+
+export type PromoCodeUpdateToOneWithWhereWithoutRedemptionsInput = {
+  where?: Prisma.PromoCodeWhereInput
+  data: Prisma.XOR<Prisma.PromoCodeUpdateWithoutRedemptionsInput, Prisma.PromoCodeUncheckedUpdateWithoutRedemptionsInput>
+}
+
+export type PromoCodeUpdateWithoutRedemptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutPromoCodesCreatedNestedInput
+}
+
+export type PromoCodeUncheckedUpdateWithoutRedemptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
 export type PromoCodeCreateManyCreatedByInput = {
   id?: string
   code: string
-  discountPct: number
+  creditAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: number | null
+  usedCount?: number
   active?: boolean
   createdAt?: Date | string
   expiresAt?: Date | string | null
@@ -516,47 +672,90 @@ export type PromoCodeCreateManyCreatedByInput = {
 export type PromoCodeUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  redemptions?: Prisma.PromoRedemptionUpdateManyWithoutPromoCodeNestedInput
 }
 
 export type PromoCodeUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  redemptions?: Prisma.PromoRedemptionUncheckedUpdateManyWithoutPromoCodeNestedInput
 }
 
 export type PromoCodeUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  discountPct?: Prisma.IntFieldUpdateOperationsInput | number
+  creditAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxUses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  usedCount?: Prisma.IntFieldUpdateOperationsInput | number
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
+/**
+ * Count Type PromoCodeCountOutputType
+ */
+
+export type PromoCodeCountOutputType = {
+  redemptions: number
+}
+
+export type PromoCodeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  redemptions?: boolean | PromoCodeCountOutputTypeCountRedemptionsArgs
+}
+
+/**
+ * PromoCodeCountOutputType without action
+ */
+export type PromoCodeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PromoCodeCountOutputType
+   */
+  select?: Prisma.PromoCodeCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PromoCodeCountOutputType without action
+ */
+export type PromoCodeCountOutputTypeCountRedemptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PromoRedemptionWhereInput
+}
+
 
 export type PromoCodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   code?: boolean
-  discountPct?: boolean
+  creditAmount?: boolean
+  maxUses?: boolean
+  usedCount?: boolean
   active?: boolean
   createdById?: boolean
   createdAt?: boolean
   expiresAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  redemptions?: boolean | Prisma.PromoCode$redemptionsArgs<ExtArgs>
+  _count?: boolean | Prisma.PromoCodeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["promoCode"]>
 
 export type PromoCodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   code?: boolean
-  discountPct?: boolean
+  creditAmount?: boolean
+  maxUses?: boolean
+  usedCount?: boolean
   active?: boolean
   createdById?: boolean
   createdAt?: boolean
@@ -567,7 +766,9 @@ export type PromoCodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type PromoCodeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   code?: boolean
-  discountPct?: boolean
+  creditAmount?: boolean
+  maxUses?: boolean
+  usedCount?: boolean
   active?: boolean
   createdById?: boolean
   createdAt?: boolean
@@ -578,16 +779,20 @@ export type PromoCodeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type PromoCodeSelectScalar = {
   id?: boolean
   code?: boolean
-  discountPct?: boolean
+  creditAmount?: boolean
+  maxUses?: boolean
+  usedCount?: boolean
   active?: boolean
   createdById?: boolean
   createdAt?: boolean
   expiresAt?: boolean
 }
 
-export type PromoCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "discountPct" | "active" | "createdById" | "createdAt" | "expiresAt", ExtArgs["result"]["promoCode"]>
+export type PromoCodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "creditAmount" | "maxUses" | "usedCount" | "active" | "createdById" | "createdAt" | "expiresAt", ExtArgs["result"]["promoCode"]>
 export type PromoCodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  redemptions?: boolean | Prisma.PromoCode$redemptionsArgs<ExtArgs>
+  _count?: boolean | Prisma.PromoCodeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PromoCodeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -600,11 +805,14 @@ export type $PromoCodePayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "PromoCode"
   objects: {
     createdBy: Prisma.$UserPayload<ExtArgs>
+    redemptions: Prisma.$PromoRedemptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     code: string
-    discountPct: number
+    creditAmount: runtime.Decimal
+    maxUses: number | null
+    usedCount: number
     active: boolean
     createdById: string
     createdAt: Date
@@ -1004,6 +1212,7 @@ readonly fields: PromoCodeFieldRefs;
 export interface Prisma__PromoCodeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  redemptions<T extends Prisma.PromoCode$redemptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PromoCode$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromoRedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1035,7 +1244,9 @@ export interface Prisma__PromoCodeClient<T, Null = never, ExtArgs extends runtim
 export interface PromoCodeFieldRefs {
   readonly id: Prisma.FieldRef<"PromoCode", 'String'>
   readonly code: Prisma.FieldRef<"PromoCode", 'String'>
-  readonly discountPct: Prisma.FieldRef<"PromoCode", 'Int'>
+  readonly creditAmount: Prisma.FieldRef<"PromoCode", 'Decimal'>
+  readonly maxUses: Prisma.FieldRef<"PromoCode", 'Int'>
+  readonly usedCount: Prisma.FieldRef<"PromoCode", 'Int'>
   readonly active: Prisma.FieldRef<"PromoCode", 'Boolean'>
   readonly createdById: Prisma.FieldRef<"PromoCode", 'String'>
   readonly createdAt: Prisma.FieldRef<"PromoCode", 'DateTime'>
@@ -1438,6 +1649,30 @@ export type PromoCodeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many PromoCodes to delete.
    */
   limit?: number
+}
+
+/**
+ * PromoCode.redemptions
+ */
+export type PromoCode$redemptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PromoRedemption
+   */
+  select?: Prisma.PromoRedemptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PromoRedemption
+   */
+  omit?: Prisma.PromoRedemptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoRedemptionInclude<ExtArgs> | null
+  where?: Prisma.PromoRedemptionWhereInput
+  orderBy?: Prisma.PromoRedemptionOrderByWithRelationInput | Prisma.PromoRedemptionOrderByWithRelationInput[]
+  cursor?: Prisma.PromoRedemptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PromoRedemptionScalarFieldEnum | Prisma.PromoRedemptionScalarFieldEnum[]
 }
 
 /**

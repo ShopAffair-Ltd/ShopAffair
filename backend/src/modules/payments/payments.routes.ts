@@ -11,7 +11,8 @@ import {
   withdraw,
   subscribe,
   getSubscription,
-  getPlans
+  getPlans,
+  redeemPromo
 } from './payments.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
 
@@ -33,6 +34,14 @@ const withdrawalLimiter = rateLimit({
   message: { message: 'Too many withdrawal attempts, please try again later' }
 });
 
+const redeemLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many promo code attempts, please try again later' }
+});
+
 router.get('/wallet/balance', requireAuth, getBalance);
 router.get('/wallet/transactions', requireAuth, getTransactions);
 router.post('/wallet/fund', requireAuth, fundingLimiter, fundWallet);
@@ -44,5 +53,6 @@ router.post('/wallet/withdraw', requireAuth, withdrawalLimiter, withdraw);
 router.get('/subscription', requireAuth, getSubscription);
 router.post('/subscription', requireAuth, subscribe);
 router.get('/plans', getPlans);
+router.post('/promo/redeem', requireAuth, redeemLimiter, redeemPromo);
 
 export default router;

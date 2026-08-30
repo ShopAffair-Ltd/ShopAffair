@@ -17,7 +17,9 @@ export const broadcastAlert = async (message: string): Promise<{ recipientCount:
 export interface PromoCode {
   id: string;
   code: string;
-  discountPct: number;
+  creditAmount: number;
+  maxUses: number | null;
+  usedCount: number;
   active: boolean;
   createdAt: string;
   expiresAt: string | null;
@@ -28,8 +30,8 @@ export const fetchPromoCodes = async (): Promise<PromoCode[]> => {
   return data.promos;
 };
 
-export const createPromoCode = async (code: string, discountPct: number): Promise<PromoCode> => {
-  const { data } = await api.post<{ promo: PromoCode }>('/settings/promo-codes', { code, discountPct });
+export const createPromoCode = async (code: string, creditAmount: number, maxUses?: number): Promise<PromoCode> => {
+  const { data } = await api.post<{ promo: PromoCode }>('/settings/promo-codes', { code, creditAmount, maxUses });
   return data.promo;
 };
 

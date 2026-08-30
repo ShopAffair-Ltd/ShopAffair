@@ -7,6 +7,7 @@ import { AuthModalProvider } from './context/AuthModalContext';
 import { CartProvider } from './context/CartContext';
 import { ChatProvider } from './context/ChatContext';
 import { MarketProvider } from './context/MarketContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 import { TradeProvider } from './context/TradeContext';
 import { StoreProvider } from './context/StoreContext';
 import { WalletProvider } from './context/WalletContext';
@@ -20,17 +21,19 @@ createRoot(document.getElementById('root')!).render(
         <CartProvider>
           <ChatProvider>
             <MarketProvider>
-              <TradeProvider>
-                <StoreProvider>
-                  <WalletProvider>
-                    <AdminProvider>
-                      <CommunityProvider>
-                        <App />
-                      </CommunityProvider>
-                    </AdminProvider>
-                  </WalletProvider>
-                </StoreProvider>
-              </TradeProvider>
+              <FavoritesProvider>
+                <TradeProvider>
+                  <StoreProvider>
+                    <WalletProvider>
+                      <AdminProvider>
+                        <CommunityProvider>
+                          <App />
+                        </CommunityProvider>
+                      </AdminProvider>
+                    </WalletProvider>
+                  </StoreProvider>
+                </TradeProvider>
+              </FavoritesProvider>
             </MarketProvider>
           </ChatProvider>
         </CartProvider>

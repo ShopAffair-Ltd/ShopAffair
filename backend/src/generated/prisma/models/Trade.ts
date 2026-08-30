@@ -370,6 +370,7 @@ export type TradeWhereInput = {
   sharedInMessages?: Prisma.ChatMessageListRelationFilter
   walletTransactions?: Prisma.WalletTransactionListRelationFilter
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
+  favorites?: Prisma.FavoriteListRelationFilter
 }
 
 export type TradeOrderByWithRelationInput = {
@@ -402,6 +403,7 @@ export type TradeOrderByWithRelationInput = {
   sharedInMessages?: Prisma.ChatMessageOrderByRelationAggregateInput
   walletTransactions?: Prisma.WalletTransactionOrderByRelationAggregateInput
   order?: Prisma.OrderOrderByWithRelationInput
+  favorites?: Prisma.FavoriteOrderByRelationAggregateInput
 }
 
 export type TradeWhereUniqueInput = Prisma.AtLeast<{
@@ -437,6 +439,7 @@ export type TradeWhereUniqueInput = Prisma.AtLeast<{
   sharedInMessages?: Prisma.ChatMessageListRelationFilter
   walletTransactions?: Prisma.WalletTransactionListRelationFilter
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
+  favorites?: Prisma.FavoriteListRelationFilter
 }, "id">
 
 export type TradeOrderByWithAggregationInput = {
@@ -527,6 +530,7 @@ export type TradeCreateInput = {
   sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateInput = {
@@ -557,6 +561,7 @@ export type TradeUncheckedCreateInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUpdateInput = {
@@ -587,6 +592,7 @@ export type TradeUpdateInput = {
   sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateInput = {
@@ -617,6 +623,7 @@ export type TradeUncheckedUpdateInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeCreateManyInput = {
@@ -703,6 +710,11 @@ export type TradeListRelationFilter = {
 
 export type TradeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type TradeNullableScalarRelationFilter = {
+  is?: Prisma.TradeWhereInput | null
+  isNot?: Prisma.TradeWhereInput | null
 }
 
 export type TradeCountOrderByAggregateInput = {
@@ -793,11 +805,6 @@ export type TradeSumOrderByAggregateInput = {
   pickupAttempts?: Prisma.SortOrder
 }
 
-export type TradeNullableScalarRelationFilter = {
-  is?: Prisma.TradeWhereInput | null
-  isNot?: Prisma.TradeWhereInput | null
-}
-
 export type TradeCreateNestedManyWithoutCreatorInput = {
   create?: Prisma.XOR<Prisma.TradeCreateWithoutCreatorInput, Prisma.TradeUncheckedCreateWithoutCreatorInput> | Prisma.TradeCreateWithoutCreatorInput[] | Prisma.TradeUncheckedCreateWithoutCreatorInput[]
   connectOrCreate?: Prisma.TradeCreateOrConnectWithoutCreatorInput | Prisma.TradeCreateOrConnectWithoutCreatorInput[]
@@ -880,6 +887,22 @@ export type TradeUncheckedUpdateManyWithoutBuyerNestedInput = {
   update?: Prisma.TradeUpdateWithWhereUniqueWithoutBuyerInput | Prisma.TradeUpdateWithWhereUniqueWithoutBuyerInput[]
   updateMany?: Prisma.TradeUpdateManyWithWhereWithoutBuyerInput | Prisma.TradeUpdateManyWithWhereWithoutBuyerInput[]
   deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
+}
+
+export type TradeCreateNestedOneWithoutFavoritesInput = {
+  create?: Prisma.XOR<Prisma.TradeCreateWithoutFavoritesInput, Prisma.TradeUncheckedCreateWithoutFavoritesInput>
+  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutFavoritesInput
+  connect?: Prisma.TradeWhereUniqueInput
+}
+
+export type TradeUpdateOneWithoutFavoritesNestedInput = {
+  create?: Prisma.XOR<Prisma.TradeCreateWithoutFavoritesInput, Prisma.TradeUncheckedCreateWithoutFavoritesInput>
+  connectOrCreate?: Prisma.TradeCreateOrConnectWithoutFavoritesInput
+  upsert?: Prisma.TradeUpsertWithoutFavoritesInput
+  disconnect?: Prisma.TradeWhereInput | boolean
+  delete?: Prisma.TradeWhereInput | boolean
+  connect?: Prisma.TradeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TradeUpdateToOneWithWhereWithoutFavoritesInput, Prisma.TradeUpdateWithoutFavoritesInput>, Prisma.TradeUncheckedUpdateWithoutFavoritesInput>
 }
 
 export type EnumEscrowStatusFieldUpdateOperationsInput = {
@@ -989,6 +1012,7 @@ export type TradeCreateWithoutCreatorInput = {
   sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateWithoutCreatorInput = {
@@ -1018,6 +1042,7 @@ export type TradeUncheckedCreateWithoutCreatorInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeCreateOrConnectWithoutCreatorInput = {
@@ -1057,6 +1082,7 @@ export type TradeCreateWithoutBuyerInput = {
   sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateWithoutBuyerInput = {
@@ -1086,6 +1112,7 @@ export type TradeUncheckedCreateWithoutBuyerInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeCreateOrConnectWithoutBuyerInput = {
@@ -1159,6 +1186,142 @@ export type TradeUpdateManyWithWhereWithoutBuyerInput = {
   data: Prisma.XOR<Prisma.TradeUpdateManyMutationInput, Prisma.TradeUncheckedUpdateManyWithoutBuyerInput>
 }
 
+export type TradeCreateWithoutFavoritesInput = {
+  id?: string
+  title: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.EscrowStatus
+  type: $Enums.TradeType
+  category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
+  condition?: string | null
+  specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  accountNumber?: string | null
+  deliveryFee?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deliveryTime: string
+  takeOffLocation?: string | null
+  deliveryLocation?: string | null
+  image?: string | null
+  description?: string | null
+  pickupCode?: string | null
+  pickupAttempts?: number
+  pausedByFreeze?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  creator: Prisma.UserCreateNestedOneWithoutTradesCreatedInput
+  buyer?: Prisma.UserCreateNestedOneWithoutTradesBoughtInput
+  chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutAssociatedTradeInput
+  sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
+  walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
+  order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+}
+
+export type TradeUncheckedCreateWithoutFavoritesInput = {
+  id?: string
+  title: string
+  creatorId: string
+  buyerId?: string | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.EscrowStatus
+  type: $Enums.TradeType
+  category: $Enums.TradeCategory
+  visibility?: $Enums.TradeVisibility
+  condition?: string | null
+  specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  accountNumber?: string | null
+  deliveryFee?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deliveryTime: string
+  takeOffLocation?: string | null
+  deliveryLocation?: string | null
+  image?: string | null
+  description?: string | null
+  pickupCode?: string | null
+  pickupAttempts?: number
+  pausedByFreeze?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutAssociatedTradeInput
+  sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
+  walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+}
+
+export type TradeCreateOrConnectWithoutFavoritesInput = {
+  where: Prisma.TradeWhereUniqueInput
+  create: Prisma.XOR<Prisma.TradeCreateWithoutFavoritesInput, Prisma.TradeUncheckedCreateWithoutFavoritesInput>
+}
+
+export type TradeUpsertWithoutFavoritesInput = {
+  update: Prisma.XOR<Prisma.TradeUpdateWithoutFavoritesInput, Prisma.TradeUncheckedUpdateWithoutFavoritesInput>
+  create: Prisma.XOR<Prisma.TradeCreateWithoutFavoritesInput, Prisma.TradeUncheckedCreateWithoutFavoritesInput>
+  where?: Prisma.TradeWhereInput
+}
+
+export type TradeUpdateToOneWithWhereWithoutFavoritesInput = {
+  where?: Prisma.TradeWhereInput
+  data: Prisma.XOR<Prisma.TradeUpdateWithoutFavoritesInput, Prisma.TradeUncheckedUpdateWithoutFavoritesInput>
+}
+
+export type TradeUpdateWithoutFavoritesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
+  type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
+  category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
+  condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryFee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deliveryTime?: Prisma.StringFieldUpdateOperationsInput | string
+  takeOffLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedByFreeze?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creator?: Prisma.UserUpdateOneRequiredWithoutTradesCreatedNestedInput
+  buyer?: Prisma.UserUpdateOneWithoutTradesBoughtNestedInput
+  chatRoom?: Prisma.ChatRoomUpdateOneWithoutAssociatedTradeNestedInput
+  sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
+  walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
+  order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+}
+
+export type TradeUncheckedUpdateWithoutFavoritesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  buyerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumEscrowStatusFieldUpdateOperationsInput | $Enums.EscrowStatus
+  type?: Prisma.EnumTradeTypeFieldUpdateOperationsInput | $Enums.TradeType
+  category?: Prisma.EnumTradeCategoryFieldUpdateOperationsInput | $Enums.TradeCategory
+  visibility?: Prisma.EnumTradeVisibilityFieldUpdateOperationsInput | $Enums.TradeVisibility
+  condition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryFee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deliveryTime?: Prisma.StringFieldUpdateOperationsInput | string
+  takeOffLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliveryLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  pausedByFreeze?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutAssociatedTradeNestedInput
+  sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
+  walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
+  order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+}
+
 export type TradeCreateWithoutOrderInput = {
   id?: string
   title: string
@@ -1186,6 +1349,7 @@ export type TradeCreateWithoutOrderInput = {
   chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutAssociatedTradeInput
   sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateWithoutOrderInput = {
@@ -1215,6 +1379,7 @@ export type TradeUncheckedCreateWithoutOrderInput = {
   chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutAssociatedTradeInput
   sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeCreateOrConnectWithoutOrderInput = {
@@ -1260,6 +1425,7 @@ export type TradeUpdateWithoutOrderInput = {
   chatRoom?: Prisma.ChatRoomUpdateOneWithoutAssociatedTradeNestedInput
   sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutOrderInput = {
@@ -1289,6 +1455,7 @@ export type TradeUncheckedUpdateWithoutOrderInput = {
   chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutAssociatedTradeNestedInput
   sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeCreateWithoutChatRoomInput = {
@@ -1318,6 +1485,7 @@ export type TradeCreateWithoutChatRoomInput = {
   sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateWithoutChatRoomInput = {
@@ -1347,6 +1515,7 @@ export type TradeUncheckedCreateWithoutChatRoomInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
   walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeCreateOrConnectWithoutChatRoomInput = {
@@ -1392,6 +1561,7 @@ export type TradeUpdateWithoutChatRoomInput = {
   sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutChatRoomInput = {
@@ -1421,6 +1591,7 @@ export type TradeUncheckedUpdateWithoutChatRoomInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeCreateWithoutSharedInMessagesInput = {
@@ -1450,6 +1621,7 @@ export type TradeCreateWithoutSharedInMessagesInput = {
   chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutAssociatedTradeInput
   walletTransactions?: Prisma.WalletTransactionCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateWithoutSharedInMessagesInput = {
@@ -1479,6 +1651,7 @@ export type TradeUncheckedCreateWithoutSharedInMessagesInput = {
   chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutAssociatedTradeInput
   walletTransactions?: Prisma.WalletTransactionUncheckedCreateNestedManyWithoutTradeInput
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeCreateOrConnectWithoutSharedInMessagesInput = {
@@ -1524,6 +1697,7 @@ export type TradeUpdateWithoutSharedInMessagesInput = {
   chatRoom?: Prisma.ChatRoomUpdateOneWithoutAssociatedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutSharedInMessagesInput = {
@@ -1553,6 +1727,7 @@ export type TradeUncheckedUpdateWithoutSharedInMessagesInput = {
   chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutAssociatedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeCreateWithoutWalletTransactionsInput = {
@@ -1582,6 +1757,7 @@ export type TradeCreateWithoutWalletTransactionsInput = {
   chatRoom?: Prisma.ChatRoomCreateNestedOneWithoutAssociatedTradeInput
   sharedInMessages?: Prisma.ChatMessageCreateNestedManyWithoutSharedTradeInput
   order?: Prisma.OrderCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteCreateNestedManyWithoutTradeInput
 }
 
 export type TradeUncheckedCreateWithoutWalletTransactionsInput = {
@@ -1611,6 +1787,7 @@ export type TradeUncheckedCreateWithoutWalletTransactionsInput = {
   chatRoom?: Prisma.ChatRoomUncheckedCreateNestedOneWithoutAssociatedTradeInput
   sharedInMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutSharedTradeInput
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutTradeInput
+  favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutTradeInput
 }
 
 export type TradeCreateOrConnectWithoutWalletTransactionsInput = {
@@ -1656,6 +1833,7 @@ export type TradeUpdateWithoutWalletTransactionsInput = {
   chatRoom?: Prisma.ChatRoomUpdateOneWithoutAssociatedTradeNestedInput
   sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
   order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutWalletTransactionsInput = {
@@ -1685,6 +1863,7 @@ export type TradeUncheckedUpdateWithoutWalletTransactionsInput = {
   chatRoom?: Prisma.ChatRoomUncheckedUpdateOneWithoutAssociatedTradeNestedInput
   sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
   order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeCreateManyCreatorInput = {
@@ -1764,6 +1943,7 @@ export type TradeUpdateWithoutCreatorInput = {
   sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutCreatorInput = {
@@ -1793,6 +1973,7 @@ export type TradeUncheckedUpdateWithoutCreatorInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateManyWithoutCreatorInput = {
@@ -1847,6 +2028,7 @@ export type TradeUpdateWithoutBuyerInput = {
   sharedInMessages?: Prisma.ChatMessageUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateWithoutBuyerInput = {
@@ -1876,6 +2058,7 @@ export type TradeUncheckedUpdateWithoutBuyerInput = {
   sharedInMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutSharedTradeNestedInput
   walletTransactions?: Prisma.WalletTransactionUncheckedUpdateManyWithoutTradeNestedInput
   order?: Prisma.OrderUncheckedUpdateOneWithoutTradeNestedInput
+  favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutTradeNestedInput
 }
 
 export type TradeUncheckedUpdateManyWithoutBuyerInput = {
@@ -1911,11 +2094,13 @@ export type TradeUncheckedUpdateManyWithoutBuyerInput = {
 export type TradeCountOutputType = {
   sharedInMessages: number
   walletTransactions: number
+  favorites: number
 }
 
 export type TradeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sharedInMessages?: boolean | TradeCountOutputTypeCountSharedInMessagesArgs
   walletTransactions?: boolean | TradeCountOutputTypeCountWalletTransactionsArgs
+  favorites?: boolean | TradeCountOutputTypeCountFavoritesArgs
 }
 
 /**
@@ -1940,6 +2125,13 @@ export type TradeCountOutputTypeCountSharedInMessagesArgs<ExtArgs extends runtim
  */
 export type TradeCountOutputTypeCountWalletTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.WalletTransactionWhereInput
+}
+
+/**
+ * TradeCountOutputType without action
+ */
+export type TradeCountOutputTypeCountFavoritesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FavoriteWhereInput
 }
 
 
@@ -1973,6 +2165,7 @@ export type TradeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sharedInMessages?: boolean | Prisma.Trade$sharedInMessagesArgs<ExtArgs>
   walletTransactions?: boolean | Prisma.Trade$walletTransactionsArgs<ExtArgs>
   order?: boolean | Prisma.Trade$orderArgs<ExtArgs>
+  favorites?: boolean | Prisma.Trade$favoritesArgs<ExtArgs>
   _count?: boolean | Prisma.TradeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["trade"]>
 
@@ -2066,6 +2259,7 @@ export type TradeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   sharedInMessages?: boolean | Prisma.Trade$sharedInMessagesArgs<ExtArgs>
   walletTransactions?: boolean | Prisma.Trade$walletTransactionsArgs<ExtArgs>
   order?: boolean | Prisma.Trade$orderArgs<ExtArgs>
+  favorites?: boolean | Prisma.Trade$favoritesArgs<ExtArgs>
   _count?: boolean | Prisma.TradeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TradeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2086,6 +2280,7 @@ export type $TradePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     sharedInMessages: Prisma.$ChatMessagePayload<ExtArgs>[]
     walletTransactions: Prisma.$WalletTransactionPayload<ExtArgs>[]
     order: Prisma.$OrderPayload<ExtArgs> | null
+    favorites: Prisma.$FavoritePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2511,6 +2706,7 @@ export interface Prisma__TradeClient<T, Null = never, ExtArgs extends runtime.Ty
   sharedInMessages<T extends Prisma.Trade$sharedInMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trade$sharedInMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   walletTransactions<T extends Prisma.Trade$walletTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trade$walletTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WalletTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   order<T extends Prisma.Trade$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trade$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  favorites<T extends Prisma.Trade$favoritesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Trade$favoritesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FavoritePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3066,6 +3262,30 @@ export type Trade$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.OrderInclude<ExtArgs> | null
   where?: Prisma.OrderWhereInput
+}
+
+/**
+ * Trade.favorites
+ */
+export type Trade$favoritesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Favorite
+   */
+  select?: Prisma.FavoriteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Favorite
+   */
+  omit?: Prisma.FavoriteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FavoriteInclude<ExtArgs> | null
+  where?: Prisma.FavoriteWhereInput
+  orderBy?: Prisma.FavoriteOrderByWithRelationInput | Prisma.FavoriteOrderByWithRelationInput[]
+  cursor?: Prisma.FavoriteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FavoriteScalarFieldEnum | Prisma.FavoriteScalarFieldEnum[]
 }
 
 /**

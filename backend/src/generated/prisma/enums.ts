@@ -47,6 +47,15 @@ export const TradeCategory = {
 export type TradeCategory = (typeof TradeCategory)[keyof typeof TradeCategory]
 
 
+export const TradeVisibility = {
+  PRIVATE: 'PRIVATE',
+  STORE: 'STORE',
+  MARKET: 'MARKET'
+} as const
+
+export type TradeVisibility = (typeof TradeVisibility)[keyof typeof TradeVisibility]
+
+
 export const EscrowStatus = {
   DRAFT: 'DRAFT',
   PENDING: 'PENDING',
@@ -107,7 +116,8 @@ export const TransactionType = {
   ESCROW_RELEASE: 'ESCROW_RELEASE',
   REFUND: 'REFUND',
   SUBSCRIPTION: 'SUBSCRIPTION',
-  PLATFORM_FEE: 'PLATFORM_FEE'
+  PLATFORM_FEE: 'PLATFORM_FEE',
+  PROMO_CREDIT: 'PROMO_CREDIT'
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
@@ -164,12 +174,3 @@ export const OtpPurpose = {
 } as const
 
 export type OtpPurpose = (typeof OtpPurpose)[keyof typeof OtpPurpose]
-
-
-export const TradeVisibility = {
-  PRIVATE: 'PRIVATE',
-  STORE: 'STORE',
-  MARKET: 'MARKET'
-} as const
-
-export type TradeVisibility = (typeof TradeVisibility)[keyof typeof TradeVisibility]

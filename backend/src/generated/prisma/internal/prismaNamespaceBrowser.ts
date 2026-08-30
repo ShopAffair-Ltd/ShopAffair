@@ -56,6 +56,7 @@ export const ModelName = {
   Review: 'Review',
   ReviewHelpful: 'ReviewHelpful',
   Product: 'Product',
+  Favorite: 'Favorite',
   Trade: 'Trade',
   Order: 'Order',
   ChatRoom: 'ChatRoom',
@@ -74,6 +75,7 @@ export const ModelName = {
   SupportTicketReply: 'SupportTicketReply',
   PlatformSetting: 'PlatformSetting',
   PromoCode: 'PromoCode',
+  PromoRedemption: 'PromoRedemption',
   Otp: 'Otp'
 } as const
 
@@ -119,7 +121,9 @@ export const UserScalarFieldEnum = {
   withdrawalAccountName: 'withdrawalAccountName',
   paystackRecipientCode: 'paystackRecipientCode',
   walletBalance: 'walletBalance',
+  promoBalance: 'promoBalance',
   isPro: 'isPro',
+  storePlan: 'storePlan',
   avatarColor: 'avatarColor',
   phoneNumber: 'phoneNumber',
   profilePicture: 'profilePicture',
@@ -192,6 +196,7 @@ export const ProductScalarFieldEnum = {
   image: 'image',
   category: 'category',
   condition: 'condition',
+  location: 'location',
   specs: 'specs',
   description: 'description',
   createdAt: 'createdAt',
@@ -199,6 +204,17 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const FavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  tradeId: 'tradeId',
+  createdAt: 'createdAt'
+} as const
+
+export type FavoriteScalarFieldEnum = (typeof FavoriteScalarFieldEnum)[keyof typeof FavoriteScalarFieldEnum]
 
 
 export const TradeScalarFieldEnum = {
@@ -461,7 +477,9 @@ export type PlatformSettingScalarFieldEnum = (typeof PlatformSettingScalarFieldE
 export const PromoCodeScalarFieldEnum = {
   id: 'id',
   code: 'code',
-  discountPct: 'discountPct',
+  creditAmount: 'creditAmount',
+  maxUses: 'maxUses',
+  usedCount: 'usedCount',
   active: 'active',
   createdById: 'createdById',
   createdAt: 'createdAt',
@@ -469,6 +487,17 @@ export const PromoCodeScalarFieldEnum = {
 } as const
 
 export type PromoCodeScalarFieldEnum = (typeof PromoCodeScalarFieldEnum)[keyof typeof PromoCodeScalarFieldEnum]
+
+
+export const PromoRedemptionScalarFieldEnum = {
+  id: 'id',
+  promoCodeId: 'promoCodeId',
+  userId: 'userId',
+  creditAmount: 'creditAmount',
+  createdAt: 'createdAt'
+} as const
+
+export type PromoRedemptionScalarFieldEnum = (typeof PromoRedemptionScalarFieldEnum)[keyof typeof PromoRedemptionScalarFieldEnum]
 
 
 export const OtpScalarFieldEnum = {

@@ -27,7 +27,7 @@ export default function HomeView() {
   const { user } = useAuth();
   const { products } = useMarket();
   const { trades } = useTrades();
-  const { openDeposit, openTransfer } = useWallet();
+  const { openDeposit, openTransfer, openRedeem } = useWallet();
   const { openStoreUpgrade } = useStore();
   const { switchRole } = useLocalRoleOverride();
 
@@ -284,7 +284,7 @@ export default function HomeView() {
         className="px-4 mt-4"
       >
         <h3 className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400 mb-2">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-2 text-center">
+        <div className="grid grid-cols-5 gap-2 text-center">
           <motion.button
             variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
             whileHover={{ y: -2 }}
@@ -335,6 +335,19 @@ export default function HomeView() {
               <Wifi className="w-4.5 h-4.5 stroke-[2.5]" />
             </div>
             <span className="text-[10px] font-sans font-semibold text-slate-700">Data</span>
+          </motion.button>
+
+          <motion.button
+            variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+            whileHover={{ y: -2 }}
+            onClick={openRedeem}
+            className="flex flex-col items-center gap-1.5 group cursor-pointer focus:outline-none w-full"
+          >
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 text-purple-600 flex items-center justify-center shadow-md group-hover:shadow-xl group-hover:bg-purple-100 transition-all relative overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(124,58,237,0.08)_0%,transparent_60%)]" />
+              <Gift className="w-4.5 h-4.5 stroke-[2.5]" />
+            </div>
+            <span className="text-[10px] font-sans font-semibold text-slate-700">Promo Code</span>
           </motion.button>
         </div>
       </motion.div>

@@ -57,7 +57,10 @@ export const listTradesQuerySchema = z.object({
   category: tradeCategoryEnum.optional(),
   search: z.string().max(140).optional(),
   mine: z.coerce.boolean().optional(),
-  storeOf: z.string().min(1).max(50).optional()
+  storeOf: z.string().min(1).max(50).optional(),
+  location: z.string().min(1).max(200).optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional()
 });
 
 export const tradeIdParamSchema = z.object({

@@ -57,7 +57,7 @@ const mapToTradeItem = (raw: RawTrade): TradeItem => ({
   title: raw.title,
   creatorUsername: raw.creator.username,
   creatorName: raw.creator.name,
-  creatorRating: 4.8,
+  creatorRating: 4.8, // no rating system on the backend yet
   reviewsCount: 0,
   amount: Number(raw.amount),
   status: raw.status as EscrowStatus,
@@ -89,6 +89,9 @@ export interface ListTradesParams {
   search?: string;
   mine?: boolean;
   storeOf?: string;
+  location?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ListTradesResult {
@@ -106,6 +109,9 @@ export const fetchTrades = async (params: ListTradesParams = {}): Promise<ListTr
   if (params.search) query.search = params.search;
   if (params.mine) query.mine = 'true';
   if (params.storeOf) query.storeOf = params.storeOf;
+  if (params.location) query.location = params.location;
+  if (params.minPrice !== undefined) query.minPrice = String(params.minPrice);
+  if (params.maxPrice !== undefined) query.maxPrice = String(params.maxPrice);
 
   const { data } = await api.get<{ items: RawTrade[]; pagination: ListTradesResult['pagination'] }>(
     '/trades',
@@ -208,6 +214,7 @@ export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null 
     image: trade.image,
     category: trade.category,
     condition: mapConditionToMarketLabel(trade.condition),
+    location: trade.takeOffLocation,
     specs: trade.specs,
     description: trade.description ?? `Trade listing for ${trade.title}`
   };

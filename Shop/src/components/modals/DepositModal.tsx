@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Copy, Check } from 'lucide-react';
 import { generateVirtualAccount, VirtualAccount } from '../../services/paymentService';
 
 interface DepositModalProps {
@@ -18,6 +18,8 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
 
   const [virtualAccount, setVirtualAccount] = useState<VirtualAccount | null>(null);
   const [virtualAccountUnavailable, setVirtualAccountUnavailable] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showOtherMethods, setShowOtherMethods] = useState(false);
 
   // On open, try to fetch (or provision) a dedicated virtual account so the
   // user can see a real transfer-to-fund option. If Paystack hasn't enabled
@@ -28,11 +30,22 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
     if (!isOpen) return;
     setVirtualAccount(null);
     setVirtualAccountUnavailable(false);
+    setShowOtherMethods(false);
 
     generateVirtualAccount()
       .then(setVirtualAccount)
       .catch(() => setVirtualAccountUnavailable(true));
   }, [isOpen]);
+
+  const handleCopyAccountNumber = async () => {
+    if (!virtualAccount) return;
+    try {
+      await navigator.clipboard.writeText(virtualAccount.accountNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+    }
+  };
 
   const handleDeposit = async () => {
     const amt = parseFloat(depositAmount);
@@ -75,7 +88,7 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
             <div className="text-center">
               <h3 className="text-lg font-display font-bold text-slate-900">Fund Naira Wallet</h3>
               <p className="text-xs font-sans text-slate-500 mt-1">
-                Pay by card, bank transfer, or USSD via Paystack checkout.
+                {virtualAccount ? 'Fund your account directly with your dedicated account number below.' : 'Pay by card, bank transfer, or USSD via Paystack checkout.'}
               </p>
             </div>
 
@@ -85,54 +98,86 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
               </div>
             )}
 
-            <div className="space-y-3 font-sans text-xs">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Enter Deposit amount (₦)</label>
-                <input
-                  type="number"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                  placeholder="e.g. 50000"
-                  disabled={submitting}
-                  className="w-full text-sm font-sans px-3 py-2 border border-slate-200 rounded-xl disabled:opacity-60"
-                />
-              </div>
-
-              {virtualAccount && (
-                <div className="p-3 bg-purple-50 rounded-xl border border-purple-100 flex justify-between text-slate-700">
-                  <div>
-                    <span className="block text-[8px] text-slate-400 font-bold uppercase">Or transfer directly to</span>
-                    <strong className="font-mono text-sm text-slate-800">{virtualAccount.accountNumber}</strong>
-                  </div>
-                  <div className="text-right">
-                    <span className="block text-[8px] text-slate-400 font-bold uppercase">Bank</span>
-                    <strong className="text-purple-700 text-xs">{virtualAccount.bankName}</strong>
-                  </div>
-                </div>
-              )}
-
-              {virtualAccountUnavailable && (
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  Direct bank transfer accounts aren't set up yet - use checkout below to fund your wallet by card,
-                  transfer, or USSD instead.
+            {virtualAccount && (
+              <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100 space-y-2.5">
+                <p className="text-[10px] font-sans text-purple-700/80 leading-relaxed">
+                  Note: transfer any amount to the account below to fund your wallet. Funds reflect automatically within a few minutes.
                 </p>
-              )}
-            </div>
 
-            <button
-              onClick={handleDeposit}
-              disabled={submitting}
-              className="w-full py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Redirecting to checkout...
-                </>
-              ) : (
-                'Continue to Checkout'
-              )}
-            </button>
+                <div className="bg-white rounded-xl border border-purple-100 p-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wide">Account Number</span>
+                    <strong className="font-mono text-base text-slate-900 tracking-wide">{virtualAccount.accountNumber}</strong>
+                    <div className="mt-1.5">
+                      <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wide">Bank Name</span>
+                      <span className="text-xs font-sans font-bold text-slate-700">{virtualAccount.bankName}</span>
+                    </div>
+                    {virtualAccount.accountName && (
+                      <div className="mt-1.5">
+                        <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wide">Account Name</span>
+                        <span className="text-xs font-sans font-bold text-slate-700">{virtualAccount.accountName}</span>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyAccountNumber}
+                    className="shrink-0 w-9 h-9 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 flex items-center justify-center transition-colors cursor-pointer"
+                    aria-label="Copy account number"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {virtualAccountUnavailable && (
+              <p className="text-[10px] text-slate-400 leading-relaxed px-1">
+                Direct bank transfer accounts aren't set up yet — use checkout below to fund your wallet by card,
+                transfer, or USSD instead.
+              </p>
+            )}
+
+            {virtualAccount && !showOtherMethods && (
+              <button
+                type="button"
+                onClick={() => setShowOtherMethods(true)}
+                className="w-full text-center text-xs font-sans font-bold text-purple-600 hover:text-purple-700 cursor-pointer py-1"
+              >
+                Use other methods (card, USSD, more)
+              </button>
+            )}
+
+            {(!virtualAccount || showOtherMethods) && (
+              <div className="space-y-3 font-sans text-xs">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Enter Deposit amount (₦)</label>
+                  <input
+                    type="number"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    placeholder="e.g. 50000"
+                    disabled={submitting}
+                    className="w-full text-sm font-sans px-3 py-2 border border-slate-200 rounded-xl disabled:opacity-60"
+                  />
+                </div>
+
+                <button
+                  onClick={handleDeposit}
+                  disabled={submitting}
+                  className="w-full py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Redirecting to checkout...
+                    </>
+                  ) : (
+                    'Continue to Checkout'
+                  )}
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       )}

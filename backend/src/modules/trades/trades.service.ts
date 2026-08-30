@@ -7,6 +7,7 @@ import { getOrCreateTradeChat, postTradeSystemMessage } from '../chat/chat.servi
 import type { CreateTradeInput, ListTradesQuery } from './trades.validation';
 
 const generatePickupCode = () => crypto.randomInt(100000, 999999).toString();
+
 export const createTrade = async (creatorId: string, input: CreateTradeInput) => {
   return prisma.trade.create({
     data: {
@@ -35,13 +36,17 @@ export const createTrade = async (creatorId: string, input: CreateTradeInput) =>
 };
 
 export const listTrades = async (userId: string | null, query: ListTradesQuery) => {
-  const { page, limit, status, type, category, search, mine, storeOf } = query;
+  const { page, limit, status, type, category, search, mine, storeOf, location, minPrice, maxPrice } = query;
 
-  const where: Record<string, unknown> = {
+  const where: Prisma.TradeWhereInput = {
     ...(status ? { status } : {}),
     ...(type ? { type } : {}),
     ...(category ? { category } : {}),
-    ...(search ? { title: { contains: search, mode: 'insensitive' as const } } : {})
+    ...(search ? { title: { contains: search, mode: 'insensitive' as const } } : {}),
+    ...(location ? { takeOffLocation: { contains: location, mode: 'insensitive' as const } } : {}),
+    ...(minPrice !== undefined || maxPrice !== undefined
+      ? { amount: { ...(minPrice !== undefined ? { gte: minPrice } : {}), ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } }
+      : {})
   };
 
   if (mine) {
@@ -58,7 +63,7 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
     where.creatorId = storeOwner.id;
 
     if (userId === storeOwner.id) {
-      // Owner viewing their own store sees everything they've listed.
+      // owner sees everything
     } else {
       where.visibility = { in: ['MARKET', 'STORE'] };
     }
@@ -343,12 +348,18 @@ const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   REFUNDED: []
 };
 
+const VALID_STATUSES = new Set(Object.keys(ALLOWED_TRANSITIONS));
+
 export const updateTradeStatus = async (
   tradeId: string,
   userId: string,
   userRole: string,
   nextStatus: string
 ) => {
+  if (!VALID_STATUSES.has(nextStatus)) {
+    throw new ApiError(400, `Invalid status: ${nextStatus}`);
+  }
+
   const trade = await prisma.trade.findUnique({ where: { id: tradeId } });
 
   if (!trade) {
@@ -369,7 +380,7 @@ export const updateTradeStatus = async (
 
   return prisma.trade.update({
     where: { id: tradeId },
-    data: { status: nextStatus as never }
+    data: { status: nextStatus as Prisma.EnumEscrowStatusFieldUpdateOperationsInput['set'] }
   });
 };
 
@@ -408,6 +419,17 @@ export const forceCancelTrade = async (tradeId: string) => {
       data: { status: 'REFUNDED' }
     });
   });
+
+  await notify({
+    userId: cancelledTrade.creatorId,
+    title: 'Trade cancelled',
+    message: `"${cancelledTrade.title}" was cancelled by an admin.`,
+    type: 'WARNING'
+  });
+  await postTradeSystemMessage(
+    cancelledTrade.id,
+    'This trade was cancelled by an admin.'
+  );
 
   if (cancelledTrade.buyerId) {
     await notify({

@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { fundWallet as fundWalletApi, withdraw as withdrawApi } from '../services/paymentService';
+import { fundWallet as fundWalletApi, withdraw as withdrawApi, redeemPromoCode } from '../services/paymentService';
 
 interface WalletContextType {
   depositOpen: boolean;
   transferOpen: boolean;
+  redeemOpen: boolean;
   openDeposit: () => void;
   closeDeposit: () => void;
   openTransfer: () => void;
   closeTransfer: () => void;
+  openRedeem: () => void;
+  closeRedeem: () => void;
   // Starts a real Paystack checkout for the given amount and redirects the
   // browser there. Unlike the old mock, this does NOT credit the wallet -
   // that only happens after Paystack confirms payment (see WalletCallback).
@@ -22,6 +25,10 @@ interface WalletContextType {
     beneficiaryBankCode: string,
     beneficiaryBankName: string
   ) => Promise<{ ok: boolean; message: string }>;
+  // Redeems a promo code, crediting the user's restricted promo balance
+  // (not the regular wallet balance). Promo balance can only be spent on
+  // in-app services like store plan subscriptions.
+  redeemPromo: (code: string) => Promise<{ ok: boolean; message: string }>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -30,11 +37,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const { user, updateUser } = useAuth();
   const [depositOpen, setDepositOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
 
   const openDeposit = () => setDepositOpen(true);
   const closeDeposit = () => setDepositOpen(false);
   const openTransfer = () => setTransferOpen(true);
   const closeTransfer = () => setTransferOpen(false);
+  const openRedeem = () => setRedeemOpen(true);
+  const closeRedeem = () => setRedeemOpen(false);
 
   const deposit = async (amount: number) => {
     if (!user || !amount || amount <= 0) return;
@@ -71,9 +81,39 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
+  const redeemPromo = async (code: string) => {
+    if (!user) return { ok: false, message: 'Not signed in' };
+    if (!code.trim()) return { ok: false, message: 'Enter a promo code' };
+
+    try {
+      const { creditAmount } = await redeemPromoCode(code);
+      updateUser({ ...user, promoBalance: (user.promoBalance ?? 0) + creditAmount });
+      setRedeemOpen(false);
+      return { ok: true, message: `₦${creditAmount.toLocaleString()} added to your promo balance!` };
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Could not redeem this code. Please try again.';
+      return { ok: false, message };
+    }
+  };
+
   return (
     <WalletContext.Provider
-      value={{ depositOpen, transferOpen, openDeposit, closeDeposit, openTransfer, closeTransfer, deposit, transfer }}
+      value={{
+        depositOpen,
+        transferOpen,
+        redeemOpen,
+        openDeposit,
+        closeDeposit,
+        openTransfer,
+        closeTransfer,
+        openRedeem,
+        closeRedeem,
+        deposit,
+        transfer,
+        redeemPromo
+      }}
     >
       {children}
     </WalletContext.Provider>
