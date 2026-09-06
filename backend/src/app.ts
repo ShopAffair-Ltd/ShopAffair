@@ -21,6 +21,7 @@ import supportRoutes from './modules/support/support.routes';
 import settingsRoutes from './modules/settings/settings.routes';
 import uploadsRoutes from './modules/uploads/uploads.routes';
 import favoritesRoutes from './modules/favorites/favorites.routes';
+import followRoutes from './modules/follow/follow.routes';
 
 export const createApp = (): Express => {
   const app = express();
@@ -57,6 +58,7 @@ export const createApp = (): Express => {
   app.use('/api/support', supportRoutes);
   app.use('/api/settings', settingsRoutes);
   app.use('/api/favorites', favoritesRoutes);
+  app.use('/api/follow', followRoutes);
 
 app.use('/api/uploads', uploadsRoutes);
   app.use(errorMiddleware);
