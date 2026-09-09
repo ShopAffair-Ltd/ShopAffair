@@ -25,9 +25,10 @@ interface ResolvedBankAccount {
 
 interface AuthModalProps {
   onForgotPassword: () => void;
+  onAuthenticated?: () => void;
 }
 
-export default function AuthModal({ onForgotPassword }: AuthModalProps) {
+export default function AuthModal({ onForgotPassword, onAuthenticated }: AuthModalProps) {
   const { isOpen, mode: initialMode, close } = useAuthModal();
   const { login } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>(initialMode as 'login' | 'register');
@@ -89,6 +90,7 @@ export default function AuthModal({ onForgotPassword }: AuthModalProps) {
       const profile = await loginUser({ email, password });
       login(profile);
       onClose();
+      onAuthenticated?.();
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
     } finally {
@@ -221,6 +223,7 @@ export default function AuthModal({ onForgotPassword }: AuthModalProps) {
       const profile = await confirmDraftRegistration(draftProfile.id);
       login(profile);
       onClose();
+      onAuthenticated?.();
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
     } finally {

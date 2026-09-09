@@ -370,6 +370,15 @@ export default function App() {
     setShowLanding(!token);
   }, []);
 
+  // A successful login or signup issues a token and populates `user`, but
+  // `showLanding` was only ever set on mount - without this, closing the
+  // auth modal just re-revealed the landing page underneath instead of
+  // entering the app. Mirrors what the landing page's own CTA does.
+  const handleAuthenticated = () => {
+    setShowLanding(false);
+    navigate('/');
+  };
+
   if (authLoading) {
     return <Preloader onComplete={() => {}} />;
   }
@@ -381,6 +390,7 @@ export default function App() {
           closeAuthModal();
           setShowForgotPassword(true);
         }}
+        onAuthenticated={handleAuthenticated}
       />
       <ForgotPasswordModal
         isOpen={showForgotPassword}
