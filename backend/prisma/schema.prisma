@@ -38,6 +38,11 @@ enum TradeVisibility {
   MARKET
 }
 
+enum ProductVisibility {
+  PRIVATE
+  MARKET
+}
+
 enum EscrowStatus {
   DRAFT
   PENDING
@@ -271,6 +276,14 @@ model Product {
   location      String?
   specs         Json?
   description   String
+  // False when the seller's store plan has expired - the product stays in
+  // the database (so it instantly relists if they renew) but is hidden
+  // from the open market.
+  isListed      Boolean           @default(true)
+  // MARKET products show in the open market; PRIVATE ones stay in the
+  // seller's own store/catalogue only (the "make private" option on the
+  // catalogue delete popup, as an alternative to deleting).
+  visibility    ProductVisibility @default(MARKET)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 

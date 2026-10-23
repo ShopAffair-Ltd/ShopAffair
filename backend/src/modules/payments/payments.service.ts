@@ -227,9 +227,13 @@ export const provisionVirtualAccount = async (userId: string) => {
     }
   });
 
+  const cleanedAccountName = (account.account_name || '')
+    .replace(/ShopAffair\s+(?:Lim|Limited|Ltd)\b/gi, 'ShopAffair')
+    .trim() || `ShopAffair/${user.name || user.username}`;
+
   return {
     accountNumber: account.account_number,
-    accountName: account.account_name,
+    accountName: cleanedAccountName,
     bankName: account.bank.name
   };
 };
@@ -297,11 +301,15 @@ export const requestWithdrawal = async (params: {
 
   const resolved = await paystack.resolveAccountNumber(accountNumber, bankCode);
 
-  if (!namesLikelyMatch(resolved.account_name, user.name)) {
+  const isVerifiedAccount = !!user.accountNumber && user.accountNumber === accountNumber;
+  const isPreviousWithdrawalAccount = !!user.withdrawalAccountNumber && user.withdrawalAccountNumber === accountNumber;
+  const nameMatches = namesLikelyMatch(resolved.account_name, user.name);
+
+  if (!isVerifiedAccount && !isPreviousWithdrawalAccount && !nameMatches) {
     throw new ApiError(
       403,
-      `This account is registered to "${resolved.account_name}", which doesn't match your account name. ` +
-        `Withdrawals are only allowed to an account in your own name.`
+      `This account is registered to "${resolved.account_name}", which doesn't match your verified account name. ` +
+      `Withdrawals are only allowed to your verified account or an account in your own name.`
     );
   }
 
@@ -445,14 +453,16 @@ export const STORE_PLANS = {
     name: 'Trial Plan',
     price: 499.9,
     storeCapacity: 5,
-    listingLimit: 5
+    listingLimit: 5,
+    durationDays: 30
   },
   STARTER: {
     id: 'STARTER',
     name: 'Starter Plan',
     price: 5000,
     storeCapacity: 1000,
-    listingLimit: 250
+    listingLimit: 250,
+    durationDays: 30
   }
 } as const;
 
@@ -529,13 +539,18 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
       }
     });
 
+    await tx.product.updateMany({
+      where: { sellerId: userId },
+      data: { isListed: true }
+    });
+
     return tx.subscription.create({
       data: {
         userId,
         plan: plan.id,
         amount: plan.price,
         reference,
-        expiresAt: null
+        expiresAt: new Date(Date.now() + plan.durationDays * 24 * 60 * 60 * 1000)
       }
     });
   });

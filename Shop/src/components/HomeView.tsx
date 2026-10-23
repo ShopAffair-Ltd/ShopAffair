@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Eye, EyeOff, History, Landmark, Download, ArrowUpRight, ArrowDownLeft, Share2, Store, ShoppingCart, MessageSquare, Clock, ShieldCheck, ChevronRight, X, Phone, Wifi, Gift } from 'lucide-react';
+import { Eye, EyeOff, History, Landmark, Download, ArrowUpRight, ArrowDownLeft, Share2, Store, ShoppingCart, MessageSquare, Clock, ShieldCheck, ChevronRight, X, Phone, Wifi, Gift, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useMarket } from '../context/MarketContext';
 import { useWallet } from '../context/WalletContext';
 import { useStore } from '../context/StoreContext';
 import { useTrades } from '../context/TradeContext';
 import QuickTransferModal from './QuickTransferModal';
+import { fetchWalletBalance } from '../services/paymentService';
 
 // Temporary client-side-only role toggle. This does NOT call the backend —
 // role is otherwise fixed at registration. Kept deliberately so buyer vs.
@@ -24,7 +25,7 @@ const useLocalRoleOverride = () => {
 
 export default function HomeView() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { products } = useMarket();
   const { trades } = useTrades();
   const { openDeposit, openTransfer, openRedeem } = useWallet();
@@ -35,6 +36,31 @@ export default function HomeView() {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [referModalOpen, setReferModalOpen] = useState(false);
   const [quickTransferOpen, setQuickTransferOpen] = useState(false);
+  const [balanceRefreshing, setBalanceRefreshing] = useState(false);
+  const pullStartY = React.useRef<number | null>(null);
+
+  // Pulls the real balance from the backend (/payments/wallet/balance)
+  // instead of just spinning the icon, so the amount shown is actually
+  // current without the user having to leave and reopen the app.
+  const handleRefreshBalance = async () => {
+    if (!user) return;
+    setBalanceRefreshing(true);
+    try {
+      const fresh = await fetchWalletBalance();
+      updateUser({
+        ...user,
+        walletBalance: Number(fresh.walletBalance),
+        promoBalance: Number(fresh.promoBalance),
+        accountNumber: fresh.accountNumber ?? user.accountNumber,
+        bankName: fresh.bankName ?? user.bankName
+      });
+    } catch {
+      // Keep whatever was last shown rather than clearing it - a failed
+      // refresh shouldn't make the balance disappear.
+    } finally {
+      setBalanceRefreshing(false);
+    }
+  };
 
   if (!user) return null;
 
@@ -83,11 +109,10 @@ export default function HomeView() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setRoleModalOpen(true)}
-            className={`text-[10px] font-sans font-extrabold px-2.5 py-1 rounded-full border cursor-pointer capitalize transition-all shadow-md hover:shadow-lg ${
-              isSeller
+            className={`text-[10px] font-sans font-extrabold px-2.5 py-1 rounded-full border cursor-pointer capitalize transition-all shadow-md hover:shadow-lg ${isSeller
                 ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
                 : 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100'
-            }`}
+              }`}
           >
             Role: {user.role}
           </button>
@@ -100,7 +125,23 @@ export default function HomeView() {
         transition={{ duration: 0.4 }}
         className="px-4 mt-3"
       >
-        <div className="bg-slate-900 text-white rounded-2xl px-4 py-3 shadow-xl relative overflow-hidden">
+        <div
+          className="bg-slate-900 text-white rounded-2xl px-4 py-3 shadow-xl relative overflow-hidden"
+          onTouchStart={(e) => {
+            pullStartY.current = e.touches[0].clientY;
+          }}
+          onTouchEnd={(e) => {
+            if (pullStartY.current === null) return;
+            const delta = e.changedTouches[0].clientY - pullStartY.current;
+            pullStartY.current = null;
+            // A downward swipe of 40px+ on the balance card refreshes it,
+            // same as tapping the refresh icon - lets the balance be
+            // refreshed without leaving the app and coming back.
+            if (delta > 40 && !balanceRefreshing) {
+              handleRefreshBalance();
+            }
+          }}
+        >
           <div className="absolute top-0 right-0 w-20 h-20 bg-purple-600/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-center justify-between">
@@ -115,11 +156,21 @@ export default function HomeView() {
               >
                 {showBalance ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
+              {/* H3 FIX: Transfer History icon now navigates to transfer history page */}
               <button
                 onClick={() => navigate('/transfer-history')}
                 className="p-0.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                title="Transfer History"
               >
                 <History className="w-3.5 h-3.5" />
+              </button>
+              {/* Balance refresh button - Q3 FIX */}
+              <button
+                onClick={handleRefreshBalance}
+                className="p-0.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                title="Refresh balance"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${balanceRefreshing ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
@@ -358,7 +409,7 @@ export default function HomeView() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400">Recent Trades</h3>
             <button
-              onClick={() => navigate('/trade')}
+              onClick={() => navigate('/trade-history')}
               className="text-[10px] font-sans font-bold text-purple-600 hover:text-purple-700 flex items-center gap-0.5 cursor-pointer shadow-sm hover:shadow-md transition-shadow"
             >
               View All <ChevronRight className="w-3.5 h-3.5" />
@@ -408,6 +459,7 @@ export default function HomeView() {
       <div className="px-4 mt-5">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400">Market Top Products</h3>
+          {/* H7 FIX: Open Market button navigates to the beginning of the market landing page */}
           <button
             onClick={() => navigate('/market')}
             className="text-[10px] font-sans font-bold text-purple-600 hover:text-purple-700 flex items-center gap-0.5 cursor-pointer shadow-sm hover:shadow-md transition-shadow"
@@ -472,11 +524,10 @@ export default function HomeView() {
                     switchRole('buyer');
                     setRoleModalOpen(false);
                   }}
-                  className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer shadow-sm hover:shadow-md ${
-                    user.role === 'buyer'
+                  className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer shadow-sm hover:shadow-md ${user.role === 'buyer'
                       ? 'border-purple-600 bg-purple-50/50'
                       : 'border-slate-100 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   <div className={`p-2 rounded-xl shrink-0 shadow-sm ${user.role === 'buyer' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
                     <ShoppingCart className="w-4 h-4" />
@@ -494,11 +545,10 @@ export default function HomeView() {
                     switchRole('seller');
                     setRoleModalOpen(false);
                   }}
-                  className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer shadow-sm hover:shadow-md ${
-                    user.role === 'seller'
+                  className={`w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer shadow-sm hover:shadow-md ${user.role === 'seller'
                       ? 'border-purple-600 bg-purple-50/50'
                       : 'border-slate-100 hover:bg-slate-50 bg-white'
-                  }`}
+                    }`}
                 >
                   <div className={`p-2 rounded-xl shrink-0 shadow-sm ${user.role === 'seller' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
                     <Store className="w-4 h-4" />

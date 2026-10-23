@@ -21,11 +21,6 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
   const [copied, setCopied] = useState(false);
   const [showOtherMethods, setShowOtherMethods] = useState(false);
 
-  // On open, try to fetch (or provision) a dedicated virtual account so the
-  // user can see a real transfer-to-fund option. If Paystack hasn't enabled
-  // Dedicated NUBAN for this business yet, this fails gracefully and we just
-  // show the "pay by card/transfer via checkout" flow instead - no error
-  // shown to the user, since this is an expected state until approval.
   useEffect(() => {
     if (!isOpen) return;
     setVirtualAccount(null);
@@ -112,12 +107,14 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
                       <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wide">Bank Name</span>
                       <span className="text-xs font-sans font-bold text-slate-700">{virtualAccount.bankName}</span>
                     </div>
-                    {virtualAccount.accountName && (
-                      <div className="mt-1.5">
-                        <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wide">Account Name</span>
-                        <span className="text-xs font-sans font-bold text-slate-700">{virtualAccount.accountName}</span>
-                      </div>
-                    )}
+                    <div className="mt-1.5">
+                      <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wide">Account Name</span>
+                      <span className="text-xs font-sans font-bold text-slate-700">
+                        {virtualAccount.accountName
+                          ? virtualAccount.accountName.replace(/ShopAffair\s+(?:Lim|Limited|Ltd)\b/gi, 'ShopAffair')
+                          : `ShopAffair/${activeUsername}`}
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"

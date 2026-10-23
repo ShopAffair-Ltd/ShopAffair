@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, MapPin, BarChart3, CreditCard, History, Star, 
@@ -11,13 +11,21 @@ import { UserProfile } from '../../types';
 import { Dropdown } from '../ui/Dropdown';
 import { useAuth } from '../../context/AuthContext';
 import { useTrades } from '../../context/TradeContext';
+import PublicProfileView from './PublicProfileView';
 
 type SubScreen = 'main' | 'profile-info' | 'delivery-address' | 'analytics' | 'subscription' | 'transactions' | 'settings' | 'reviews' | 'disputes' | 'trades';
 
 export default function ProfileView() {
   const navigate = useNavigate();
+  const { username } = useParams<{ username?: string }>();
   const { user: activeProfile, updateUser: onUpdateProfile, logout } = useAuth();
   const { trades } = useTrades();
+
+  // If viewing someone else's profile via /profile/:username
+  if (username && activeProfile && username.toLowerCase() !== activeProfile.username.toLowerCase()) {
+    return <PublicProfileView username={username} />;
+  }
+
   const onLogout = () => {
     logout();
     navigate('/market');

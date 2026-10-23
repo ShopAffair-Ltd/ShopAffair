@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, CheckCircle2, Share2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Share2, Copy } from 'lucide-react';
 import ShareToGroupModal from './community/ShareToGroupModal';
 import { TradeItem, EscrowStatus } from '../types';
 import { BuyerPickupCodeDisplay, SellerPickupCodeEntry, MAX_ATTEMPTS } from './EscrowPickupCode';
+import { useAuth } from '../context/AuthContext';
+import { useWallet } from '../context/WalletContext';
 
 interface TradeDetailViewProps {
   trade: TradeItem;
@@ -42,11 +44,16 @@ export default function TradeDetailView({
   onEditTrade,
   onCancelTrade
 }: TradeDetailViewProps) {
+  const { user } = useAuth();
+  const { openDeposit } = useWallet();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  const escrowTotal = trade.amount + trade.deliveryFee;
+  const hasInsufficientBalance = !!user && user.walletBalance < escrowTotal;
 
   const handleFund = async () => {
     setActionError(null);
@@ -108,6 +115,17 @@ export default function TradeDetailView({
     }
   };
 
+  const handleCopyLink = async () => {
+    const ownerName = trade.creatorUsername || (isSeller ? user?.username : 'user');
+    const url = `${window.location.origin}/trade/${trade.id}?owner=${encodeURIComponent(ownerName || '')}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Trade link copied to clipboard!');
+    } catch (err) {
+      alert('Failed to copy link.');
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       <div className="sticky top-0 bg-white z-10 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
@@ -119,12 +137,22 @@ export default function TradeDetailView({
         </button>
         <span className="text-xs font-mono font-bold text-purple-600">TRADE {trade.id}</span>
         {isSeller ? (
-          <button
-            onClick={() => setShowShareModal(true)}
-            className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleCopyLink}
+              className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
+              title="Copy Link"
+            >
+              <Copy className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
+              title="Share to Chat/Group"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
         ) : (
           <div className="w-8 h-8" />
         )}
@@ -188,9 +216,8 @@ export default function TradeDetailView({
               return (
                 <div key={idx} className="flex flex-col items-center">
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center border font-sans font-bold text-xs ${
-                      isDone ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-400 border-slate-200'
-                    }`}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center border font-sans font-bold text-xs ${isDone ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-400 border-slate-200'
+                      }`}
                   >
                     {idx + 1}
                   </div>
@@ -298,13 +325,23 @@ export default function TradeDetailView({
                 </div>
               </div>
             ) : (
-              <button
-                onClick={handleFund}
-                disabled={isFunding}
-                className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer text-center"
-              >
-                {isFunding ? 'Funding...' : `Fund Escrow Lock (₦${(trade.amount + trade.deliveryFee).toLocaleString()})`}
-              </button>
+              <div className="space-y-2">
+                {hasInsufficientBalance && (
+                  <button
+                    onClick={openDeposit}
+                    className="w-full py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 font-sans font-bold text-xs rounded-lg border border-amber-200 cursor-pointer text-center"
+                  >
+                    Fund Wallet (balance too low for this trade)
+                  </button>
+                )}
+                <button
+                  onClick={handleFund}
+                  disabled={isFunding || hasInsufficientBalance}
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer text-center"
+                >
+                  {isFunding ? 'Funding...' : `Fund Escrow Lock (₦${escrowTotal.toLocaleString()})`}
+                </button>
+              </div>
             ))}
 
           {trade.status === EscrowStatus.FUNDED && (
@@ -314,6 +351,8 @@ export default function TradeDetailView({
                   attempts={trade.pickupAttempts || 0}
                   locked={(trade.pickupAttempts || 0) >= MAX_ATTEMPTS}
                   onAttempt={handlePickupAttempt}
+                  tradeAmount={trade.amount}
+                  deliveryFee={trade.deliveryFee}
                 />
               ) : isBuyer ? (
                 <BuyerPickupCodeDisplay code={trade.pickupCode || ''} />

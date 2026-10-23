@@ -26,10 +26,10 @@ export const resolveAccountAllBanksSchema = z.object({
 });
 
 export const withdrawSchema = z.object({
-  amount: z.number().positive().min(100, 'Minimum withdrawal amount is ₦100'),
-  accountNumber: z.string().length(10),
-  bankCode: z.string().min(1),
-  bankName: z.string().min(1)
+  amount: z.coerce.number().positive().min(100, 'Minimum withdrawal amount is ₦100'),
+  accountNumber: z.string().trim().min(9).max(12),
+  bankCode: z.string().trim().min(1),
+  bankName: z.string().trim().optional().default('Bank')
 });
 
 export const subscribeSchema = z.object({

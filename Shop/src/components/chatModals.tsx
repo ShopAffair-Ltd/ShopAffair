@@ -48,6 +48,7 @@ export default function ChatModals({
   const [createGroupError, setCreateGroupError] = useState<string | null>(null);
   const [createCommunityError, setCreateCommunityError] = useState<string | null>(null);
   const [showCommunityPendingModal, setShowCommunityPendingModal] = useState(false);
+  const [showGroupPendingModal, setShowGroupPendingModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [groupName, setGroupName] = useState('');
@@ -146,6 +147,7 @@ export default function ChatModals({
       await refreshChats();
       setShowNewGroup(false);
       resetGroupForm();
+      setShowGroupPendingModal(true);
     } catch (error) {
       console.error('Failed to create group:', error);
       setCreateGroupError(getApiErrorMessage(error));
@@ -576,6 +578,31 @@ export default function ChatModals({
               <button
                 type="button"
                 onClick={() => setShowCommunityPendingModal(false)}
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-sm rounded-lg transition-colors cursor-pointer"
+              >
+                Got it
+              </button>
+            </motion.div>
+          </div>
+        )}
+
+        {showGroupPendingModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl flex flex-col items-center text-center"
+            >
+              <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                <Clock className="w-8 h-8 text-amber-500" />
+              </div>
+              <h3 className="text-base font-display font-bold text-slate-900 mb-1">Group Submitted</h3>
+              <p className="text-xs font-sans text-slate-500 mb-6">
+                Your group has been created and is pending approval. You'll receive a notification once it has been reviewed and approved.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowGroupPendingModal(false)}
                 className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-sm rounded-lg transition-colors cursor-pointer"
               >
                 Got it

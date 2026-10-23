@@ -9,7 +9,7 @@ import { Home, RefreshCw, MessageSquare, ShoppingBag } from 'lucide-react';
 import { UserProfile } from '../../types';
 
 interface BottomNavProps {
-  activeTab: 'home' | 'trade' | 'chat' | 'market' | 'profile' | 'checkout';
+  activeTab: '' | 'home' | 'trade' | 'chat' | 'market' | 'profile' | 'checkout';
   onTabChange: (tab: 'home' | 'trade' | 'chat' | 'market' | 'profile') => void;
   unreadChatsCount: number;
   activeProfile: UserProfile | null;
@@ -36,7 +36,9 @@ export default function BottomNav({ activeTab, onTabChange, unreadChatsCount, ac
       >
         {tabs.map((tab) => {
           const IconComponent = tab.icon;
-          const isActive = activeTab === tab.id;
+          // Support both '' (root) and 'home' as active states for home tab
+          const normalizedActive = activeTab === '' ? 'home' : activeTab;
+          const isActive = normalizedActive === tab.id;
 
           return (
             <motion.button

@@ -147,7 +147,7 @@ export default function MyStoreView() {
     };
 
     if (navigator.share) {
-      navigator.share(shareData).catch(() => {});
+      navigator.share(shareData).catch(() => { });
     } else {
       navigator.clipboard.writeText(url).then(() => {
         alert('Store link copied to clipboard! Share it with your friends.');
@@ -222,6 +222,7 @@ export default function MyStoreView() {
   // ---- Catalogue / Settings product handlers -------------------------------
 
   const [productActionError, setProductActionError] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const handleAddOrEditProduct = async (
     productInput: Omit<MarketProduct, 'id' | 'sellerUsername' | 'sellerName' | 'rating' | 'salesCount' | 'reviewsCount'>
@@ -245,9 +246,24 @@ export default function MyStoreView() {
     setProductActionError(null);
     try {
       await deleteProduct(id);
+      setDeleteConfirmId(null);
     } catch (err) {
       console.error(err);
       setProductActionError('Could not delete product. Please try again.');
+    }
+  };
+
+  // Alternative to deleting from the catalogue delete popup: hides the
+  // product from the open market while keeping it in the seller's own
+  // store/catalogue, instead of removing it permanently.
+  const handleMakePrivate = async (id: string) => {
+    setProductActionError(null);
+    try {
+      await editProduct(id, { visibility: 'PRIVATE' });
+      setDeleteConfirmId(null);
+    } catch (err) {
+      console.error(err);
+      setProductActionError('Could not update product. Please try again.');
     }
   };
 
@@ -341,9 +357,8 @@ export default function MyStoreView() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative pb-2.5 text-xs font-sans cursor-pointer transition-colors outline-none border-0 bg-transparent appearance-none ${
-                activeTab === tab ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium'
-              }`}
+              className={`relative pb-2.5 text-xs font-sans cursor-pointer transition-colors outline-none border-0 bg-transparent appearance-none ${activeTab === tab ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium'
+                }`}
             >
               {tab === 'wall' ? 'Store Wall' : tab === 'catalogue' ? 'Catalogue' : 'Settings'}
             </button>
@@ -412,11 +427,10 @@ export default function MyStoreView() {
                   <button
                     key={chip}
                     onClick={() => setActiveCategoryChip(chip)}
-                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-sans font-bold cursor-pointer outline-none border ${
-                      activeCategoryChip === chip
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-sans font-bold cursor-pointer outline-none border ${activeCategoryChip === chip
                         ? 'bg-orange-50 text-orange-500 border-orange-200'
                         : 'bg-white text-slate-500 border-slate-200'
-                    }`}
+                      }`}
                   >
                     {chip}
                   </button>
@@ -443,8 +457,9 @@ export default function MyStoreView() {
                         >
                           <Pencil className="w-3 h-3" />
                         </button>
+                        {/* MS4 FIX: Delete shows popup with two choices */}
                         <button
-                          onClick={() => handleDeleteProduct(prod.id)}
+                          onClick={() => setDeleteConfirmId(prod.id)}
                           className="w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm border border-slate-100 flex items-center justify-center text-slate-500 hover:text-rose-600 cursor-pointer outline-none shadow-sm"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -459,6 +474,49 @@ export default function MyStoreView() {
                       </div>
                       <p className="text-[10px] font-sans font-extrabold text-slate-800 mt-0.5">₦{prod.price.toLocaleString()}</p>
                     </div>
+
+                    {/* Catalogue delete popup: delete permanently, or make private instead */}
+                    <AnimatePresence>
+                      {deleteConfirmId === prod.id && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
+                          onClick={() => setDeleteConfirmId(null)}
+                        >
+                          <motion.div
+                            initial={{ scale: 0.95, y: 10 }}
+                            animate={{ scale: 1, y: 0 }}
+                            onClick={e => e.stopPropagation()}
+                            className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl"
+                          >
+                            <h3 className="text-sm font-display font-bold text-slate-900 mb-1">What would you like to do?</h3>
+                            <p className="text-[11px] font-sans text-slate-500 mb-4">"{prod.title}"</p>
+                            <div className="space-y-2">
+                              <button
+                                onClick={() => handleMakePrivate(prod.id)}
+                                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-bold text-xs rounded-xl cursor-pointer"
+                              >
+                                Make Private (only you can see)
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProduct(prod.id)}
+                                className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-sans font-bold text-xs rounded-xl cursor-pointer"
+                              >
+                                Delete Trade Permanently
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirmId(null)}
+                                className="w-full py-2 text-slate-400 font-sans text-xs cursor-pointer"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ))}
               </div>
@@ -555,11 +613,10 @@ export default function MyStoreView() {
                           onClick={() => handleToggleBlock(f)}
                           disabled={blockActionId === f.id}
                           title={f.isBlocked ? 'Unblock from store chat' : 'Block from store chat'}
-                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer outline-none shrink-0 disabled:opacity-50 transition-colors ${
-                            f.isBlocked
+                          className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer outline-none shrink-0 disabled:opacity-50 transition-colors ${f.isBlocked
                               ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100'
                               : 'bg-white border-slate-100 text-slate-500 hover:text-rose-600'
-                          }`}
+                            }`}
                         >
                           {f.isBlocked ? <ShieldOff className="w-3 h-3" /> : <Ban className="w-3 h-3" />}
                         </button>

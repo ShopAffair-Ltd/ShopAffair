@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Flame, Store, Car, Home, Smartphone, Shirt, Wrench, Tag,
@@ -125,6 +126,7 @@ export default function MarketProductList({
   onVisitStore
 }: MarketProductListProps) {
 
+  const navigate = useNavigate();
   const { isFavorited, toggleFavorite } = useFavorites();
   const activeGroupData = categoryGroups.find((g) => g.name === activeGroup);
 
@@ -145,15 +147,26 @@ export default function MarketProductList({
     <>
       {/* Hot Deals Carousel */}
       <div className="mb-3">
-        <div className="relative overflow-hidden rounded-xl shadow-lg border border-purple-400/20">
+        <div className="relative overflow-hidden rounded-xl shadow-lg border border-purple-400/20 select-none">
           <AnimatePresence mode="wait">
             <motion.div
               key={hotDealSlide}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(_e, info) => {
+                const swipeThreshold = 40;
+                if (info.offset.x < -swipeThreshold || info.velocity.x < -300) {
+                  goToHotDealSlide((hotDealSlide + 1) % hotDeals.length);
+                } else if (info.offset.x > swipeThreshold || info.velocity.x > 300) {
+                  goToHotDealSlide((hotDealSlide - 1 + hotDeals.length) % hotDeals.length);
+                }
+              }}
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -100, opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className={`relative bg-gradient-to-r ${hotDeals[hotDealSlide].bgGradient} p-0`}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+              className={`relative bg-gradient-to-r ${hotDeals[hotDealSlide].bgGradient} p-0 cursor-grab active:cursor-grabbing touch-pan-y`}
             >
               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&q=80&w=800')] opacity-10 bg-cover bg-center" />
               <div className="relative p-2.5">
@@ -197,6 +210,18 @@ export default function MarketProductList({
               </div>
             </motion.div>
           </AnimatePresence>
+
+          {/* Manual indicator dots for swipeable ads banner */}
+          <div className="absolute bottom-1 right-2.5 flex items-center gap-1 z-10 pointer-events-none">
+            {hotDeals.map((_: any, idx: number) => (
+              <span
+                key={idx}
+                className={`h-0.5 rounded-full transition-all ${
+                  idx === hotDealSlide ? 'w-3 bg-white' : 'w-1 bg-white/40'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -545,12 +570,26 @@ export default function MarketProductList({
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => onRemoveFromCart(item.product.id)}
-                        className="p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition-colors shrink-0 cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <button
+                          onClick={() => onRemoveFromCart(item.product.id)}
+                          className="p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600 rounded-md transition-colors cursor-pointer"
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setCartOpen(false);
+                            navigate(`/checkout?itemId=${item.product.id}`);
+                          }}
+                          className="px-2 py-1 bg-[#7C3AED] hover:bg-purple-700 text-white font-sans font-bold text-[9px] rounded-md transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+                          title="Proceed to checkout for this item"
+                        >
+                          Proceed
+                          <ArrowRight className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -604,12 +643,29 @@ export default function MarketProductList({
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
-              <button
-                onClick={() => setSelectedProduct(null)}
-                className="absolute top-3 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="absolute top-3 right-4 flex items-center gap-1 z-10">
+                {isLoggedIn && (
+                  <button
+                    onClick={() => toggleFavorite(selectedProduct.id)}
+                    className="p-1.5 rounded-full text-slate-400 hover:text-red-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                    title={isFavorited(selectedProduct.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Heart
+                      className={`w-5 h-5 transition-colors ${
+                        isFavorited(selectedProduct.id)
+                          ? 'fill-red-500 stroke-red-500 text-red-500'
+                          : 'stroke-slate-500'
+                      }`}
+                    />
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
               <div className="overflow-y-auto px-6 pb-28 space-y-4 no-scrollbar flex-1">
                 <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-50 border border-slate-100">
@@ -735,12 +791,29 @@ export default function MarketProductList({
             >
               <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto my-3" />
 
-              <button
-                onClick={() => setSelectedDemand(null)}
-                className="absolute top-3 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="absolute top-3 right-4 flex items-center gap-1 z-10">
+                {isLoggedIn && (
+                  <button
+                    onClick={() => toggleFavorite(`demand:${selectedDemand.id}`)}
+                    className="p-1.5 rounded-full text-slate-400 hover:text-red-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                    title={isFavorited(`demand:${selectedDemand.id}`) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <Heart
+                      className={`w-5 h-5 transition-colors ${
+                        isFavorited(`demand:${selectedDemand.id}`)
+                          ? 'fill-red-500 stroke-red-500 text-red-500'
+                          : 'stroke-slate-500'
+                      }`}
+                    />
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedDemand(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
               <div className="overflow-y-auto px-6 pb-28 space-y-4 no-scrollbar flex-1">
                 <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-50 border border-slate-100">

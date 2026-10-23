@@ -56,6 +56,14 @@ export const TradeVisibility = {
 export type TradeVisibility = (typeof TradeVisibility)[keyof typeof TradeVisibility]
 
 
+export const ProductVisibility = {
+  PRIVATE: 'PRIVATE',
+  MARKET: 'MARKET'
+} as const
+
+export type ProductVisibility = (typeof ProductVisibility)[keyof typeof ProductVisibility]
+
+
 export const EscrowStatus = {
   DRAFT: 'DRAFT',
   PENDING: 'PENDING',

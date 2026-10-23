@@ -27,10 +27,10 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
     initialTrade?.specs && Object.keys(initialTrade.specs).length > 0
       ? Object.entries(initialTrade.specs).map(([key, value]) => ({ key, value: String(value) }))
       : [
-          { key: 'Size', value: '' },
-          { key: 'Color', value: '' },
-          { key: 'Qty', value: '' }
-        ]
+        { key: 'Size', value: '' },
+        { key: 'Color', value: '' },
+        { key: 'Qty', value: '' }
+      ]
   );
   const [deliveryFee, setDeliveryFee] = useState(initialTrade ? String(initialTrade.deliveryFee) : '0');
   const [deliveryTime, setDeliveryTime] = useState(initialTrade?.deliveryTime ?? 'e.g. 2-3 days');
@@ -153,17 +153,17 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
         variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
         className="flex-1 overflow-y-auto px-5 py-4 space-y-5 no-scrollbar pb-28 bg-slate-50/50"
       >
+        {/* Trade Creation Card with Green Outline (❗ FIX) */}
         <motion.div
           variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
-          className="grid grid-cols-2 gap-2 bg-slate-100/70 p-1.5 rounded-lg border border-slate-200/40"
+          className="grid grid-cols-2 gap-2 bg-white p-1.5 rounded-lg border-2 border-green-500 shadow-sm"
         >
           <button
             type="button"
             disabled={isEditMode}
             onClick={() => setTradeType(TradeType.SUPPLY)}
-            className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
-              tradeType === TradeType.SUPPLY ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-            }`}
+            className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${tradeType === TradeType.SUPPLY ? 'bg-green-50 text-slate-800 shadow-xs' : 'text-slate-500'
+              }`}
           >
             Purchase Order
           </button>
@@ -171,9 +171,8 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
             type="button"
             disabled={isEditMode}
             onClick={() => setTradeType(TradeType.REQUEST)}
-            className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
-              tradeType === TradeType.REQUEST ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-            }`}
+            className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${tradeType === TradeType.REQUEST ? 'bg-green-50 text-slate-800 shadow-xs' : 'text-slate-500'
+              }`}
           >
             Sales Order
           </button>
@@ -186,27 +185,24 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           <button
             type="button"
             onClick={() => setTradeCategory(TradeCategory.PHYSICAL)}
-            className={`py-2 text-[10px] font-sans font-bold rounded-md transition-all cursor-pointer ${
-              tradeCategory === TradeCategory.PHYSICAL ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-            }`}
+            className={`py-2 text-[10px] font-sans font-bold rounded-md transition-all cursor-pointer ${tradeCategory === TradeCategory.PHYSICAL ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+              }`}
           >
             Physical Product
           </button>
           <button
             type="button"
             onClick={() => setTradeCategory(TradeCategory.DIGITAL)}
-            className={`py-2 text-[10px] font-sans font-bold rounded-md transition-all cursor-pointer ${
-              tradeCategory === TradeCategory.DIGITAL ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-            }`}
+            className={`py-2 text-[10px] font-sans font-bold rounded-md transition-all cursor-pointer ${tradeCategory === TradeCategory.DIGITAL ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+              }`}
           >
             Digital Asset
           </button>
           <button
             type="button"
             onClick={() => setTradeCategory(TradeCategory.SERVICE)}
-            className={`py-2 text-[10px] font-sans font-bold rounded-md transition-all cursor-pointer ${
-              tradeCategory === TradeCategory.SERVICE ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-            }`}
+            className={`py-2 text-[10px] font-sans font-bold rounded-md transition-all cursor-pointer ${tradeCategory === TradeCategory.SERVICE ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+              }`}
           >
             Service
           </button>
@@ -267,7 +263,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
         </motion.div>
 
         <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }} className="space-y-4">
-          <div>
+          <div className="flex flex-col gap-2">
             <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Trade Title</label>
             <input
               type="text"
@@ -279,8 +275,19 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
             />
           </div>
 
+          <div className="flex flex-col gap-2">
+            <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Product Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add more details about the product here..."
+              rows={3}
+              className="w-full font-sans text-sm px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/15 focus:border-purple-600 transition-all shadow-xs resize-none"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="flex flex-col gap-2">
               <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Amount (₦)</label>
               <input
                 type="number"
@@ -292,7 +299,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               />
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Item Condition</label>
               <select
                 value={condition}
@@ -351,7 +358,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
 
         <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }} className="space-y-4 border-t border-slate-200/60 pt-4">
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="flex flex-col gap-2">
               <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Delivery Fee (₦)</label>
               <div className="relative">
                 <input
@@ -366,7 +373,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               </div>
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Delivery Time</label>
               <input
                 type="text"
@@ -380,7 +387,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="flex flex-col gap-2">
               <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Take-off Location</label>
               <div className="relative">
                 <input
@@ -395,7 +402,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               </div>
             </div>
 
-            <div>
+            <div className="flex flex-col gap-2">
               <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Delivery Destination</label>
               <div className="relative">
                 <input

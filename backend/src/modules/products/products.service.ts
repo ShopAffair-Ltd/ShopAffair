@@ -23,6 +23,8 @@ export const listProducts = async (query: ListProductsQuery) => {
   const { page, limit, category, condition, sellerId, search, location, minPrice, maxPrice } = query;
 
   const where: Prisma.ProductWhereInput = {
+    isListed: true,
+    visibility: 'MARKET',
     ...(category ? { category } : {}),
     ...(condition ? { condition } : {}),
     ...(sellerId ? { sellerId } : {}),

@@ -250,7 +250,7 @@ export default function ChatWindow({
 
       {selectedRoom.activeTrade && !['COMPLETED', 'REFUNDED'].includes(selectedRoom.activeTrade.status) && (
         <button
-          onClick={() => navigate(`/trade?open=${selectedRoom.activeTrade!.id}`)}
+          onClick={() => navigate(`/trade/${selectedRoom.activeTrade!.id}`)}
           className="w-full flex items-center gap-3 px-4 py-2.5 bg-amber-50 border-b border-amber-100 hover:bg-amber-100/70 transition-colors text-left"
         >
           <div className="w-8 h-8 rounded-lg bg-white border border-amber-200 overflow-hidden shrink-0 flex items-center justify-center">
@@ -317,7 +317,7 @@ export default function ChatWindow({
             return (
               <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                 <button
-                  onClick={() => navigate(`/trade?open=${trade.id}`)}
+                  onClick={() => navigate(`/trade/${trade.id}`)}
                   className="max-w-[82%] w-72 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all text-left cursor-pointer overflow-hidden"
                 >
                   <div className="flex items-center gap-3 p-3">

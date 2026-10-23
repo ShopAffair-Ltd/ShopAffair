@@ -53,6 +53,8 @@ export type ProductMinAggregateOutputType = {
   condition: $Enums.ProductCondition | null
   location: string | null
   description: string | null
+  isListed: boolean | null
+  visibility: $Enums.ProductVisibility | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -70,6 +72,8 @@ export type ProductMaxAggregateOutputType = {
   condition: $Enums.ProductCondition | null
   location: string | null
   description: string | null
+  isListed: boolean | null
+  visibility: $Enums.ProductVisibility | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -88,6 +92,8 @@ export type ProductCountAggregateOutputType = {
   location: number
   specs: number
   description: number
+  isListed: number
+  visibility: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -121,6 +127,8 @@ export type ProductMinAggregateInputType = {
   condition?: true
   location?: true
   description?: true
+  isListed?: true
+  visibility?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -138,6 +146,8 @@ export type ProductMaxAggregateInputType = {
   condition?: true
   location?: true
   description?: true
+  isListed?: true
+  visibility?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -156,6 +166,8 @@ export type ProductCountAggregateInputType = {
   location?: true
   specs?: true
   description?: true
+  isListed?: true
+  visibility?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -261,6 +273,8 @@ export type ProductGroupByOutputType = {
   location: string | null
   specs: runtime.JsonValue | null
   description: string
+  isListed: boolean
+  visibility: $Enums.ProductVisibility
   createdAt: Date
   updatedAt: Date
   _count: ProductCountAggregateOutputType | null
@@ -302,6 +316,8 @@ export type ProductWhereInput = {
   location?: Prisma.StringNullableFilter<"Product"> | string | null
   specs?: Prisma.JsonNullableFilter<"Product">
   description?: Prisma.StringFilter<"Product"> | string
+  isListed?: Prisma.BoolFilter<"Product"> | boolean
+  visibility?: Prisma.EnumProductVisibilityFilter<"Product"> | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   seller?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -323,6 +339,8 @@ export type ProductOrderByWithRelationInput = {
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   specs?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  isListed?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   seller?: Prisma.UserOrderByWithRelationInput
@@ -347,6 +365,8 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   location?: Prisma.StringNullableFilter<"Product"> | string | null
   specs?: Prisma.JsonNullableFilter<"Product">
   description?: Prisma.StringFilter<"Product"> | string
+  isListed?: Prisma.BoolFilter<"Product"> | boolean
+  visibility?: Prisma.EnumProductVisibilityFilter<"Product"> | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   seller?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -368,6 +388,8 @@ export type ProductOrderByWithAggregationInput = {
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   specs?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrder
+  isListed?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
@@ -394,6 +416,8 @@ export type ProductScalarWhereWithAggregatesInput = {
   location?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   specs?: Prisma.JsonNullableWithAggregatesFilter<"Product">
   description?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  isListed?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
+  visibility?: Prisma.EnumProductVisibilityWithAggregatesFilter<"Product"> | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
@@ -411,6 +435,8 @@ export type ProductCreateInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutProductsInput
@@ -432,6 +458,8 @@ export type ProductUncheckedCreateInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutProductInput
@@ -451,6 +479,8 @@ export type ProductUpdateInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
@@ -472,6 +502,8 @@ export type ProductUncheckedUpdateInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutProductNestedInput
@@ -492,6 +524,8 @@ export type ProductCreateManyInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -509,6 +543,8 @@ export type ProductUpdateManyMutationInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -527,6 +563,8 @@ export type ProductUncheckedUpdateManyInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -555,6 +593,8 @@ export type ProductCountOrderByAggregateInput = {
   location?: Prisma.SortOrder
   specs?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isListed?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -579,6 +619,8 @@ export type ProductMaxOrderByAggregateInput = {
   condition?: Prisma.SortOrder
   location?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isListed?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -596,6 +638,8 @@ export type ProductMinOrderByAggregateInput = {
   condition?: Prisma.SortOrder
   location?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isListed?: Prisma.SortOrder
+  visibility?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -663,6 +707,10 @@ export type EnumProductConditionFieldUpdateOperationsInput = {
   set?: $Enums.ProductCondition
 }
 
+export type EnumProductVisibilityFieldUpdateOperationsInput = {
+  set?: $Enums.ProductVisibility
+}
+
 export type ProductCreateNestedOneWithoutFavoritesInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutFavoritesInput, Prisma.ProductUncheckedCreateWithoutFavoritesInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutFavoritesInput
@@ -706,6 +754,8 @@ export type ProductCreateWithoutSellerInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderCreateNestedManyWithoutProductInput
@@ -725,6 +775,8 @@ export type ProductUncheckedCreateWithoutSellerInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutProductInput
@@ -774,6 +826,8 @@ export type ProductScalarWhereInput = {
   location?: Prisma.StringNullableFilter<"Product"> | string | null
   specs?: Prisma.JsonNullableFilter<"Product">
   description?: Prisma.StringFilter<"Product"> | string
+  isListed?: Prisma.BoolFilter<"Product"> | boolean
+  visibility?: Prisma.EnumProductVisibilityFilter<"Product"> | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }
@@ -791,6 +845,8 @@ export type ProductCreateWithoutFavoritesInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutProductsInput
@@ -811,6 +867,8 @@ export type ProductUncheckedCreateWithoutFavoritesInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutProductInput
@@ -845,6 +903,8 @@ export type ProductUpdateWithoutFavoritesInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
@@ -865,6 +925,8 @@ export type ProductUncheckedUpdateWithoutFavoritesInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutProductNestedInput
@@ -883,6 +945,8 @@ export type ProductCreateWithoutOrdersInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   seller: Prisma.UserCreateNestedOneWithoutProductsInput
@@ -903,6 +967,8 @@ export type ProductUncheckedCreateWithoutOrdersInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
   favorites?: Prisma.FavoriteUncheckedCreateNestedManyWithoutProductInput
@@ -937,6 +1003,8 @@ export type ProductUpdateWithoutOrdersInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   seller?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
@@ -957,6 +1025,8 @@ export type ProductUncheckedUpdateWithoutOrdersInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   favorites?: Prisma.FavoriteUncheckedUpdateManyWithoutProductNestedInput
@@ -975,6 +1045,8 @@ export type ProductCreateManySellerInput = {
   location?: string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description: string
+  isListed?: boolean
+  visibility?: $Enums.ProductVisibility
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -992,6 +1064,8 @@ export type ProductUpdateWithoutSellerInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUpdateManyWithoutProductNestedInput
@@ -1011,6 +1085,8 @@ export type ProductUncheckedUpdateWithoutSellerInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutProductNestedInput
@@ -1030,6 +1106,8 @@ export type ProductUncheckedUpdateManyWithoutSellerInput = {
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specs?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   description?: Prisma.StringFieldUpdateOperationsInput | string
+  isListed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  visibility?: Prisma.EnumProductVisibilityFieldUpdateOperationsInput | $Enums.ProductVisibility
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1088,6 +1166,8 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   location?: boolean
   specs?: boolean
   description?: boolean
+  isListed?: boolean
+  visibility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1110,6 +1190,8 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   location?: boolean
   specs?: boolean
   description?: boolean
+  isListed?: boolean
+  visibility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1129,6 +1211,8 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   location?: boolean
   specs?: boolean
   description?: boolean
+  isListed?: boolean
+  visibility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1148,11 +1232,13 @@ export type ProductSelectScalar = {
   location?: boolean
   specs?: boolean
   description?: boolean
+  isListed?: boolean
+  visibility?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "price" | "sellerId" | "rating" | "salesCount" | "reviewsCount" | "image" | "category" | "condition" | "location" | "specs" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "price" | "sellerId" | "rating" | "salesCount" | "reviewsCount" | "image" | "category" | "condition" | "location" | "specs" | "description" | "isListed" | "visibility" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   seller?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   orders?: boolean | Prisma.Product$ordersArgs<ExtArgs>
@@ -1187,6 +1273,8 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     location: string | null
     specs: runtime.JsonValue | null
     description: string
+    isListed: boolean
+    visibility: $Enums.ProductVisibility
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["product"]>
@@ -1628,6 +1716,8 @@ export interface ProductFieldRefs {
   readonly location: Prisma.FieldRef<"Product", 'String'>
   readonly specs: Prisma.FieldRef<"Product", 'Json'>
   readonly description: Prisma.FieldRef<"Product", 'String'>
+  readonly isListed: Prisma.FieldRef<"Product", 'Boolean'>
+  readonly visibility: Prisma.FieldRef<"Product", 'ProductVisibility'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }

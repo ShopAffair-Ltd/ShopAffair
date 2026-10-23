@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams, useLocation, Navigate } from 'react-router-dom';
 import { MarketProduct } from './types';
 
 import { useAuth } from './context/AuthContext';
@@ -26,6 +26,7 @@ import MarketView from './components/MarketView';
 import FavoritesView from './components/FavoritesView';
 import HomeView from './components/HomeView';
 import TransferHistoryView from './components/TransferHistoryView';
+import TradeHistoryView from './components/TradeHistoryView';
 import TradeView from './components/TradeView';
 import ChatView from './components/ChatView';
 import AdminPortal from './components/AdminPortal';
@@ -40,7 +41,7 @@ import TransferModal from './components/modals/TransferModal';
 import RedeemPromoModal from './components/modals/RedeemPromoModal';
 import WalletCallback from './components/wallet/WalletCallback';
 
-import { UserProfile, ChatRoom } from './types';
+import { UserProfile } from './types';
 import { api } from './services/api';
 
 const GUEST_PROFILE: UserProfile = {
@@ -92,20 +93,22 @@ function GlobalOverlays() {
         onAddAuditLog={addAuditLog}
         activeUsername={activeProfile.username}
         accountHolderName={activeProfile.name}
+        verifiedAccountNumber={activeProfile.accountNumber}
+        verifiedBankName={activeProfile.bankName}
       />
       <RedeemPromoModal isOpen={redeemOpen} onClose={closeRedeem} onRedeem={redeemPromo} />
     </>
   );
 }
 
-function Shell({ 
-  children, 
+function Shell({
+  children,
   showChrome,
   showBackButton = false,
   onBack,
   chatPartnerName
-}: { 
-  children: React.ReactNode; 
+}: {
+  children: React.ReactNode;
   showChrome: boolean;
   showBackButton?: boolean;
   onBack?: () => void;
@@ -114,10 +117,14 @@ function Shell({
   const { user, logout } = useAuth();
   const { totalUnread } = useChat();
   const navigate = useNavigate();
+  const location = useLocation();
   const activeProfile = user ?? GUEST_PROFILE;
   const isGuest = activeProfile.verificationStatus === 'GUEST';
 
-  const currentTab = window.location.pathname.split('/')[1] || 'home';
+  // Derived from router state (not window.location read once at mount), so
+  // the bottom nav / header always reflect the real current route - this is
+  // what makes the Home tab actually highlight after client-side navigation.
+  const currentTab = location.pathname.split('/')[1] || 'home';
 
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center text-slate-800 antialiased selection:bg-purple-100 font-sans">
@@ -157,14 +164,22 @@ function Shell({
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { openLogin, openRegister, openVerifyWizard } = useAuthModal();
   const activeProfile = user ?? GUEST_PROFILE;
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatPartnerName, setChatPartnerName] = useState('');
 
+  // Any path with a segment past the tab root is a sub-screen (trade detail,
+  // trade edit, a specific chat thread, etc.) and should show a back button
+  // that walks real browser history - this covers private chat, a trade card
+  // opened from a store, and every other deep-link path in one place instead
+  // of only special-casing chat.
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const isSubScreen = pathSegments.length > 1;
+  const isChatThread = pathSegments[0] === 'chat' && pathSegments.length > 1;
+
   const handleBack = () => {
-    setIsChatOpen(false);
-    setChatPartnerName('');
+    navigate(-1);
   };
 
   // Guests (no signed-in user) never see the real page - Home, Trade, Chat,
@@ -190,18 +205,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <Shell 
+    <Shell
       showChrome
-      showBackButton={isChatOpen}
+      showBackButton={isSubScreen}
       onBack={handleBack}
-      chatPartnerName={chatPartnerName}
+      chatPartnerName={isChatThread ? chatPartnerName : undefined}
     >
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child) && child.type === ChatView) {
           return React.cloneElement(child, {
-            onChatSelect: (room: ChatRoom | null) => {
-              setIsChatOpen(!!room);
-            },
             onChatPartnerName: (name: string) => {
               setChatPartnerName(name);
             }
@@ -216,6 +228,24 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function TransferHistoryRoute() {
   const navigate = useNavigate();
   return <TransferHistoryView onBack={() => navigate(-1)} />;
+}
+
+function TradeHistoryRoute() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { trades, cancelTrade } = useTrades();
+  if (!user) return null;
+  return (
+    <TradeHistoryView
+      trades={trades}
+      activeUsername={user.username}
+      onSelectTrade={(id) => navigate(`/trade/${id}`)}
+      onCancelTrade={async (id) => {
+        await cancelTrade(id);
+      }}
+      onBack={() => navigate(-1)}
+    />
+  );
 }
 
 function MarketRoute() {
@@ -303,51 +333,39 @@ function StoreProfileRoute() {
       </Shell>
     );
   }
-return (
-  <Shell showChrome={true}>
-    <StoreProfile
-      seller={{
-        id: sellerData.id,
-        name: sellerData.name,
-        username: sellerData.username,
-        storeName: sellerData.storeName || `${sellerData.name}'s Store`,
-        location: sellerData.location || 'Nigeria',
-        category: sellerData.storeCategory || 'General',
-        plan: sellerData.isPro ? 'Pro Plan' : 'Free Plan',
-        bio: sellerData.bio || 'No bio available',
-        rating: sellerData.rating || 0,
-        reviewsCount: sellerData.reviewsCount || 0,
-        totalSales: sellerData.totalSales || 0,
-        avatar: sellerData.name?.charAt(0) || 'S',
-        avatarColor: sellerData.avatarColor || 'bg-purple-600',
-        coverImage: sellerData.coverImage || null,
-        isVerified: sellerData.verificationStatus === 'VERIFIED',
-        followers: sellerData.followers || 0,
-        followingByMe: sellerData.followingByMe || false,
-        joinedDate: sellerData.createdAt || undefined
-      }}
-      products={products.filter((p) => p.sellerUsername === username)}
-      onBack={() => navigate(-1)}
-      onChat={(sellerUsername: string, sellerName: string) => {
-        startChatWithSeller(sellerUsername, sellerName);
-        navigate('/chat');
-      }}
-      onFollow={() => alert(`You are now following ${username}`)}
-      onProductClick={() => navigate('/market')}
-    />
-  </Shell>
-);
-}
-
-function ChatViewWrapper() {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatPartnerName, setChatPartnerName] = useState('');
-
   return (
-    <ChatView 
-      onChatSelect={(room) => setIsChatOpen(!!room)}
-      onChatPartnerName={(name) => setChatPartnerName(name)}
-    />
+    <Shell showChrome={true}>
+      <StoreProfile
+        seller={{
+          id: sellerData.id,
+          name: sellerData.name,
+          username: sellerData.username,
+          storeName: sellerData.storeName || `${sellerData.name}'s Store`,
+          location: sellerData.location || 'Nigeria',
+          category: sellerData.storeCategory || 'General',
+          plan: sellerData.isPro ? 'Pro Plan' : 'Free Plan',
+          bio: sellerData.bio || 'No bio available',
+          rating: sellerData.rating || 0,
+          reviewsCount: sellerData.reviewsCount || 0,
+          totalSales: sellerData.totalSales || 0,
+          avatar: sellerData.name?.charAt(0) || 'S',
+          avatarColor: sellerData.avatarColor || 'bg-purple-600',
+          coverImage: sellerData.coverImage || null,
+          isVerified: sellerData.verificationStatus === 'VERIFIED',
+          followers: sellerData.followers || 0,
+          followingByMe: sellerData.followingByMe || false,
+          joinedDate: sellerData.createdAt || undefined
+        }}
+        products={products.filter((p) => p.sellerUsername === username)}
+        onBack={() => navigate(-1)}
+        onChat={(sellerUsername: string, sellerName: string) => {
+          startChatWithSeller(sellerUsername, sellerName);
+          navigate('/chat');
+        }}
+        onFollow={() => alert(`You are now following ${username}`)}
+        onProductClick={() => navigate('/market')}
+      />
+    </Shell>
   );
 }
 
@@ -359,13 +377,17 @@ export default function App() {
   const { openLogin, openRegister, close: closeAuthModal } = useAuthModal();
   const navigate = useNavigate();
 
+  // Decide purely on token presence, not on whether `user` has loaded
+  // yet - `user` can be briefly null even for a valid session (still
+  // loading, or a transient fetch failure that intentionally preserves
+  // the token - see authService.getCurrentUser). Showing landing here
+  // based on `user` alone would incorrectly boot a real session back to
+  // the landing page whenever that fetch hasn't resolved yet.
+  //
+  // G1 FIX: If a token exists, we should NEVER show the landing page on
+  // refresh - we stay on the current route. Landing is only for brand new
+  // visitors with no token.
   useEffect(() => {
-    // Decide purely on token presence, not on whether `user` has loaded
-    // yet - `user` can be briefly null even for a valid session (still
-    // loading, or a transient fetch failure that intentionally preserves
-    // the token - see authService.getCurrentUser). Showing landing here
-    // based on `user` alone would incorrectly boot a real session back to
-    // the landing page whenever that fetch hasn't resolved yet.
     const token = localStorage.getItem('shopfair_token');
     setShowLanding(!token);
   }, []);
@@ -380,7 +402,7 @@ export default function App() {
   };
 
   if (authLoading) {
-    return <Preloader onComplete={() => {}} />;
+    return <Preloader onComplete={() => { }} />;
   }
 
   return (
@@ -462,15 +484,55 @@ export default function App() {
               }
             />
             <Route
+              path="/trade/:tradeId"
+              element={
+                <ProtectedRoute>
+                  <TradeView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trade/:tradeId/:mode"
+              element={
+                <ProtectedRoute>
+                  <TradeView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trade-history"
+              element={
+                <ProtectedRoute>
+                  <TradeHistoryRoute />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/chat"
               element={
                 <ProtectedRoute>
-                  <ChatViewWrapper />
+                  <ChatView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:roomUsername"
+              element={
+                <ProtectedRoute>
+                  <ChatView />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile/:username"
               element={
                 <ProtectedRoute>
                   <ProfileView />

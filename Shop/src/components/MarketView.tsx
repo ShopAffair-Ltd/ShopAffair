@@ -93,10 +93,6 @@ export default function MarketView() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleAddToCart = (product: MarketProduct) => {
-    if (isTradeBasedProductId(product.id)) {
-      navigate(`/trade?open=${stripTradeIdPrefix(product.id)}`);
-      return;
-    }
     addToCart(product);
   };
 
@@ -261,7 +257,7 @@ export default function MarketView() {
 
   const handleStartChatWithSeller = (sellerUsername: string, sellerName: string) => {
     startChatWithSeller(sellerUsername, sellerName);
-    navigate('/chat');
+    navigate(`/chat/${sellerUsername}`);
   };
 
   const handleProceedToCheckout = () => {

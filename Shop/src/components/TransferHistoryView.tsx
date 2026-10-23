@@ -112,9 +112,8 @@ export default function TransferHistoryView({ onBack }: TransferHistoryViewProps
                   key={tx.id}
                   className="bg-white rounded-xl p-3 border border-slate-100 shadow-xs flex items-center gap-3"
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                    inbound ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-500'
-                  }`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${inbound ? 'bg-green-50 text-green-600' : 'bg-slate-100 text-slate-500'
+                    }`}>
                     {typeIcon(tx.type)}
                   </div>
                   <div className="min-w-0 flex-1">

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const conditionEnum = z.enum(['NEW', 'LIKE_NEW', 'GENTLY_USED', 'FAIR']);
+const visibilityEnum = z.enum(['PRIVATE', 'MARKET']);
 
 export const createProductSchema = z.object({
   title: z.string().min(3).max(140),
@@ -10,7 +11,8 @@ export const createProductSchema = z.object({
   condition: conditionEnum,
   location: z.string().max(200).optional(),
   specs: z.record(z.string(), z.unknown()).optional(),
-  description: z.string().min(10).max(5000)
+  description: z.string().min(10).max(5000),
+  visibility: visibilityEnum.optional()
 });
 
 export const updateProductSchema = createProductSchema.partial().refine(

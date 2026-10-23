@@ -7,15 +7,19 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useAdmin } from '../context/AdminContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { checkout as checkoutApi } from '../services/orderService';
 import { getApiErrorMessage } from '../services/authService';
 
 export default function CheckoutView() {
   const { user, updateUser } = useAuth();
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, removeFromCart } = useCart();
   const { addAuditLog } = useAdmin();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const singleItemId = searchParams.get('itemId');
+  const activeItems = singleItemId ? cart.filter((i) => i.product.id === singleItemId) : cart;
 
   const activeProfile = user;
 
@@ -37,7 +41,7 @@ export default function CheckoutView() {
 
   if (!activeProfile) return null;
 
-  const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = activeItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const shippingFee = subtotal > 0 ? 1500 : 0;
   const total = subtotal + shippingFee;
 
@@ -50,8 +54,8 @@ export default function CheckoutView() {
       return;
     }
 
-    if (cart.length === 0) {
-      setValidationError('Your cart is empty. Please add items to your cart.');
+    if (activeItems.length === 0) {
+      setValidationError('No items selected for checkout. Please add items to your cart.');
       return;
     }
 
@@ -63,7 +67,7 @@ export default function CheckoutView() {
     setIsSubmitting(true);
 
     try {
-      const result = await checkoutApi(cart, {
+      const result = await checkoutApi(activeItems, {
         fullName,
         address,
         city,
@@ -92,7 +96,11 @@ export default function CheckoutView() {
         payment: paymentMethod === 'wallet' ? 'Secure Wallet Vault' : paymentMethod === 'bank_transfer' ? 'Nigerian Bank Transfer' : 'Secured Escrow Card'
       });
 
-      clearCart();
+      if (singleItemId) {
+        removeFromCart(singleItemId);
+      } else {
+        clearCart();
+      }
     } catch (err) {
       console.error(err);
       setValidationError(getApiErrorMessage(err));
@@ -334,11 +342,11 @@ export default function CheckoutView() {
                 className="bg-white rounded-lg p-4 border border-slate-100 shadow-xs space-y-3"
               >
                 <h2 className="text-xs font-sans font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
-                  <ShoppingBag className="w-4 h-4 text-purple-600" /> Order Summary ({cart.length})
+                  <ShoppingBag className="w-4 h-4 text-purple-600" /> Order Summary ({activeItems.length})
                 </h2>
 
                 <div className="divide-y divide-slate-100">
-                  {cart.map((item) => (
+                  {activeItems.map((item) => (
                     <div key={item.product.id} className="py-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2.5 max-w-[70%]">
                         <img

@@ -66,19 +66,31 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       return { ok: false, message: 'Insufficient balance to disburse this transfer' };
     }
 
-    const result = await withdrawApi({
-      amount,
-      accountNumber: beneficiaryAccount,
-      bankCode: beneficiaryBankCode,
-      bankName: beneficiaryBankName
-    });
+    try {
+      const result = await withdrawApi({
+        amount,
+        accountNumber: beneficiaryAccount,
+        bankCode: beneficiaryBankCode,
+        bankName: beneficiaryBankName
+      });
 
-    updateUser({ ...user, walletBalance: user.walletBalance - amount });
+      // Only reflect the debit locally once the backend has actually
+      // accepted and processed the withdrawal request.
+      updateUser({ ...user, walletBalance: user.walletBalance - amount });
 
-    return {
-      ok: true,
-      message: `₦${amount.toLocaleString()} sent to ${result.accountName} (${beneficiaryBankName})`
-    };
+      return {
+        ok: true,
+        message: `₦${amount.toLocaleString()} sent to ${result.accountName} (${beneficiaryBankName})`
+      };
+    } catch (err: unknown) {
+      // Surface the backend's real validation message (e.g. the
+      // verified-account-name mismatch, insufficient balance) instead of a
+      // generic "Validation Failed" - this is the exact message
+      // requestWithdrawal() on the server produces for each failure case.
+      const backendMessage =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      return { ok: false, message: backendMessage ?? 'Withdrawal failed. Please try again.' };
+    }
   };
 
   const redeemPromo = async (code: string) => {

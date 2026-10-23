@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatRoom } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ChatSidebar from './chatSidebar';
 import ChatWindow from './chatWindow';
 import ChatModals from './chatModals';
@@ -17,9 +17,12 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const { user } = useAuth();
   const { chatRooms, sendMessage, markAsRead, sendError, clearSendError, loadFullChatHistory } = useChat();
   const navigate = useNavigate();
+  // The active DM thread lives in the URL (/chat/:roomUsername) so refresh
+  // reloads the same conversation and the phone/browser back button returns
+  // to the chat list instead of jumping to the home screen.
+  const { roomUsername } = useParams<{ roomUsername?: string }>();
   const activeProfile = user;
 
-  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [messageText, setMessageText] = useState('');
   const [activeTab, setActiveTab] = useState<'All' | 'Chats' | 'Unread' | 'Stores' | 'Groups'>('All');
@@ -35,6 +38,19 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const previousRoomIdRef = useRef<string | null>(null);
 
+  const selectedRoom = React.useMemo(() => {
+    if (!roomUsername) return null;
+    return chatRooms.find((r) => r.participantUsername === roomUsername) ?? null;
+  }, [chatRooms, roomUsername]);
+
+  const setSelectedRoom = (room: ChatRoom | null) => {
+    if (room) {
+      navigate(`/chat/${room.participantUsername}`);
+    } else {
+      navigate('/chat');
+    }
+  };
+
   useEffect(() => {
     if (selectedRoom) {
       if (previousRoomIdRef.current !== selectedRoom.id) {
@@ -46,6 +62,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
       if (onChatSelect) onChatSelect(selectedRoom);
       if (onChatPartnerName) onChatPartnerName(selectedRoom.participantName);
     } else {
+      previousRoomIdRef.current = null;
       if (onChatSelect) onChatSelect(null);
       if (onChatPartnerName) onChatPartnerName('');
     }
@@ -60,11 +77,6 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const allRooms = React.useMemo(() => {
     return chatRooms;
   }, [chatRooms]);
-
-  const selectedRoomLive = React.useMemo(() => {
-    if (!selectedRoom) return null;
-    return allRooms.find((r) => r.id === selectedRoom.id) ?? selectedRoom;
-  }, [allRooms, selectedRoom]);
 
   useEffect(() => {
     if (!callToast) return;
@@ -124,7 +136,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
 
   const handleViewProfileFromChat = () => {
     if (!selectedRoom) return;
-    navigate(`/store/${selectedRoom.participantUsername}`);
+    navigate(`/profile/${selectedRoom.participantUsername}`);
   };
 
   const isSellerChat = selectedRoom?.participantRole === 'seller' && selectedRoom?.participantUsername !== activeProfile?.username;
@@ -158,7 +170,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
         />
       </div>
 
-      {selectedRoomLive && (
+      {selectedRoom && (
         <>
           {sendError && (
             <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[110] bg-red-600 text-white text-xs font-sans font-semibold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
@@ -167,7 +179,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
             </div>
           )}
           <ChatWindow
-            selectedRoom={selectedRoomLive}
+            selectedRoom={selectedRoom}
             activeUsername={activeProfile.username}
             messageText={messageText}
             setMessageText={setMessageText}
@@ -201,9 +213,9 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
         setShowNewCommunity={setShowNewCommunity}
         showInviteModal={showInviteModal}
         setShowInviteModal={setShowInviteModal}
-        onInviteUser={() => {}}
-        onNewGroup={() => {}}
-        onNewCommunity={() => {}}
+        onInviteUser={() => { }}
+        onNewGroup={() => { }}
+        onNewCommunity={() => { }}
         onChatCreated={handleChatCreated}
       />
     </div>

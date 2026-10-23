@@ -115,13 +115,13 @@ export function WallPostComponent({
         )}
       </div>
 
-      <p className="text-[12.5px] font-sans text-slate-700 whitespace-pre-line leading-relaxed mt-2.5 px-3.5">
+      <p className="text-[12.5px] font-sans text-slate-700 whitespace-pre-line leading-relaxed mt-2.5 px-3.5 break-words">
         {post.caption}
       </p>
 
       {post.images && post.images.length > 0 && (
         <div className="mt-2.5 mx-3.5 rounded-xl overflow-hidden bg-slate-900">
-          <img src={post.images[0]} alt="" className="w-full h-44 object-cover" />
+          <img src={post.images[0]} alt="" className="w-full h-auto max-h-96 object-cover" />
         </div>
       )}
 
@@ -177,7 +177,7 @@ export function WallPostComponent({
                       )}
                       <span className="text-[9px] font-sans text-slate-400 ml-auto">{timeAgo(c.timestamp)}</span>
                     </div>
-                    <p className="text-[11px] font-sans text-slate-600 mt-0.5 leading-snug">{c.content}</p>
+                    <p className="text-[11px] font-sans text-slate-600 mt-0.5 leading-snug break-words">{c.content}</p>
                   </div>
                 </div>
               ))}
@@ -189,8 +189,7 @@ export function WallPostComponent({
                     setCommentDrafts({ ...commentDrafts, [post.id]: e.target.value })
                   }
                   onKeyDown={(e) => e.key === 'Enter' && onSendComment(post.id)}
-                  placeholder="Reply as seller…"
-                  className="flex-1 text-[11px] font-sans px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-full outline-none focus:border-purple-300 focus:bg-white transition-colors"
+                  placeholder={canManage ? "Reply as seller…" : "Write a comment…"}
                 />
                 <button
                   onClick={() => onSendComment(post.id)}

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TradeItem } from '../types';
 import { useTrades } from '../context/TradeContext';
 import { useAuth } from '../context/AuthContext';
@@ -7,12 +7,12 @@ import TradeListView from './TradeListView';
 import TradeCreateView from './TradeCreateView';
 import TradeDetailView from './TradeDetailView';
 
-type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 type FilterOption = 'All' | 'Drafts' | 'Offers' | 'Pending';
 
 export default function TradeView() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const params = useParams<{ tradeId?: string; mode?: string }>();
+  const [searchParams] = useSearchParams();
   const { user: activeProfile } = useAuth();
   const {
     trades,
@@ -25,39 +25,44 @@ export default function TradeView() {
     updateTradeStatus
   } = useTrades();
 
-  const [currentView, setCurrentView] = useState<ViewMode>('list');
-  const [activeFilter, setActiveFilter] = useState<FilterOption>('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = React.useState<FilterOption>('All');
+  const [searchQuery, setSearchQuery] = React.useState('');
 
-  useEffect(() => {
+  // URL is the single source of truth for which sub-view is showing:
+  //   /trade                 -> list
+  //   /trade/new              -> create
+  //   /trade/:tradeId         -> detail
+  //   /trade/:tradeId/edit     -> edit
+  // Refresh on any of these reloads the same screen instead of bouncing to
+  // the landing page, and the phone/browser back button walks the real
+  // history stack instead of always returning to list.
+  const isNew = params.tradeId === 'new';
+  const isEdit = params.mode === 'edit';
+  const selectedTradeId = !isNew ? params.tradeId ?? null : null;
+  const selectedTrade = selectedTradeId ? trades.find((t) => t.id === selectedTradeId) || null : null;
+
+  // Legacy deep-link support: /trade?open=<id>
+  React.useEffect(() => {
     const openId = searchParams.get('open');
     if (openId && trades.some((t) => t.id === openId)) {
-      setSelectedTradeId(openId);
-      setCurrentView('detail');
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete('open');
-        return next;
-      }, { replace: true });
+      navigate(`/trade/${openId}`, { replace: true });
     }
-  }, [searchParams, trades, setSearchParams]);
-
-  const selectedTrade = selectedTradeId ? trades.find((t) => t.id === selectedTradeId) || null : null;
+  }, [searchParams, trades, navigate]);
 
   const isSeller = (trade: TradeItem) => !!activeProfile && activeProfile.username === trade.creatorUsername;
   const isBuyer = (trade: TradeItem) => !!trade.buyerUsername && !!activeProfile && activeProfile.username === trade.buyerUsername;
 
   const handleShareTrade = (trade: TradeItem) => {
-    const url = window.location.href;
+    const ownerName = trade.creatorUsername || activeProfile?.username || 'user';
+    const url = `${window.location.origin}/trade/${trade.id}?owner=${encodeURIComponent(ownerName)}`;
     const shareData = {
-      title: `Trade: ${trade.title}`,
-      text: `Check out this trade on ShopAffair: ${trade.title} - ₦${trade.amount.toLocaleString()}`,
+      title: `${ownerName}'s Trade: ${trade.title}`,
+      text: `Check out ${ownerName}'s trade on ShopAffair: ${trade.title} - ₦${trade.amount.toLocaleString()}`,
       url
     };
 
     if (navigator.share) {
-      navigator.share(shareData).catch(() => {});
+      navigator.share(shareData).catch(() => { });
     } else {
       navigator.clipboard.writeText(url).then(() => {
         alert('Trade link copied to clipboard! Share it with your friends.');
@@ -69,7 +74,7 @@ export default function TradeView() {
 
   return (
     <div className="flex-1 flex flex-col bg-white h-full overflow-hidden pb-24">
-      {currentView === 'list' && (
+      {!selectedTradeId && !isNew && (
         <TradeListView
           trades={trades}
           loading={tradesLoading}
@@ -77,46 +82,40 @@ export default function TradeView() {
           onSearchChange={setSearchQuery}
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
-          onSelectTrade={(id) => {
-            setSelectedTradeId(id);
-            setCurrentView('detail');
-          }}
-          onCreateNew={() => setCurrentView('create')}
+          onSelectTrade={(id) => navigate(`/trade/${id}`)}
+          onCreateNew={() => navigate('/trade/new')}
           onShareTrade={handleShareTrade}
         />
       )}
 
-      {currentView === 'create' && (
+      {isNew && (
         <TradeCreateView
-          onCancel={() => setCurrentView('list')}
+          onCancel={() => navigate('/trade')}
           onSubmit={async (payload) => {
             await createTrade(payload);
           }}
-          onDone={() => setCurrentView('list')}
+          onDone={() => navigate('/trade')}
         />
       )}
 
-      {currentView === 'edit' && selectedTrade && (
+      {selectedTrade && isEdit && (
         <TradeCreateView
           initialTrade={selectedTrade}
-          onCancel={() => setCurrentView('detail')}
-          onSubmit={async () => {}}
+          onCancel={() => navigate(`/trade/${selectedTrade.id}`)}
+          onSubmit={async () => { }}
           onEditSubmit={async (id, updates) => {
             await editTrade(id, updates);
           }}
-          onDone={() => setCurrentView('detail')}
+          onDone={() => navigate(`/trade/${selectedTrade.id}`)}
         />
       )}
 
-      {currentView === 'detail' && selectedTrade && (
+      {selectedTrade && !isEdit && (
         <TradeDetailView
           trade={selectedTrade}
           isSeller={isSeller(selectedTrade)}
           isBuyer={isBuyer(selectedTrade)}
-          onBack={() => {
-            setSelectedTradeId(null);
-            setCurrentView('list');
-          }}
+          onBack={() => navigate(-1)}
           onFundTrade={async (id) => {
             await fundTrade(id);
           }}
@@ -126,16 +125,25 @@ export default function TradeView() {
           onUpdateStatus={async (id, status) => {
             await updateTradeStatus(id, status);
           }}
-          onEditTrade={(id) => {
-            setSelectedTradeId(id);
-            setCurrentView('edit');
-          }}
+          onEditTrade={(id) => navigate(`/trade/${id}/edit`)}
           onCancelTrade={async (id) => {
             await cancelTrade(id);
-            setSelectedTradeId(null);
-            setCurrentView('list');
+            navigate('/trade');
           }}
         />
+      )}
+
+      {selectedTradeId && !selectedTrade && !tradesLoading && (
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
+          <p className="text-sm font-sans font-bold text-slate-800">Trade not found</p>
+          <p className="text-xs font-sans text-slate-400">It may have been removed or the link is invalid.</p>
+          <button
+            onClick={() => navigate('/trade')}
+            className="mt-2 px-4 py-2 rounded-full bg-purple-600 text-white text-xs font-sans font-bold"
+          >
+            Back to Trades
+          </button>
+        </div>
       )}
     </div>
   );

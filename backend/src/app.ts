@@ -25,7 +25,7 @@ import followRoutes from './modules/follow/follow.routes';
 
 export const createApp = (): Express => {
   const app = express();
-  
+
   app.use(helmet());
   app.use(
     cors({
@@ -34,16 +34,16 @@ export const createApp = (): Express => {
     })
   );
   app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
-  
+
   app.use('/api/payments/webhooks', paymentsWebhooks);
-  
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  
+
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
-  
+
   app.use('/api/auth', authRoutes);
   app.use('/api/products', productsRoutes);
   app.use('/api/trades', tradesRoutes);
@@ -60,7 +60,7 @@ export const createApp = (): Express => {
   app.use('/api/favorites', favoritesRoutes);
   app.use('/api/follow', followRoutes);
 
-app.use('/api/uploads', uploadsRoutes);
+  app.use('/api/uploads', uploadsRoutes);
   app.use(errorMiddleware);
 
   return app;

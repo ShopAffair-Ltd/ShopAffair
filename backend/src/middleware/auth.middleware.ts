@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { prisma } from '../config/db';
 import type { AuthPayload } from '../types/express';
+import { syncStoreLockState } from '../modules/subscriptions/subscription.service';
 
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -33,6 +34,15 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     req.user = payload;
+    // Awaited so a request that reads the user's own store/product state
+    // right after this middleware (e.g. opening My Store) sees the lock
+    // applied on the same request, not one request later. It's a cheap
+    // no-op once already synced - only writes when the plan just lapsed.
+    try {
+      await syncStoreLockState(payload.id);
+    } catch (err) {
+      console.error('syncStoreLockState failed', err);
+    }
     next();
   } catch {
     res.status(401).json({ message: 'Invalid or expired token' });

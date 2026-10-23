@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   ArrowLeft, MessageCircle, Share2, ThumbsUp,
@@ -70,6 +71,7 @@ export default function StoreProfile({
   onProductClick,
   communityPosts = []
 }: StoreProfileProps) {
+  const navigate = useNavigate();
   const { user: viewer } = useAuth();
   const [activeTab, setActiveTab] = useState<'wall' | 'products' | 'reviews'>('wall');
   const [isFollowing, setIsFollowing] = useState(seller.followingByMe ?? false);
@@ -281,9 +283,13 @@ export default function StoreProfile({
 
             <div className="mt-2 pb-3">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base font-display font-black text-slate-900">
+                {/* BV5 FIX: Store name is clickable - navigates to owner profile */}
+                <button
+                  onClick={() => navigate(`/profile/${seller.username}`)}
+                  className="text-base font-display font-black text-slate-900 hover:text-purple-700 transition-colors cursor-pointer"
+                >
                   {seller.storeName || seller.name}
-                </h1>
+                </button>
                 {seller.isVerified && (
                   <span className="bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shrink-0">Verified</span>
                 )}
@@ -336,14 +342,15 @@ export default function StoreProfile({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 px-4 py-3 bg-white border-b border-slate-100">
+        {/* BV3 FIX: All 4 stats on a single straight line (4-col grid) */}
+        <div className="grid grid-cols-4 gap-2 px-4 py-3 bg-white border-b border-slate-100">
           {statItems.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="flex items-center justify-center gap-1 text-sm font-bold text-slate-900">
+              <div className="flex items-center justify-center gap-0.5 text-sm font-bold text-slate-900">
                 {stat.icon}
-                {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+                <span>{typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}</span>
               </div>
-              <span className="text-[10px] text-slate-400">{stat.label}</span>
+              <span className="text-[9px] text-slate-400">{stat.label}</span>
             </div>
           ))}
         </div>
