@@ -15,6 +15,8 @@ import { WallPostComponent } from './storeComponents';
 import { WallPost, timeAgo } from './storeConstants';
 import * as wallPostService from '../services/wallPostService';
 import type { WallPost as ApiWallPost } from '../services/wallPostService';
+import * as tradeService from '../services/TradeService';
+import { EscrowStatus } from '../types/trade';
 
 function mapApiPost(apiPost: ApiWallPost, sellerId: string): WallPost {
   return {
@@ -202,15 +204,57 @@ export default function StoreProfile({
   const [newReviewContent, setNewReviewContent] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(null);
+  const [reviewableTrades, setReviewableTrades] = useState<{ id: string; title: string }[]>([]);
+  const [selectedTradeId, setSelectedTradeId] = useState<string>('');
+  const [loadingReviewable, setLoadingReviewable] = useState(true);
+
+  // Reviews can only be left for trades the viewer actually completed as
+  // the buyer with this specific seller - fetched directly (not from the
+  // general trade feed in TradeContext, which is the public market list,
+  // not scoped to "my trades") and filtered to ones not already reviewed.
+  useEffect(() => {
+    if (!viewer) {
+      setLoadingReviewable(false);
+      return;
+    }
+    let cancelled = false;
+    setLoadingReviewable(true);
+    tradeService
+      .fetchTrades({ mine: true, status: EscrowStatus.COMPLETED, limit: 50 })
+      .then((result) => {
+        if (cancelled) return;
+        const alreadyReviewedTradeIds = new Set(
+          reviews.filter((r) => r.reviewerUsername === viewer.username).map((r) => r.orderId)
+        );
+        const eligible = result.items
+          .filter(
+            (t) =>
+              t.creatorUsername === seller.username &&
+              t.buyerUsername === viewer.username &&
+              !alreadyReviewedTradeIds.has(t.id)
+          )
+          .map((t) => ({ id: t.id, title: t.title }));
+        setReviewableTrades(eligible);
+        if (eligible.length > 0) setSelectedTradeId(eligible[0].id);
+      })
+      .catch(() => setReviewableTrades([]))
+      .finally(() => {
+        if (!cancelled) setLoadingReviewable(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [viewer, seller.username, reviews]);
 
   const handleSubmitReview = async () => {
-    if (newReviewRating < 1 || !newReviewContent.trim()) return;
+    if (newReviewRating < 1 || !newReviewContent.trim() || !selectedTradeId) return;
     setSubmittingReview(true);
     setReviewSubmitError(null);
     try {
       const response = await reviewService.createReview(seller.username, {
         rating: newReviewRating,
-        content: newReviewContent.trim()
+        content: newReviewContent.trim(),
+        orderId: selectedTradeId
       });
       setReviews((prev) => [response.data.review, ...prev]);
       await fetchStats();
@@ -283,13 +327,9 @@ export default function StoreProfile({
 
             <div className="mt-2 pb-3">
               <div className="flex items-center gap-2 flex-wrap">
-                {/* BV5 FIX: Store name is clickable - navigates to owner profile */}
-                <button
-                  onClick={() => navigate(`/profile/${seller.username}`)}
-                  className="text-base font-display font-black text-slate-900 hover:text-purple-700 transition-colors cursor-pointer"
-                >
+                <span className="text-base font-display font-black text-slate-900">
                   {seller.storeName || seller.name}
-                </button>
+                </span>
                 {seller.isVerified && (
                   <span className="bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shrink-0">Verified</span>
                 )}
@@ -329,11 +369,10 @@ export default function StoreProfile({
                 </button>
                 <button
                   onClick={handleFollow}
-                  className={`flex-1 px-4 py-2 font-sans font-bold text-xs rounded-xl shadow-sm transition-all ${
-                    isFollowing
-                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                      : 'bg-purple-600 text-white hover:bg-purple-700'
-                  }`}
+                  className={`flex-1 px-4 py-2 font-sans font-bold text-xs rounded-xl shadow-sm transition-all ${isFollowing
+                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                    }`}
                 >
                   {isFollowing ? 'Following' : '+ Follow'}
                 </button>
@@ -365,9 +404,8 @@ export default function StoreProfile({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`py-3 text-xs font-sans font-semibold capitalize transition-all relative flex items-center gap-1.5 shrink-0 ${
-                  activeTab === tab.id ? 'text-purple-600' : 'text-slate-400 hover:text-slate-600'
-                }`}
+                className={`py-3 text-xs font-sans font-semibold capitalize transition-all relative flex items-center gap-1.5 shrink-0 ${activeTab === tab.id ? 'text-purple-600' : 'text-slate-400 hover:text-slate-600'
+                  }`}
               >
                 {tab.icon}
                 {tab.label}
@@ -404,7 +442,7 @@ export default function StoreProfile({
                       post={post}
                       profile={viewer}
                       onToggleLike={handleToggleWallLike}
-                      onTogglePin={() => {}}
+                      onTogglePin={() => { }}
                       onToggleComments={handleToggleComments}
                       onSendComment={handleSendComment}
                       openCommentsFor={openCommentsFor}
@@ -462,9 +500,22 @@ export default function StoreProfile({
 
           {activeTab === 'reviews' && (
             <div className="space-y-4">
-              {viewer && viewer.id !== seller.id && (
+              {viewer && viewer.id !== seller.id && !loadingReviewable && reviewableTrades.length > 0 && (
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Leave a review</h3>
+                  {reviewableTrades.length > 1 && (
+                    <select
+                      value={selectedTradeId}
+                      onChange={(e) => setSelectedTradeId(e.target.value)}
+                      className="w-full text-xs font-sans px-3 py-2 mb-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/15"
+                    >
+                      {reviewableTrades.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <div className="flex items-center gap-1 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -474,9 +525,8 @@ export default function StoreProfile({
                         className="p-0.5"
                       >
                         <Star
-                          className={`w-6 h-6 ${
-                            star <= newReviewRating ? 'fill-amber-400 stroke-amber-400' : 'text-slate-200'
-                          }`}
+                          className={`w-6 h-6 ${star <= newReviewRating ? 'fill-amber-400 stroke-amber-400' : 'text-slate-200'
+                            }`}
                         />
                       </button>
                     ))}
@@ -494,11 +544,19 @@ export default function StoreProfile({
                   )}
                   <button
                     onClick={handleSubmitReview}
-                    disabled={submittingReview || newReviewRating < 1 || !newReviewContent.trim()}
+                    disabled={submittingReview || newReviewRating < 1 || !newReviewContent.trim() || !selectedTradeId}
                     className="w-full mt-3 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-sans font-bold text-xs rounded-lg transition-colors"
                   >
                     {submittingReview ? 'Submitting...' : 'Submit Review'}
                   </button>
+                </div>
+              )}
+
+              {viewer && viewer.id !== seller.id && !loadingReviewable && reviewableTrades.length === 0 && (
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-center">
+                  <p className="text-[11px] font-sans text-slate-400">
+                    You can leave a review after completing a trade with this seller.
+                  </p>
                 </div>
               )}
 
@@ -564,9 +622,8 @@ export default function StoreProfile({
                         <span className="text-[10px] text-slate-400">{review.date ? new Date(review.date).toLocaleDateString() : 'Just now'}</span>
                         <button
                           onClick={() => handleMarkHelpful(review.id)}
-                          className={`text-[10px] flex items-center gap-1 transition-colors ${
-                            review.isHelpful ? 'text-purple-600 font-semibold' : 'text-slate-400 hover:text-slate-600'
-                          }`}
+                          className={`text-[10px] flex items-center gap-1 transition-colors ${review.isHelpful ? 'text-purple-600 font-semibold' : 'text-slate-400 hover:text-slate-600'
+                            }`}
                         >
                           <ThumbsUp className={`w-3 h-3 ${review.isHelpful ? 'fill-purple-600' : ''}`} />
                           {review.helpful || 0} helpful

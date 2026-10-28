@@ -9,6 +9,7 @@ export interface Review {
   date: string;
   helpful: number;
   isHelpful?: boolean;
+  orderId: string | null;
 }
 
 export interface RatingDistribution {
@@ -32,7 +33,10 @@ export interface ReviewsResponse {
 export interface CreateReviewInput {
   rating: number;
   content: string;
-  orderId?: string;
+  // The specific completed trade this review is for - required, since the
+  // backend only accepts a review tied to a trade the reviewer actually
+  // completed as the buyer with this seller.
+  orderId: string;
 }
 
 export const reviewService = {
