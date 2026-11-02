@@ -53,7 +53,8 @@ export const getSellerReviews = async (username: string, currentUserId: string) 
     content: r.content,
     date: r.createdAt.toISOString(),
     helpful: r.helpfulCount,
-    isHelpful: r.helpfulVotes.length > 0
+    isHelpful: r.helpfulVotes.length > 0,
+    orderId: r.orderId
   }));
 
   return {
@@ -72,7 +73,7 @@ export const createReview = async (
   username: string,
   rating: number,
   content: string,
-  orderId?: string
+  orderId: string
 ) => {
   const seller = await prisma.user.findUnique({
     where: { username }
@@ -86,16 +87,32 @@ export const createReview = async (
     throw new ApiError(400, 'You cannot review yourself');
   }
 
+  // A review must be tied to a trade the reviewer actually completed as
+  // the buyer, with this exact seller as the creator - this is the real
+  // enforcement of "review only after a trade takes place". Without this,
+  // orderId was only ever advisory and anyone could review anyone.
+  const trade = await prisma.trade.findUnique({
+    where: { id: orderId },
+    select: { id: true, buyerId: true, creatorId: true, status: true }
+  });
+
+  if (!trade || trade.buyerId !== reviewerId || trade.creatorId !== seller.id) {
+    throw new ApiError(403, 'You can only review a seller after completing a trade with them');
+  }
+  if (trade.status !== 'COMPLETED') {
+    throw new ApiError(403, 'This trade has not been completed yet');
+  }
+
   const existing = await prisma.review.findFirst({
     where: {
       reviewerId,
       sellerId: seller.id,
-      orderId: orderId || undefined
+      orderId
     }
   });
 
   if (existing) {
-    throw new ApiError(400, 'You have already reviewed this seller');
+    throw new ApiError(400, 'You have already reviewed this trade');
   }
 
   const review = await prisma.review.create({

@@ -9,12 +9,12 @@ const isUUID = (str: string) => {
 
 export const getOrCreateDirectChat = async (userId: string, otherUserIdOrUsername: string) => {
   let otherUserId = otherUserIdOrUsername;
-  
+
   if (!isUUID(otherUserIdOrUsername)) {
     const user = await prisma.user.findUnique({
       where: { username: otherUserIdOrUsername }
     });
-    
+
     if (!user) {
       throw new ApiError(404, 'User not found');
     }
@@ -161,6 +161,10 @@ export const createGroup = async (userId: string, data: {
       name: data.name,
       description: data.description,
       creatorId: userId,
+      // Groups go through the same admin approval queue as communities
+      // (see admin.service.listPendingCommunities) rather than going live
+      // immediately.
+      approvalStatus: 'PENDING',
       participants: {
         create: [
           { userId, role: ParticipantRole.ADMIN },

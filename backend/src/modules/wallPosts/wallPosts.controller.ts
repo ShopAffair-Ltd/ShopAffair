@@ -3,6 +3,7 @@ import * as wallPostsService from './wallPosts.service';
 import {
   usernameParamSchema,
   postIdParamSchema,
+  commentIdParamSchema,
   createWallPostSchema,
   createCommentSchema
 } from './wallPosts.validation'
@@ -63,6 +64,16 @@ export const addComment = async (req: Request, res: Response, next: NextFunction
     const input = createCommentSchema.parse(req.body);
     const post = await wallPostsService.addComment(req.user!.id, postId, input);
     res.status(201).json({ post });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteComment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { commentId } = commentIdParamSchema.parse(req.params);
+    const post = await wallPostsService.deleteComment(commentId, req.user!.id);
+    res.status(200).json({ post });
   } catch (err) {
     next(err);
   }

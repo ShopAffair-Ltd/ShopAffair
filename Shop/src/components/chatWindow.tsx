@@ -70,12 +70,15 @@ export default function ChatWindow({
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 26, stiffness: 240 }}
-      className="fixed inset-0 z-[100] bg-white flex flex-col overflow-hidden"
+      className="fixed inset-x-0 top-0 z-[100] bg-white flex flex-col overflow-hidden"
+      // 100dvh (dynamic viewport height) instead of relying on inset-0's
+      // implicit 100vh: on mobile, 100vh doesn't shrink when the on-screen
+      // keyboard opens, which pushes/hides the chat input and message list
+      // behind the keyboard. dvh tracks the actual visible viewport.
       style={{ height: '100dvh' }}
     >
-      <div className={`sticky top-0 z-10 px-4 py-3 border-b border-slate-100 flex items-center justify-between ${
-        isAIChat ? 'bg-gradient-to-r from-purple-50 to-purple-100' : 'bg-white'
-      }`}>
+      <div className={`sticky top-0 z-10 px-4 py-3 border-b border-slate-100 flex items-center justify-between ${isAIChat ? 'bg-gradient-to-r from-purple-50 to-purple-100' : 'bg-white'
+        }`}>
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onBack}
@@ -85,13 +88,11 @@ export default function ChatWindow({
           </button>
           <div
             onClick={!isAIChat ? onViewProfile : undefined}
-            className={`w-11 h-11 rounded-full flex items-center justify-center border-2 relative shrink-0 ${
-              !isAIChat ? 'cursor-pointer' : ''
-            } ${
-              isAIChat
+            className={`w-11 h-11 rounded-full flex items-center justify-center border-2 relative shrink-0 ${!isAIChat ? 'cursor-pointer' : ''
+              } ${isAIChat
                 ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-purple-300'
                 : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 border-purple-200'
-            }`}>
+              }`}>
             {isAIChat ? (
               <Bot className="w-5.5 h-5.5" />
             ) : (
@@ -110,11 +111,9 @@ export default function ChatWindow({
             <div className="flex items-center gap-1.5">
               <span
                 onClick={!isAIChat ? onViewProfile : undefined}
-                className={`block text-[15px] font-sans font-bold leading-tight truncate ${
-                  !isAIChat ? 'cursor-pointer hover:underline' : ''
-                } ${
-                  isAIChat ? 'text-purple-700' : 'text-slate-800'
-                }`}>
+                className={`block text-[15px] font-sans font-bold leading-tight truncate ${!isAIChat ? 'cursor-pointer hover:underline' : ''
+                  } ${isAIChat ? 'text-purple-700' : 'text-slate-800'
+                  }`}>
                 {selectedRoom.participantName}
               </span>
               {isAIChat && (
@@ -250,7 +249,7 @@ export default function ChatWindow({
 
       {selectedRoom.activeTrade && !['COMPLETED', 'REFUNDED'].includes(selectedRoom.activeTrade.status) && (
         <button
-          onClick={() => navigate(`/trade/${selectedRoom.activeTrade!.id}`)}
+          onClick={() => navigate(`/trade?open=${selectedRoom.activeTrade!.id}`)}
           className="w-full flex items-center gap-3 px-4 py-2.5 bg-amber-50 border-b border-amber-100 hover:bg-amber-100/70 transition-colors text-left"
         >
           <div className="w-8 h-8 rounded-lg bg-white border border-amber-200 overflow-hidden shrink-0 flex items-center justify-center">
@@ -317,7 +316,7 @@ export default function ChatWindow({
             return (
               <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                 <button
-                  onClick={() => navigate(`/trade/${trade.id}`)}
+                  onClick={() => navigate(`/trade?open=${trade.id}`)}
                   className="max-w-[82%] w-72 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all text-left cursor-pointer overflow-hidden"
                 >
                   <div className="flex items-center gap-3 p-3">
@@ -347,13 +346,12 @@ export default function ChatWindow({
           return (
             <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
               <div
-                className={`max-w-[82%] rounded-[26px] px-5 py-4 text-[15px] leading-relaxed font-sans ${
-                  isMe
-                    ? 'bg-purple-600 text-white rounded-br-lg'
-                    : isAI
+                className={`max-w-[82%] rounded-[26px] px-5 py-4 text-[15px] leading-relaxed font-sans ${isMe
+                  ? 'bg-purple-600 text-white rounded-br-lg'
+                  : isAI
                     ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-bl-lg border border-purple-200'
                     : 'bg-white text-slate-800 rounded-bl-lg'
-                }`}
+                  }`}
               >
                 {isAI && !isMe && (
                   <div className="flex items-center gap-1.5 mb-1">
@@ -364,9 +362,8 @@ export default function ChatWindow({
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               </div>
               {time && (
-                <div className={`flex items-center gap-1 mt-2 px-1 ${
-                  isAI ? 'text-purple-400' : 'text-slate-400'
-                }`}>
+                <div className={`flex items-center gap-1 mt-2 px-1 ${isAI ? 'text-purple-400' : 'text-slate-400'
+                  }`}>
                   <span className="text-[12px] font-sans">{time}</span>
                   {isMe && !msg.id.startsWith('temp_') && (
                     msg.isRead ? (
@@ -427,11 +424,10 @@ export default function ChatWindow({
         </div>
         <button
           type="submit"
-          className={`p-3 rounded-full shadow-sm transition-colors shrink-0 ${
-            isAIChat
-              ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
-              : 'bg-purple-600 hover:bg-purple-700 text-white'
-          }`}
+          className={`p-3 rounded-full shadow-sm transition-colors shrink-0 ${isAIChat
+            ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
+            : 'bg-purple-600 hover:bg-purple-700 text-white'
+            }`}
         >
           <Send className="w-4 h-4 stroke-[2]" />
         </button>
@@ -445,7 +441,7 @@ export default function ChatWindow({
             exit={{ opacity: 0, y: 10 }}
             className="px-3 pb-3 bg-white border-t border-slate-100 flex flex-wrap gap-2"
           >
-            {['😀','😂','😍','👍','🙏','🔥','🎉','😢','😮','❤️','✅','🤝'].map((emoji) => (
+            {['😀', '😂', '😍', '👍', '🙏', '🔥', '🎉', '😢', '😮', '❤️', '✅', '🤝'].map((emoji) => (
               <button
                 key={emoji}
                 type="button"

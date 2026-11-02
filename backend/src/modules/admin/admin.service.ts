@@ -5,13 +5,13 @@ import { ChatRoomType } from '../../generated/prisma/enums.js';
 import { Prisma } from '../../generated/prisma/client.js';
 
 /**
- * Lists community groups awaiting super-admin approval. Every group a
- * seller creates starts PENDING (see chat.service.createCommunity) and
- * won't appear in discoverCommunities or be usable until approved here.
+ * Lists community AND regular groups awaiting super-admin approval. Both
+ * start PENDING on creation (see chat.service.createCommunity and
+ * createGroup) and won't appear/be usable until approved here.
  */
 export const listPendingCommunities = async () => {
   return prisma.chatRoom.findMany({
-    where: { type: ChatRoomType.COMMUNITY, approvalStatus: 'PENDING' },
+    where: { type: { in: [ChatRoomType.COMMUNITY, ChatRoomType.GROUP] }, approvalStatus: 'PENDING' },
     include: {
       creator: { select: { id: true, username: true, name: true, isPro: true, avatarColor: true } },
       _count: { select: { participants: true } }
@@ -22,8 +22,8 @@ export const listPendingCommunities = async () => {
 
 export const approveCommunity = async (chatRoomId: string, adminUserId: string) => {
   const chatRoom = await prisma.chatRoom.findUnique({ where: { id: chatRoomId } });
-  if (!chatRoom || chatRoom.type !== ChatRoomType.COMMUNITY) {
-    throw new ApiError(404, 'Community group not found');
+  if (!chatRoom || (chatRoom.type !== ChatRoomType.COMMUNITY && chatRoom.type !== ChatRoomType.GROUP)) {
+    throw new ApiError(404, 'Group not found');
   }
   if (chatRoom.approvalStatus !== 'PENDING') {
     throw new ApiError(409, `Group is already ${chatRoom.approvalStatus.toLowerCase()}`);
@@ -51,8 +51,8 @@ export const approveCommunity = async (chatRoomId: string, adminUserId: string) 
 
 export const rejectCommunity = async (chatRoomId: string, adminUserId: string, reason: string) => {
   const chatRoom = await prisma.chatRoom.findUnique({ where: { id: chatRoomId } });
-  if (!chatRoom || chatRoom.type !== ChatRoomType.COMMUNITY) {
-    throw new ApiError(404, 'Community group not found');
+  if (!chatRoom || (chatRoom.type !== ChatRoomType.COMMUNITY && chatRoom.type !== ChatRoomType.GROUP)) {
+    throw new ApiError(404, 'Group not found');
   }
   if (chatRoom.approvalStatus !== 'PENDING') {
     throw new ApiError(409, `Group is already ${chatRoom.approvalStatus.toLowerCase()}`);
@@ -255,7 +255,7 @@ export const getDashboardOverview = async () => {
     prisma.trade.count({ where: { status: 'DISPUTED' } }),
     prisma.trade.aggregate({ where: { status: 'COMPLETED' }, _sum: { amount: true } }),
     prisma.user.count({ where: { verificationStatus: 'PENDING' } }),
-    prisma.chatRoom.count({ where: { type: ChatRoomType.COMMUNITY, approvalStatus: 'PENDING' } }),
+    prisma.chatRoom.count({ where: { type: { in: [ChatRoomType.COMMUNITY, ChatRoomType.GROUP] }, approvalStatus: 'PENDING' } }),
     prisma.user.count({ where: { isFrozen: true } })
   ]);
 

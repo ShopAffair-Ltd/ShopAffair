@@ -93,6 +93,10 @@ export default function MarketView() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleAddToCart = (product: MarketProduct) => {
+    if (isTradeBasedProductId(product.id)) {
+      navigate(`/trade?open=${stripTradeIdPrefix(product.id)}`);
+      return;
+    }
     addToCart(product);
   };
 
@@ -256,15 +260,23 @@ export default function MarketView() {
   };
 
   const handleStartChatWithSeller = (sellerUsername: string, sellerName: string) => {
+    // Goes straight to this seller's DM thread, not the general chat list -
+    // if there's an active trade between the two parties, ChatWindow
+    // already shows it highlighted at the top of the thread automatically.
     startChatWithSeller(sellerUsername, sellerName);
     navigate(`/chat/${sellerUsername}`);
   };
 
-  const handleProceedToCheckout = () => {
+  const handleProceedToCheckout = (productId?: string) => {
     if (!activeProfile || activeProfile.verificationStatus === 'GUEST') {
       openRegister();
     } else {
-      navigate('/checkout');
+      // Products in the cart can be from different sellers, so checking
+      // out one item shouldn't force the buyer to also pay for everything
+      // else in the cart at once. A productId here means "just this one" -
+      // CheckoutView uses it to show/submit a single-item order instead of
+      // the whole cart, which stays untouched for later.
+      navigate('/checkout', productId ? { state: { onlyProductId: productId } } : undefined);
     }
   };
 

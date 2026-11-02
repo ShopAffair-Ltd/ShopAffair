@@ -181,6 +181,16 @@ export default function HomeView() {
             </span>
           </div>
 
+          {!!user.promoBalance && (
+            <div className="mt-1 flex items-center gap-1">
+              <Gift className="w-3 h-3 text-amber-300" />
+              <span className="text-[10px] font-sans font-semibold text-amber-200">
+                +₦{user.promoBalance.toLocaleString()} promo credit
+              </span>
+              <span className="text-[9px] font-sans text-white/40">(in-app services only)</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-1.5 mt-2">
             <div className="bg-white/5 rounded-xl px-2 py-1.5 border border-white/5 flex items-center gap-1.5">
               <div className="p-0.5 bg-blue-500/10 text-blue-400 rounded-lg shadow-sm">

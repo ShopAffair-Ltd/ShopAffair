@@ -8,6 +8,10 @@ export const postIdParamSchema = z.object({
   postId: z.string().uuid()
 });
 
+export const commentIdParamSchema = z.object({
+  commentId: z.string().uuid()
+});
+
 export const createWallPostSchema = z.object({
   content: z.string().min(1).max(2000)
 });

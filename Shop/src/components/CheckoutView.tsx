@@ -7,7 +7,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useAdmin } from '../context/AdminContext';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { checkout as checkoutApi } from '../services/orderService';
 import { getApiErrorMessage } from '../services/authService';
 
@@ -16,10 +16,13 @@ export default function CheckoutView() {
   const { cart, clearCart, removeFromCart } = useCart();
   const { addAuditLog } = useAdmin();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
-  const singleItemId = searchParams.get('itemId');
-  const activeItems = singleItemId ? cart.filter((i) => i.product.id === singleItemId) : cart;
+  // Products in the cart can be from different sellers - when the buyer
+  // used the "Proceed with this item" button on one cart item, only that
+  // item is ordered here and the rest of the cart stays untouched.
+  const onlyProductId = (location.state as { onlyProductId?: string } | null)?.onlyProductId;
+  const orderItems = onlyProductId ? cart.filter((item) => item.product.id === onlyProductId) : cart;
 
   const activeProfile = user;
 
@@ -41,7 +44,7 @@ export default function CheckoutView() {
 
   if (!activeProfile) return null;
 
-  const subtotal = activeItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const shippingFee = subtotal > 0 ? 1500 : 0;
   const total = subtotal + shippingFee;
 
@@ -54,8 +57,12 @@ export default function CheckoutView() {
       return;
     }
 
-    if (activeItems.length === 0) {
-      setValidationError('No items selected for checkout. Please add items to your cart.');
+    if (orderItems.length === 0) {
+      setValidationError(
+        onlyProductId
+          ? 'This item is no longer in your cart.'
+          : 'Your cart is empty. Please add items to your cart.'
+      );
       return;
     }
 
@@ -67,7 +74,7 @@ export default function CheckoutView() {
     setIsSubmitting(true);
 
     try {
-      const result = await checkoutApi(activeItems, {
+      const result = await checkoutApi(orderItems, {
         fullName,
         address,
         city,
@@ -96,8 +103,11 @@ export default function CheckoutView() {
         payment: paymentMethod === 'wallet' ? 'Secure Wallet Vault' : paymentMethod === 'bank_transfer' ? 'Nigerian Bank Transfer' : 'Secured Escrow Card'
       });
 
-      if (singleItemId) {
-        removeFromCart(singleItemId);
+      if (onlyProductId) {
+        // Single-item checkout: only remove the item that was actually
+        // ordered, leaving the rest of the cart (possibly from other
+        // sellers) untouched for later.
+        removeFromCart(onlyProductId);
       } else {
         clearCart();
       }
@@ -255,16 +265,14 @@ export default function CheckoutView() {
                 <div className="space-y-2">
                   <div
                     onClick={() => setPaymentMethod('wallet')}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
-                      paymentMethod === 'wallet'
+                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${paymentMethod === 'wallet'
                         ? 'border-purple-600 bg-purple-50/20'
                         : 'border-slate-150 hover:bg-slate-50/55'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        paymentMethod === 'wallet' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${paymentMethod === 'wallet' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}>
                         <Wallet className="w-4 h-4" />
                       </div>
                       <div>
@@ -274,25 +282,22 @@ export default function CheckoutView() {
                         </span>
                       </div>
                     </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      paymentMethod === 'wallet' ? 'border-purple-600' : 'border-slate-300'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'wallet' ? 'border-purple-600' : 'border-slate-300'
+                      }`}>
                       {paymentMethod === 'wallet' && <div className="w-2.5 h-2.5 rounded-full bg-purple-600" />}
                     </div>
                   </div>
 
                   <div
                     onClick={() => setPaymentMethod('bank_transfer')}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
-                      paymentMethod === 'bank_transfer'
+                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${paymentMethod === 'bank_transfer'
                         ? 'border-purple-600 bg-purple-50/20'
                         : 'border-slate-150 hover:bg-slate-50/55'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        paymentMethod === 'bank_transfer' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${paymentMethod === 'bank_transfer' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}>
                         <Landmark className="w-4 h-4" />
                       </div>
                       <div>
@@ -300,25 +305,22 @@ export default function CheckoutView() {
                         <span className="block text-[10px] text-slate-400">Direct instant funding on confirmation</span>
                       </div>
                     </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      paymentMethod === 'bank_transfer' ? 'border-purple-600' : 'border-slate-300'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'bank_transfer' ? 'border-purple-600' : 'border-slate-300'
+                      }`}>
                       {paymentMethod === 'bank_transfer' && <div className="w-2.5 h-2.5 rounded-full bg-purple-600" />}
                     </div>
                   </div>
 
                   <div
                     onClick={() => setPaymentMethod('card')}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
-                      paymentMethod === 'card'
+                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${paymentMethod === 'card'
                         ? 'border-purple-600 bg-purple-50/20'
                         : 'border-slate-150 hover:bg-slate-50/55'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        paymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${paymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}>
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
@@ -326,9 +328,8 @@ export default function CheckoutView() {
                         <span className="block text-[10px] text-slate-400">Pay via Kuda instant escrow gate</span>
                       </div>
                     </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      paymentMethod === 'card' ? 'border-purple-600' : 'border-slate-300'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'card' ? 'border-purple-600' : 'border-slate-300'
+                      }`}>
                       {paymentMethod === 'card' && <div className="w-2.5 h-2.5 rounded-full bg-purple-600" />}
                     </div>
                   </div>
@@ -342,11 +343,11 @@ export default function CheckoutView() {
                 className="bg-white rounded-lg p-4 border border-slate-100 shadow-xs space-y-3"
               >
                 <h2 className="text-xs font-sans font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
-                  <ShoppingBag className="w-4 h-4 text-purple-600" /> Order Summary ({activeItems.length})
+                  <ShoppingBag className="w-4 h-4 text-purple-600" /> Order Summary ({orderItems.length})
                 </h2>
 
                 <div className="divide-y divide-slate-100">
-                  {activeItems.map((item) => (
+                  {orderItems.map((item) => (
                     <div key={item.product.id} className="py-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2.5 max-w-[70%]">
                         <img
@@ -389,10 +390,9 @@ export default function CheckoutView() {
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={isSubmitting || cart.length === 0}
-                className={`w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-sans font-black text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-orange-100 transition-colors flex items-center justify-center gap-2 cursor-pointer ${
-                  isSubmitting ? 'opacity-85 pointer-events-none' : ''
-                }`}
+                disabled={isSubmitting || orderItems.length === 0}
+                className={`w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-sans font-black text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-orange-100 transition-colors flex items-center justify-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-85 pointer-events-none' : ''
+                  }`}
               >
                 {isSubmitting ? (
                   <>
