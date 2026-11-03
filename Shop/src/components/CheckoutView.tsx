@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { formatNaira } from '../utils/formatCurrency';
 import { useAdmin } from '../context/AdminContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { checkout as checkoutApi } from '../services/orderService';
@@ -67,7 +68,7 @@ export default function CheckoutView() {
     }
 
     if (paymentMethod === 'wallet' && activeProfile.walletBalance < total) {
-      setValidationError(`Insufficient wallet balance. You need ₦${(total - activeProfile.walletBalance).toLocaleString()} more. Please top up your wallet or choose another payment method.`);
+      setValidationError(`Insufficient wallet balance. You need ${formatNaira(total - activeProfile.walletBalance)} more. Please top up your wallet or choose another payment method.`);
       return;
     }
 
@@ -93,7 +94,7 @@ export default function CheckoutView() {
 
       addAuditLog(
         'ORDER_PLACED',
-        `Placed Order ${result.orderRef} total ₦${total.toLocaleString()} via ${paymentMethod.toUpperCase()}. Created escrow transactions.`,
+        `Placed Order ${result.orderRef} total ${formatNaira(total)} via ${paymentMethod.toUpperCase()}. Created escrow transactions.`,
         activeProfile.username
       );
 
@@ -123,7 +124,7 @@ export default function CheckoutView() {
     <div className="flex-1 flex flex-col bg-slate-50 h-full overflow-hidden pb-24 font-sans">
       <div className="bg-white px-4 py-3.5 border-b border-slate-100 flex items-center gap-3 sticky top-0 z-20 shadow-xs">
         <button
-          onClick={() => navigate('/market')}
+          onClick={() => navigate(-1)}
           className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -278,7 +279,7 @@ export default function CheckoutView() {
                       <div>
                         <span className="block text-xs font-bold text-slate-800">Secure Wallet Vault (NUBAN)</span>
                         <span className="block text-[10px] text-slate-400 font-semibold">
-                          Current Balance: <span className="text-purple-600 font-bold">₦{activeProfile.walletBalance.toLocaleString()}</span>
+                          Current Balance: <span className="text-purple-600 font-bold">{formatNaira(activeProfile.walletBalance)}</span>
                         </span>
                       </div>
                     </div>
@@ -357,11 +358,11 @@ export default function CheckoutView() {
                         />
                         <div className="truncate">
                           <span className="block text-xs font-bold text-slate-800 truncate">{item.product.title}</span>
-                          <span className="block text-[10px] text-slate-400">Qty: {item.quantity} • ₦{item.product.price.toLocaleString()}</span>
+                          <span className="block text-[10px] text-slate-400">Qty: {item.quantity} • {formatNaira(item.product.price)}</span>
                         </div>
                       </div>
                       <span className="text-xs font-extrabold text-slate-900">
-                        ₦{(item.product.price * item.quantity).toLocaleString()}
+                        {formatNaira(item.product.price * item.quantity)}
                       </span>
                     </div>
                   ))}
@@ -370,15 +371,15 @@ export default function CheckoutView() {
                 <div className="border-t border-slate-150 pt-3 space-y-2 text-xs">
                   <div className="flex items-center justify-between text-slate-500">
                     <span>Subtotal</span>
-                    <span className="font-semibold text-slate-700">₦{subtotal.toLocaleString()}</span>
+                    <span className="font-semibold text-slate-700">{formatNaira(subtotal)}</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-500">
                     <span>Escrow Courier Service Fee</span>
-                    <span className="font-semibold text-slate-700">₦{shippingFee.toLocaleString()}</span>
+                    <span className="font-semibold text-slate-700">{formatNaira(shippingFee)}</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-900 font-extrabold text-sm pt-1 border-t border-dashed border-slate-200">
                     <span>Total Price</span>
-                    <span className="text-purple-600 text-base">₦{total.toLocaleString()}</span>
+                    <span className="text-purple-600 text-base">{formatNaira(total)}</span>
                   </div>
                 </div>
               </motion.div>
@@ -431,7 +432,7 @@ export default function CheckoutView() {
                 Ref: <span className="font-mono text-slate-800 font-black">{orderSuccessDetails.orderId}</span>
               </p>
               <p className="text-xs text-slate-500 max-w-xs leading-relaxed mx-auto">
-                Your payment of <span className="font-bold text-slate-800">₦{orderSuccessDetails.total.toLocaleString()}</span> has been successfully logged and locked into secure multi-sig escrow via <strong>{orderSuccessDetails.payment}</strong>.
+                Your payment of <span className="font-bold text-slate-800">{formatNaira(orderSuccessDetails.total)}</span> has been successfully logged and locked into secure multi-sig escrow via <strong>{orderSuccessDetails.payment}</strong>.
               </p>
             </div>
 

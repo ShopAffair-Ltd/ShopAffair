@@ -9,6 +9,7 @@ import { useStore } from '../context/StoreContext';
 import { useTrades } from '../context/TradeContext';
 import QuickTransferModal from './QuickTransferModal';
 import { fetchWalletBalance } from '../services/paymentService';
+import { formatNaira } from '../utils/formatCurrency';
 
 // Temporary client-side-only role toggle. This does NOT call the backend —
 // role is otherwise fixed at registration. Kept deliberately so buyer vs.
@@ -177,7 +178,7 @@ export default function HomeView() {
 
           <div className="mt-1">
             <span className="text-xl font-display font-black tracking-tight">
-              {showBalance ? `₦${user.walletBalance.toLocaleString()}.00` : '•••••••'}
+              {showBalance ? formatNaira(user.walletBalance) : '•••••••'}
             </span>
           </div>
 
@@ -185,7 +186,7 @@ export default function HomeView() {
             <div className="mt-1 flex items-center gap-1">
               <Gift className="w-3 h-3 text-amber-300" />
               <span className="text-[10px] font-sans font-semibold text-amber-200">
-                +₦{user.promoBalance.toLocaleString()} promo credit
+                +{formatNaira(user.promoBalance)} promo credit
               </span>
               <span className="text-[9px] font-sans text-white/40">(in-app services only)</span>
             </div>
@@ -199,7 +200,7 @@ export default function HomeView() {
               <div>
                 <span className="block text-[7px] font-sans text-slate-400 font-bold uppercase tracking-wider">Pending In</span>
                 <span className="text-[9px] font-sans font-bold text-slate-200">
-                  {showBalance ? `₦${pendingIn.toLocaleString()}.00` : '•••••••'}
+                  {showBalance ? formatNaira(pendingIn) : '•••••••'}
                 </span>
               </div>
             </div>
@@ -211,7 +212,7 @@ export default function HomeView() {
               <div>
                 <span className="block text-[7px] font-sans text-slate-400 font-bold uppercase tracking-wider">Pending Out</span>
                 <span className="text-[9px] font-sans font-bold text-slate-200">
-                  {showBalance ? `₦${pendingOut.toLocaleString()}.00` : '•••••••'}
+                  {showBalance ? formatNaira(pendingOut) : '•••••••'}
                 </span>
               </div>
             </div>

@@ -258,7 +258,7 @@ function MarketRoute() {
 
   const handleStartChatWithSeller = (sellerUsername: string, sellerName: string) => {
     startChatWithSeller(sellerUsername, sellerName);
-    navigate('/chat');
+    navigate(`/chat/${sellerUsername}`);
   };
 
   const handleInitiateBuy = async (product: MarketProduct) => {
@@ -360,7 +360,7 @@ function StoreProfileRoute() {
         onBack={() => navigate(-1)}
         onChat={(sellerUsername: string, sellerName: string) => {
           startChatWithSeller(sellerUsername, sellerName);
-          navigate('/chat');
+          navigate(`/chat/${sellerUsername}`);
         }}
         onFollow={() => alert(`You are now following ${username}`)}
         onProductClick={() => navigate('/market')}
@@ -525,14 +525,6 @@ export default function App() {
             />
             <Route
               path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfileView />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile/:username"
               element={
                 <ProtectedRoute>
                   <ProfileView />

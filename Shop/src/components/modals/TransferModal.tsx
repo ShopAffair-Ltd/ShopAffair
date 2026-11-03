@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Loader2, CheckCircle2 } from 'lucide-react';
-import { fetchBanks, resolveAccount, Bank } from '../../services/paymentService';
+import { resolveAccountAllBanks, ResolvedBankMatch } from '../../services/paymentService';
 
 interface SavedAccount {
   accountNumber: string;
@@ -56,7 +56,7 @@ export default function TransferModal({
   const [transferAmount, setTransferAmount] = useState('');
   const [transferBeneficiary, setTransferBeneficiary] = useState('');
   const [selectedBankCode, setSelectedBankCode] = useState('');
-  const [banks, setBanks] = useState<Bank[]>([]);
+
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -64,12 +64,13 @@ export default function TransferModal({
   const [resolving, setResolving] = useState(false);
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
   const [showManualForm, setShowManualForm] = useState(false);
+  // Same account-number auto-detect used at signup: when the account
+  // number matches more than one bank, the user picks from these; when it
+  // matches exactly one, the bank is selected automatically.
+  const [bankMatches, setBankMatches] = useState<ResolvedBankMatch[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
-    fetchBanks()
-      .then(setBanks)
-      .catch(() => setBanks([]));
 
     try {
       const stored = localStorage.getItem(`shopfair_withdrawal_accs_${activeUsername}`);
@@ -102,24 +103,53 @@ export default function TransferModal({
     setError(null);
   };
 
+  // As soon as a 10-digit account number is entered, look up which bank(s)
+  // it belongs to automatically - no manual bank search required. This
+  // fires on the number alone, before any bank is chosen.
   useEffect(() => {
-    if (transferBeneficiary.length !== 10 || !selectedBankCode) return;
+    if (transferBeneficiary.length !== 10) {
+      setBankMatches([]);
+      setResolvedName(null);
+      setSelectedBankCode('');
+      return;
+    }
 
     setResolving(true);
     setError(null);
-    resolveAccount(transferBeneficiary, selectedBankCode)
-      .then((res) => setResolvedName(res.accountName))
+    setBankMatches([]);
+    resolveAccountAllBanks(transferBeneficiary)
+      .then((matches) => {
+        setBankMatches(matches);
+        if (matches.length === 1) {
+          setSelectedBankCode(matches[0].bankCode);
+          setResolvedName(matches[0].accountName);
+        } else if (matches.length === 0) {
+          if (transferBeneficiary === verifiedAccountNumber && accountHolderName) {
+            setResolvedName(accountHolderName);
+          } else {
+            setError('Could not find a bank for this account number. Double-check it and try again.');
+          }
+        }
+      })
       .catch(() => {
         if (transferBeneficiary === verifiedAccountNumber && accountHolderName) {
           setResolvedName(accountHolderName);
         } else {
-          setError('Could not verify this account. Double-check the number and bank.');
+          setError('Could not verify this account. Double-check the number.');
         }
       })
       .finally(() => setResolving(false));
-  }, [transferBeneficiary, selectedBankCode, verifiedAccountNumber, accountHolderName]);
+  }, [transferBeneficiary, verifiedAccountNumber, accountHolderName]);
 
-  const selectedBankName = banks.find((b) => b.code === selectedBankCode)?.name ?? '';
+  const handleSelectBankMatch = (match: ResolvedBankMatch) => {
+    setSelectedBankCode(match.bankCode);
+    setResolvedName(match.accountName);
+  };
+
+  const selectedBankName =
+    bankMatches.find((b) => b.bankCode === selectedBankCode)?.bankName ??
+    savedAccounts.find((a) => a.bankCode === selectedBankCode)?.bankName ??
+    '';
 
   const handleSubmit = async () => {
     const amt = parseFloat(transferAmount);
@@ -211,8 +241,8 @@ export default function TransferModal({
                       type="button"
                       onClick={() => handleSelectAccount(acc)}
                       className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${transferBeneficiary === acc.accountNumber
-                          ? 'border-purple-600 bg-purple-50/60 shadow-xs'
-                          : 'border-slate-100 bg-slate-50 hover:bg-slate-100/80'
+                        ? 'border-purple-600 bg-purple-50/60 shadow-xs'
+                        : 'border-slate-100 bg-slate-50 hover:bg-slate-100/80'
                         }`}
                     >
                       <div>
@@ -272,22 +302,32 @@ export default function TransferModal({
                   />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase">Bank</label>
-                  <select
-                    value={selectedBankCode}
-                    onChange={(e) => setSelectedBankCode(e.target.value)}
-                    disabled={submitting}
-                    className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl disabled:opacity-60"
-                  >
-                    <option value="">Select bank</option>
-                    {banks.map((bank) => (
-                      <option key={bank.code} value={bank.code}>
-                        {bank.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Bank is auto-detected from the account number, same as
+                    signup - no manual search needed. If more than one bank
+                    matches, the options appear below to pick from. */}
+                {bankMatches.length > 1 && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase">
+                      This account number matches more than one bank - select yours
+                    </label>
+                    <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                      {bankMatches.map((match) => (
+                        <button
+                          key={match.bankCode}
+                          type="button"
+                          onClick={() => handleSelectBankMatch(match)}
+                          className={`w-full p-2.5 rounded-xl border text-left transition-all cursor-pointer ${selectedBankCode === match.bankCode
+                              ? 'border-purple-600 bg-purple-50/60 shadow-xs'
+                              : 'border-slate-100 bg-slate-50 hover:bg-slate-100/80'
+                            }`}
+                        >
+                          <span className="font-bold text-xs text-slate-800 block">{match.bankName}</span>
+                          <span className="text-[10px] text-slate-500 block">{match.accountName}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

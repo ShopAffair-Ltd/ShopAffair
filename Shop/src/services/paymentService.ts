@@ -112,6 +112,22 @@ export const resolveAccount = async (accountNumber: string, bankCode: string): P
   return data;
 };
 
+export interface ResolvedBankMatch {
+  accountName: string;
+  bankCode: string;
+  bankName: string;
+}
+
+// Same account-number auto-detect used at signup: given just the account
+// number, checks it against every supported bank and returns whichever
+// bank(s) it's actually registered to - no manual bank search needed.
+export const resolveAccountAllBanks = async (accountNumber: string): Promise<ResolvedBankMatch[]> => {
+  const { data } = await api.post<{ matches: ResolvedBankMatch[] }>('/payments/wallet/resolve-account-all-banks', {
+    accountNumber
+  });
+  return data.matches;
+};
+
 export interface WithdrawResult {
   transferStatus: string;
   accountName: string;

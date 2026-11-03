@@ -8,6 +8,7 @@ import {
   getBalance,
   getBanks,
   resolveAccount,
+  resolveAccountAllBanks,
   withdraw,
   subscribe,
   getSubscription,
@@ -49,6 +50,10 @@ router.get('/wallet/verify', requireAuth, verifyFunding);
 router.post('/wallet/virtual-account', requireAuth, fundingLimiter, generateVirtualAccount);
 router.get('/wallet/banks', requireAuth, getBanks);
 router.post('/wallet/resolve-account', requireAuth, resolveAccount);
+// Same account-number-to-bank auto-detect used on signup (see
+// /auth/register/resolve-account), exposed here for withdrawal so the user
+// doesn't have to manually search for and pick their bank.
+router.post('/wallet/resolve-account-all-banks', requireAuth, resolveAccountAllBanks);
 router.post('/wallet/withdraw', requireAuth, withdrawalLimiter, withdraw);
 router.get('/subscription', requireAuth, getSubscription);
 router.post('/subscription', requireAuth, subscribe);

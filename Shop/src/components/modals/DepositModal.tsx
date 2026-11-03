@@ -18,6 +18,7 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
 
   const [virtualAccount, setVirtualAccount] = useState<VirtualAccount | null>(null);
   const [virtualAccountUnavailable, setVirtualAccountUnavailable] = useState(false);
+  const [loadingAccount, setLoadingAccount] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showOtherMethods, setShowOtherMethods] = useState(false);
 
@@ -26,10 +27,12 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
     setVirtualAccount(null);
     setVirtualAccountUnavailable(false);
     setShowOtherMethods(false);
+    setLoadingAccount(true);
 
     generateVirtualAccount()
       .then(setVirtualAccount)
-      .catch(() => setVirtualAccountUnavailable(true));
+      .catch(() => setVirtualAccountUnavailable(true))
+      .finally(() => setLoadingAccount(false));
   }, [isOpen]);
 
   const handleCopyAccountNumber = async () => {
@@ -93,7 +96,14 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
               </div>
             )}
 
-            {virtualAccount && (
+            {loadingAccount && (
+              <div className="p-8 flex flex-col items-center justify-center gap-2">
+                <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
+                <p className="text-[10px] font-sans text-slate-400">Loading your account details...</p>
+              </div>
+            )}
+
+            {!loadingAccount && virtualAccount && (
               <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100 space-y-2.5">
                 <p className="text-[10px] font-sans text-purple-700/80 leading-relaxed">
                   Note: transfer any amount to the account below to fund your wallet. Funds reflect automatically within a few minutes.
@@ -128,14 +138,14 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
               </div>
             )}
 
-            {virtualAccountUnavailable && (
+            {!loadingAccount && virtualAccountUnavailable && (
               <p className="text-[10px] text-slate-400 leading-relaxed px-1">
                 Direct bank transfer accounts aren't set up yet — use checkout below to fund your wallet by card,
                 transfer, or USSD instead.
               </p>
             )}
 
-            {virtualAccount && !showOtherMethods && (
+            {!loadingAccount && virtualAccount && !showOtherMethods && (
               <button
                 type="button"
                 onClick={() => setShowOtherMethods(true)}
@@ -145,7 +155,11 @@ export default function DepositModal({ isOpen, onClose, onDeposit, onAddAuditLog
               </button>
             )}
 
-            {(!virtualAccount || showOtherMethods) && (
+            {/* The amount-input / checkout step only ever appears once the
+                account details have finished loading - never during the
+                fetch, so there's no flash of an input before the real
+                account number shows up. */}
+            {!loadingAccount && (!virtualAccount || showOtherMethods) && (
               <div className="space-y-3 font-sans text-xs">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Enter Deposit amount (₦)</label>
