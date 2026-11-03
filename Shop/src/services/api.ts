@@ -1,21 +1,25 @@
+
 import axios from 'axios';
 
-const API_URL = import.meta.env.PROD 
-  ? 'https://shops-1-zq6e.onrender.com/api' 
+const API_URL = import.meta.env.PROD
+  ? 'https://shopaffair.onrender.com/api'
   : 'http://localhost:5000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('shopfair_token');
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
@@ -25,6 +29,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('shopfair_token');
     }
+
     return Promise.reject(error);
   }
 );
