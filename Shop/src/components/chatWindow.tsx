@@ -77,7 +77,12 @@ export default function ChatWindow({
       // behind the keyboard. dvh tracks the actual visible viewport.
       style={{ height: '100dvh' }}
     >
-      <div className={`sticky top-0 z-10 px-4 py-3 border-b border-slate-100 flex items-center justify-between ${isAIChat ? 'bg-gradient-to-r from-purple-50 to-purple-100' : 'bg-white'
+      {/* shrink-0 (not sticky - sticky only matters inside a scrolling
+          container, and this header is a flex sibling of the message
+          list, not inside it) keeps the header pinned at a fixed size so
+          the keyboard opening can never compress or push it out of view;
+          only the message list below is allowed to resize/scroll. */}
+      <div className={`shrink-0 px-4 py-3 border-b border-slate-100 flex items-center justify-between ${isAIChat ? 'bg-gradient-to-r from-purple-50 to-purple-100' : 'bg-white'
         }`}>
         <div className="flex items-center gap-3 min-w-0">
           <button
@@ -347,10 +352,10 @@ export default function ChatWindow({
             <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
               <div
                 className={`max-w-[82%] rounded-[26px] px-5 py-4 text-[15px] leading-relaxed font-sans ${isMe
-                  ? 'bg-purple-600 text-white rounded-br-lg'
-                  : isAI
-                    ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-bl-lg border border-purple-200'
-                    : 'bg-white text-slate-800 rounded-bl-lg'
+                    ? 'bg-purple-600 text-white rounded-br-lg'
+                    : isAI
+                      ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-bl-lg border border-purple-200'
+                      : 'bg-white text-slate-800 rounded-bl-lg'
                   }`}
               >
                 {isAI && !isMe && (
@@ -380,7 +385,15 @@ export default function ChatWindow({
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={onSend} className="p-3 bg-white border-t border-slate-100 flex items-center gap-2">
+      <form
+        onSubmit={onSend}
+        // Extra bottom padding (beyond the keyboard's own space) so the
+        // input bar isn't flush against the keyboard or the phone's
+        // on-screen nav bar - env() falls back to 0 on devices that don't
+        // need it.
+        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}
+        className="shrink-0 p-3 bg-white border-t border-slate-100 flex items-center gap-2"
+      >
         <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2.5">
           <button
             type="button"
@@ -425,8 +438,8 @@ export default function ChatWindow({
         <button
           type="submit"
           className={`p-3 rounded-full shadow-sm transition-colors shrink-0 ${isAIChat
-            ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
-            : 'bg-purple-600 hover:bg-purple-700 text-white'
+              ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
+              : 'bg-purple-600 hover:bg-purple-700 text-white'
             }`}
         >
           <Send className="w-4 h-4 stroke-[2]" />
