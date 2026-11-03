@@ -370,8 +370,8 @@ export default function StoreProfile({
                 <button
                   onClick={handleFollow}
                   className={`flex-1 px-4 py-2 font-sans font-bold text-xs rounded-xl shadow-sm transition-all ${isFollowing
-                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                      : 'bg-purple-600 text-white hover:bg-purple-700'
                     }`}
                 >
                   {isFollowing ? 'Following' : '+ Follow'}
@@ -381,10 +381,10 @@ export default function StoreProfile({
           </div>
         </div>
 
-        {/* BV3 FIX: All 4 stats on a single straight line (4-col grid) */}
-        <div className="grid grid-cols-4 gap-2 px-4 py-3 bg-white border-b border-slate-100">
+        {/* Rating, Reviews, Sales, Followers all on one straight line */}
+        <div className="flex items-center justify-between gap-2 px-4 py-3 bg-white border-b border-slate-100">
           {statItems.map((stat, index) => (
-            <div key={index} className="text-center">
+            <div key={index} className="flex-1 text-center">
               <div className="flex items-center justify-center gap-0.5 text-sm font-bold text-slate-900">
                 {stat.icon}
                 <span>{typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}</span>

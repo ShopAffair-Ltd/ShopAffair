@@ -116,8 +116,7 @@ export default function TradeDetailView({
   };
 
   const handleCopyLink = async () => {
-    const ownerName = trade.creatorUsername || (isSeller ? user?.username : 'user');
-    const url = `${window.location.origin}/trade/${trade.id}?owner=${encodeURIComponent(ownerName || '')}`;
+    const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
       alert('Trade link copied to clipboard!');
@@ -241,6 +240,12 @@ export default function TradeDetailView({
               </span>
             )}
           </div>
+
+          {trade.description && (
+            <p className="text-xs font-sans text-slate-500 leading-relaxed whitespace-pre-line">
+              {trade.description}
+            </p>
+          )}
         </motion.div>
 
         <motion.div
