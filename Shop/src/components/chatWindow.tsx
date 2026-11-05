@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -64,6 +64,27 @@ export default function ChatWindow({
     }
   }, [selectedRoom?.messages]);
 
+  // 100dvh alone isn't reliable on iOS Safari once the keyboard's own
+  // accessory bar (autofill/next-field row) is showing - dvh can under-
+  // report the space that bar actually takes, leaving a blank gap above
+  // the input. window.visualViewport tracks the real visible area
+  // continuously and is the standard fix for this class of bug; falls
+  // back to 100dvh on browsers without visualViewport support.
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const vv = window.visualViewport;
+    const update = () => setViewportHeight(vv.height);
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
+
   return (
     <motion.div
       initial={{ x: '100%' }}
@@ -71,11 +92,10 @@ export default function ChatWindow({
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 26, stiffness: 240 }}
       className="fixed inset-x-0 top-0 z-[100] bg-white flex flex-col overflow-hidden"
-      // 100dvh (dynamic viewport height) instead of relying on inset-0's
-      // implicit 100vh: on mobile, 100vh doesn't shrink when the on-screen
-      // keyboard opens, which pushes/hides the chat input and message list
-      // behind the keyboard. dvh tracks the actual visible viewport.
-      style={{ height: '100dvh' }}
+      // Prefer the live visualViewport measurement (handles iOS Safari's
+      // keyboard accessory bar correctly); 100dvh is the fallback for
+      // browsers where visualViewport isn't available yet.
+      style={{ height: viewportHeight !== null ? `${viewportHeight}px` : '100dvh' }}
     >
       {/* shrink-0 (not sticky - sticky only matters inside a scrolling
           container, and this header is a flex sibling of the message
@@ -405,6 +425,16 @@ export default function ChatWindow({
           </button>
           <input
             type="text"
+            // Tells Safari explicitly this is a plain chat message field,
+            // not a credential - without this, iOS Safari can misjudge a
+            // plain text input and attach its password/autofill accessory
+            // bar above the keyboard, which eats extra vertical space and
+            // pushes the rest of the layout further off-screen.
+            name="chat-message"
+            autoComplete="off"
+            autoCorrect="on"
+            autoCapitalize="sentences"
+            spellCheck
             value={messageText}
             onChange={(e) => {
               setMessageText(e.target.value);
