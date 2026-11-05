@@ -71,11 +71,22 @@ export default function ChatWindow({
   // continuously and is the standard fix for this class of bug; falls
   // back to 100dvh on browsers without visualViewport support.
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [viewportOffsetTop, setViewportOffsetTop] = useState<number>(0);
 
   useEffect(() => {
     if (!window.visualViewport) return;
     const vv = window.visualViewport;
-    const update = () => setViewportHeight(vv.height);
+    const update = () => {
+      // offsetTop is how far the visual viewport (what's actually on
+      // screen) has scrolled down from the layout viewport's top - this
+      // is non-zero whenever the browser's address bar is still showing,
+      // and a fixed/top:0 element must be shifted by that same amount or
+      // it ends up positioned above what's actually visible, leaving a
+      // blank gap at the top on real devices (not reproducible in
+      // simulators/webviews, which don't have collapsing browser chrome).
+      setViewportHeight(vv.height);
+      setViewportOffsetTop(vv.offsetTop);
+    };
     update();
     vv.addEventListener('resize', update);
     vv.addEventListener('scroll', update);
@@ -91,11 +102,17 @@ export default function ChatWindow({
       animate={{ x: 0 }}
       exit={{ x: '100%' }}
       transition={{ type: 'spring', damping: 26, stiffness: 240 }}
-      className="fixed inset-x-0 top-0 z-[100] bg-white flex flex-col overflow-hidden"
+      className="fixed inset-x-0 z-[100] bg-white flex flex-col overflow-hidden"
       // Prefer the live visualViewport measurement (handles iOS Safari's
       // keyboard accessory bar correctly); 100dvh is the fallback for
-      // browsers where visualViewport isn't available yet.
-      style={{ height: viewportHeight !== null ? `${viewportHeight}px` : '100dvh' }}
+      // browsers where visualViewport isn't available yet. top is offset
+      // by visualViewport.offsetTop so the panel tracks the part of the
+      // screen that's actually visible, not the full layout viewport.
+      style={
+        viewportHeight !== null
+          ? { height: `${viewportHeight}px`, top: `${viewportOffsetTop}px` }
+          : { height: '100dvh', top: 0 }
+      }
     >
       {/* shrink-0 (not sticky - sticky only matters inside a scrolling
           container, and this header is a flex sibling of the message
@@ -372,10 +389,10 @@ export default function ChatWindow({
             <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
               <div
                 className={`max-w-[82%] rounded-[26px] px-5 py-4 text-[15px] leading-relaxed font-sans ${isMe
-                    ? 'bg-purple-600 text-white rounded-br-lg'
-                    : isAI
-                      ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-bl-lg border border-purple-200'
-                      : 'bg-white text-slate-800 rounded-bl-lg'
+                  ? 'bg-purple-600 text-white rounded-br-lg'
+                  : isAI
+                    ? 'bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-bl-lg border border-purple-200'
+                    : 'bg-white text-slate-800 rounded-bl-lg'
                   }`}
               >
                 {isAI && !isMe && (
@@ -468,8 +485,8 @@ export default function ChatWindow({
         <button
           type="submit"
           className={`p-3 rounded-full shadow-sm transition-colors shrink-0 ${isAIChat
-              ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
-              : 'bg-purple-600 hover:bg-purple-700 text-white'
+            ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
+            : 'bg-purple-600 hover:bg-purple-700 text-white'
             }`}
         >
           <Send className="w-4 h-4 stroke-[2]" />

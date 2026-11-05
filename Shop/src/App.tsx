@@ -401,8 +401,13 @@ export default function App() {
     navigate('/');
   };
 
-  if (authLoading) {
-    return <Preloader onComplete={() => { }} />;
+  // One single preloader covers the whole initial load - from "checking if
+  // there's a session" through "app is actually ready to show" - instead of
+  // showing a separate preloader for auth loading and then mounting a brand
+  // new one afterwards, which restarted the animation from zero and looked
+  // like it played twice.
+  if (authLoading || isPreloaderActive) {
+    return <Preloader onComplete={() => setIsPreloaderActive(false)} />;
   }
 
   return (
@@ -434,12 +439,10 @@ export default function App() {
         />
       ) : user?.role === 'admin' ? (
         <div className="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
-          {isPreloaderActive && <Preloader onComplete={() => setIsPreloaderActive(false)} />}
           <AdminPortal />
         </div>
       ) : (
         <>
-          {isPreloaderActive && <Preloader onComplete={() => setIsPreloaderActive(false)} />}
           <Routes>
             <Route path="/market" element={<MarketRoute />} />
             <Route

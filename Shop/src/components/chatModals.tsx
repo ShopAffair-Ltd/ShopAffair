@@ -183,7 +183,7 @@ export default function ChatModals({
     <>
       <AnimatePresence>
         {showNewChat && (
-          <div className="fixed inset-0 z-50 bg-white flex flex-col h-full overflow-hidden">
+          <div className="fixed inset-0 z-50 bg-white flex flex-col h-full overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
             <div className="sticky top-0 bg-white z-10 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
@@ -314,7 +314,8 @@ export default function ChatModals({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-              className="relative w-full bg-white rounded-t-3xl p-5 pb-8"
+              className="relative w-full bg-white rounded-t-3xl p-5"
+              style={{ paddingBottom: 'max(32px, env(safe-area-inset-bottom, 32px))' }}
             >
               <div className="flex items-center justify-between mb-5">
                 <div className="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center">
@@ -352,7 +353,7 @@ export default function ChatModals({
 
       <AnimatePresence>
         {showNewGroup && (
-          <div className="fixed inset-0 z-50 bg-[#F8F9FC] flex flex-col h-full overflow-hidden">
+          <div className="fixed inset-0 z-50 bg-[#F8F9FC] flex flex-col h-full overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
             <div className="sticky top-0 bg-[#F8F9FC] z-10 px-4 py-3 border-b border-slate-100 flex items-center gap-3">
               <button
                 onClick={() => {
@@ -451,7 +452,7 @@ export default function ChatModals({
 
       <AnimatePresence>
         {showNewCommunity && (
-          <div className="fixed inset-0 z-50 bg-[#F8F9FC] flex flex-col h-full overflow-hidden">
+          <div className="fixed inset-0 z-50 bg-[#F8F9FC] flex flex-col h-full overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
             <div className="sticky top-0 bg-[#F8F9FC] z-10 px-4 py-3 border-b border-slate-100 flex items-center gap-3">
               <button
                 onClick={() => {
