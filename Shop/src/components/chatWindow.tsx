@@ -90,9 +90,30 @@ export default function ChatWindow({
     update();
     vv.addEventListener('resize', update);
     vv.addEventListener('scroll', update);
+
+    // iOS's own autofill accessory bar (key/card/location icons) can
+    // attach above the keyboard even with autocomplete="off" - iOS often
+    // ignores that hint on fields it heuristically flags. The bar slides
+    // in with its own animation that is NOT finished when the first
+    // visualViewport "resize" event fires, so that first reading is
+    // stale by the bar's height, leaving a blank gap at the top (fixed
+    // top is offset from a viewport that's briefly taller than reality).
+    // Re-measuring a few times after focus, after the animation has had
+    // time to settle, corrects for that without needing to detect the
+    // bar directly.
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target || (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA')) return;
+      [50, 150, 300, 500].forEach((delay) => {
+        window.setTimeout(update, delay);
+      });
+    };
+    window.addEventListener('focusin', handleFocusIn);
+
     return () => {
       vv.removeEventListener('resize', update);
       vv.removeEventListener('scroll', update);
+      window.removeEventListener('focusin', handleFocusIn);
     };
   }, []);
 
