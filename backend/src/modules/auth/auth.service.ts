@@ -151,6 +151,10 @@ export const updateRegistrationDraft = async (draftId: string, input: Omit<Updat
       phoneNumber: input.phoneNumber,
       role: input.role,
       passwordHash,
+      withdrawalAccountNumber: input.bankAccountNumber ?? undefined,
+      withdrawalBankCode: input.bankCode ?? undefined,
+      withdrawalBankName: resolvedBankName ?? undefined,
+      withdrawalAccountName: resolvedName ?? undefined,
       draftExpiresAt: new Date(Date.now() + DRAFT_TTL_MS)
     }
   });

@@ -89,6 +89,23 @@ export default function StoreProfile({
     followers: seller.followers || 0
   });
 
+  const sellerProfile: UserProfile = {
+    id: seller.id,
+    tempId: seller.id,
+    name: seller.storeName || seller.name,
+    username: seller.username,
+    email: '',
+    role: 'seller',
+    verificationStatus: seller.isVerified ? 'VERIFIED' : 'UNVERIFIED',
+    walletBalance: 0,
+    isPro: seller.plan === 'Pro Plan',
+    avatarColor: seller.avatarColor || 'bg-purple-600',
+    profilePicture: seller.coverImage || seller.avatar,
+    storeName: seller.storeName,
+    bio: seller.bio,
+    location: seller.location
+  };
+
   const [wallPosts, setWallPosts] = useState<WallPost[]>([]);
   const [wallLoading, setWallLoading] = useState(true);
   const [wallError, setWallError] = useState<string | null>(null);
@@ -116,6 +133,10 @@ export default function StoreProfile({
   };
 
   const handleToggleWallLike = async (postId: string) => {
+    if (!viewer) {
+      alert('Please log in to like posts.');
+      return;
+    }
     try {
       const updated = await wallPostService.toggleLike(postId);
       setWallPosts((prev) => prev.map((p) => (p.id === postId ? mapApiPost(updated, seller.id) : p)));
@@ -129,6 +150,10 @@ export default function StoreProfile({
   };
 
   const handleSendComment = async (postId: string) => {
+    if (!viewer) {
+      alert('Please log in to comment.');
+      return;
+    }
     const content = commentDrafts[postId]?.trim();
     if (!content) return;
     try {
@@ -294,12 +319,35 @@ export default function StoreProfile({
         <span className="text-sm font-sans font-semibold text-slate-800 truncate max-w-[60%]">
           {seller.storeName || seller.name}
         </span>
-        <button className="p-2 rounded-full hover:bg-slate-100 transition-colors">
-          <MoreVertical className="w-5 h-5 text-slate-600" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/store/${seller.username}`;
+              if (navigator.share) {
+                navigator.share({
+                  title: `${seller.storeName || seller.name} on ShopAffair`,
+                  url
+                }).catch(() => {});
+              } else {
+                navigator.clipboard.writeText(url);
+                alert('Store link copied to clipboard!');
+              }
+            }}
+            className="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-600 cursor-pointer"
+            title="Share store"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+          <button className="p-2 rounded-full hover:bg-slate-100 transition-colors">
+            <MoreVertical className="w-5 h-5 text-slate-600" />
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ paddingBottom: 'max(140px, calc(140px + env(safe-area-inset-bottom, 0px)))' }}
+      >
 
         <div className="relative">
           <div className="h-24 sm:h-28 w-full bg-slate-800 relative overflow-hidden">
@@ -424,7 +472,7 @@ export default function StoreProfile({
         <div className="p-4 space-y-4">
 
           {activeTab === 'wall' && (
-            <div className="space-y-3">
+            <div className="space-y-3 pb-12">
               {wallLoading ? (
                 <div className="text-center py-8 bg-white rounded-xl border border-slate-100">
                   <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -435,23 +483,21 @@ export default function StoreProfile({
                   <p className="text-xs text-red-500">{wallError}</p>
                 </div>
               ) : wallPosts.length > 0 ? (
-                wallPosts.map((post) =>
-                  viewer ? (
-                    <WallPostComponent
-                      key={post.id}
-                      post={post}
-                      profile={viewer}
-                      onToggleLike={handleToggleWallLike}
-                      onTogglePin={() => { }}
-                      onToggleComments={handleToggleComments}
-                      onSendComment={handleSendComment}
-                      openCommentsFor={openCommentsFor}
-                      commentDrafts={commentDrafts}
-                      setCommentDrafts={setCommentDrafts}
-                      canManage={false}
-                    />
-                  ) : null
-                )
+                wallPosts.map((post) => (
+                  <WallPostComponent
+                    key={post.id}
+                    post={post}
+                    profile={sellerProfile}
+                    onToggleLike={handleToggleWallLike}
+                    onTogglePin={() => { }}
+                    onToggleComments={handleToggleComments}
+                    onSendComment={handleSendComment}
+                    openCommentsFor={openCommentsFor}
+                    commentDrafts={commentDrafts}
+                    setCommentDrafts={setCommentDrafts}
+                    canManage={false}
+                  />
+                ))
               ) : (
                 <div className="text-center py-12 bg-white rounded-xl border border-slate-100">
                   <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-2" />

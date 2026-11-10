@@ -92,9 +92,10 @@ function GlobalOverlays() {
         onTransfer={transfer}
         onAddAuditLog={addAuditLog}
         activeUsername={activeProfile.username}
-        accountHolderName={activeProfile.name}
-        verifiedAccountNumber={activeProfile.accountNumber}
-        verifiedBankName={activeProfile.bankName}
+        accountHolderName={activeProfile.withdrawalAccountName || activeProfile.name}
+        verifiedAccountNumber={activeProfile.withdrawalAccountNumber || activeProfile.accountNumber}
+        verifiedBankName={activeProfile.withdrawalBankName || activeProfile.bankName}
+        verifiedBankCode={activeProfile.withdrawalBankCode}
       />
       <RedeemPromoModal isOpen={redeemOpen} onClose={closeRedeem} onRedeem={redeemPromo} />
     </>
@@ -128,7 +129,7 @@ function Shell({
 
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center text-slate-800 antialiased selection:bg-purple-100 font-sans">
-      <div className="w-full max-w-md min-h-screen bg-white flex flex-col relative overflow-hidden shadow-2xl shadow-purple-950/5 border-x border-slate-100">
+      <div className="w-full max-w-md min-h-screen h-[100dvh] bg-white flex flex-col relative overflow-hidden shadow-2xl shadow-purple-950/5 border-x border-slate-100">
         {showChrome && !isGuest && (
           <AppHeader
             activeTab={currentTab as never}

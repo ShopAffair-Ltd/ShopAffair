@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShieldCheck, User, ArrowLeft, Landmark, Loader2, CheckCircle2, Mail } from 'lucide-react';
+import { X, ShieldCheck, User, ArrowLeft, Landmark, Loader2, CheckCircle2, Mail, Eye, EyeOff } from 'lucide-react';
 import { UserProfile } from '../types';
 import {
   loginUser,
@@ -47,6 +47,7 @@ export default function AuthModal({ onForgotPassword, onAuthenticated }: AuthMod
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [emailOtp, setEmailOtp] = useState('');
   const [bankAccountNumber, setBankAccountNumber] = useState('');
   const [bankMatches, setBankMatches] = useState<ResolvedBankAccount[]>([]);
@@ -297,14 +298,24 @@ export default function AuthModal({ onForgotPassword, onAuthenticated }: AuthMod
                           Forgot password?
                         </button>
                       </div>
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
-                      />
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full font-sans text-sm px-4 py-3 pr-11 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          className="absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -359,15 +370,25 @@ export default function AuthModal({ onForgotPassword, onAuthenticated }: AuthMod
 
                     <div>
                       <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password</label>
-                      <input
-                        type="password"
-                        required
-                        minLength={8}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full font-sans text-sm px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
-                      />
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          minLength={8}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full font-sans text-sm px-4 py-3 pr-11 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 focus:bg-white transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          className="absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -504,16 +525,14 @@ export default function AuthModal({ onForgotPassword, onAuthenticated }: AuthMod
                               key={bank.bankCode}
                               type="button"
                               onClick={() => handleSelectBank(bank)}
-                              className={`w-full text-left p-3 rounded-xl border flex items-start gap-2.5 transition-all cursor-pointer ${
-                                selectedBank?.bankCode === bank.bankCode
-                                  ? 'bg-green-50 border-green-200'
-                                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                              }`}
+                              className={`w-full text-left p-3 rounded-xl border flex items-start gap-2.5 transition-all cursor-pointer ${selectedBank?.bankCode === bank.bankCode
+                                ? 'bg-green-50 border-green-200'
+                                : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                                }`}
                             >
                               <CheckCircle2
-                                className={`w-4 h-4 shrink-0 mt-0.5 ${
-                                  selectedBank?.bankCode === bank.bankCode ? 'text-green-600' : 'text-slate-300'
-                                }`}
+                                className={`w-4 h-4 shrink-0 mt-0.5 ${selectedBank?.bankCode === bank.bankCode ? 'text-green-600' : 'text-slate-300'
+                                  }`}
                               />
                               <div className="text-xs font-sans">
                                 <p className={`font-bold ${selectedBank?.bankCode === bank.bankCode ? 'text-green-800' : 'text-slate-700'}`}>
@@ -576,18 +595,16 @@ export default function AuthModal({ onForgotPassword, onAuthenticated }: AuthMod
                             <button
                               type="button"
                               onClick={() => setRole('buyer')}
-                              className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${
-                                role === 'buyer' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-                              }`}
+                              className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${role === 'buyer' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+                                }`}
                             >
                               Buy items
                             </button>
                             <button
                               type="button"
                               onClick={() => setRole('seller')}
-                              className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${
-                                role === 'seller' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
-                              }`}
+                              className={`py-2.5 text-xs font-sans font-bold rounded-lg transition-all cursor-pointer ${role === 'seller' ? 'bg-white text-slate-800 shadow-xs' : 'text-slate-500'
+                                }`}
                             >
                               Sell items
                             </button>

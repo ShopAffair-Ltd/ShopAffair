@@ -25,6 +25,7 @@ interface TransferModalProps {
   accountHolderName?: string;
   verifiedAccountNumber?: string;
   verifiedBankName?: string;
+  verifiedBankCode?: string;
 }
 
 const looksLikeNameMatch = (a: string, b: string): boolean => {
@@ -51,7 +52,8 @@ export default function TransferModal({
   activeUsername,
   accountHolderName,
   verifiedAccountNumber,
-  verifiedBankName
+  verifiedBankName,
+  verifiedBankCode
 }: TransferModalProps) {
   const [transferAmount, setTransferAmount] = useState('');
   const [transferBeneficiary, setTransferBeneficiary] = useState('');
@@ -78,7 +80,7 @@ export default function TransferModal({
       if (verifiedAccountNumber && !list.some(a => a.accountNumber === verifiedAccountNumber)) {
         list.unshift({
           accountNumber: verifiedAccountNumber,
-          bankCode: '',
+          bankCode: verifiedBankCode || '',
           bankName: verifiedBankName || 'Verified Bank',
           accountName: accountHolderName || activeUsername,
           isVerified: true
@@ -93,7 +95,7 @@ export default function TransferModal({
     } catch {
       // ignore
     }
-  }, [isOpen, activeUsername, verifiedAccountNumber, verifiedBankName, accountHolderName]);
+  }, [isOpen, activeUsername, verifiedAccountNumber, verifiedBankName, verifiedBankCode, accountHolderName]);
 
   const handleSelectAccount = (acc: SavedAccount) => {
     setTransferBeneficiary(acc.accountNumber);

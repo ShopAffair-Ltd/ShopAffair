@@ -15,6 +15,10 @@ export interface UserProfile {
   avatarColor: string;
   bankName?: string;
   accountNumber?: string;
+  withdrawalBankName?: string;
+  withdrawalBankCode?: string;
+  withdrawalAccountNumber?: string;
+  withdrawalAccountName?: string;
   phoneNumber?: string;
   profilePicture?: string;
   storeName?: string;
@@ -31,6 +35,9 @@ export interface UserProfile {
   verificationDocumentName?: string;
   verificationSubmittedAt?: string;
   lastSeenAt?: string;
+  rating?: number;
+  reviewsCount?: number;
+  totalSales?: number;
   createdAt?: string;  
   updatedAt?: string;  
 }

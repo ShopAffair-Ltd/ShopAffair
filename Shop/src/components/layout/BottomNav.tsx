@@ -24,11 +24,17 @@ export default function BottomNav({ activeTab, onTabChange, unreadChatsCount, ac
   ];
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed bottom-0 left-0 right-0 z-40 bg-[#7C3AED] border-t border-[#8B5CF6] shadow-xl px-4 py-2 flex justify-center"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#7C3AED] border-t border-[#8B5CF6] shadow-xl px-4 pt-2 flex justify-center"
+      // The bar overlays page content (fixed, not in normal flow), so on
+      // phones with a home-indicator gesture bar it needs its own bottom
+      // safe-area padding - otherwise its real on-screen height is taller
+      // than scrollable containers account for, and the home indicator
+      // sits awkwardly inside it instead of below it.
+      style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))' }}
     >
       <motion.nav
         className="flex items-center justify-around w-full max-w-md px-2 relative overflow-visible"
@@ -65,9 +71,9 @@ export default function BottomNav({ activeTab, onTabChange, unreadChatsCount, ac
                   y: isActive ? -2 : 0,
                   rotate: isActive ? [0, -5, 5, 0] : 0,
                 }}
-                transition={{ 
-                  type: 'spring', 
-                  stiffness: 500, 
+                transition={{
+                  type: 'spring',
+                  stiffness: 500,
                   damping: 15,
                   rotate: { duration: 0.5, ease: "easeInOut" }
                 }}

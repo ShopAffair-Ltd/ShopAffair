@@ -139,7 +139,12 @@ export default function MyStoreView() {
   // ---- SHARE STORE FUNCTION ----------------------------------------------
   const handleShareStore = () => {
     if (!activeProfile) return;
-    const url = window.location.href;
+    // Build the PUBLIC store link explicitly - window.location.href here
+    // is always "/my-store" (this is the owner-only view), so sharing it
+    // as-is sent visitors to the owner-only route, where the page ends up
+    // showing whichever account is currently logged in as the "owner"
+    // rather than this store's actual username.
+    const url = `${window.location.origin}/store/${activeProfile.username}`;
     const shareData = {
       title: `Check out ${activeProfile.name}'s store on ShopAffair!`,
       text: `Visit ${activeProfile.name}'s store on ShopAffair! Quality products and great deals.`,
@@ -301,7 +306,12 @@ export default function MyStoreView() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-6">
+      <div
+        className="flex-1 overflow-y-auto no-scrollbar"
+        // Ensure ample clearance for the fixed BottomNav bar plus gesture bar
+        // so the last wall post and its reactions/comments are fully visible.
+        style={{ paddingBottom: 'max(140px, calc(140px + env(safe-area-inset-bottom, 0px)))' }}
+      >
         <div className="relative">
           <div className="h-24 w-full bg-slate-800" />
 
@@ -396,7 +406,7 @@ export default function MyStoreView() {
               {wallLoading ? (
                 <p className="text-[11px] font-sans text-slate-400 text-center mt-6">Loading wall posts…</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 pb-12">
                   {sortedPosts.map((post) => (
                     <WallPostComponent
                       key={post.id}
@@ -428,8 +438,8 @@ export default function MyStoreView() {
                     key={chip}
                     onClick={() => setActiveCategoryChip(chip)}
                     className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-sans font-bold cursor-pointer outline-none border ${activeCategoryChip === chip
-                        ? 'bg-orange-50 text-orange-500 border-orange-200'
-                        : 'bg-white text-slate-500 border-slate-200'
+                      ? 'bg-orange-50 text-orange-500 border-orange-200'
+                      : 'bg-white text-slate-500 border-slate-200'
                       }`}
                   >
                     {chip}
@@ -614,8 +624,8 @@ export default function MyStoreView() {
                           disabled={blockActionId === f.id}
                           title={f.isBlocked ? 'Unblock from store chat' : 'Block from store chat'}
                           className={`w-7 h-7 rounded-full border flex items-center justify-center cursor-pointer outline-none shrink-0 disabled:opacity-50 transition-colors ${f.isBlocked
-                              ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100'
-                              : 'bg-white border-slate-100 text-slate-500 hover:text-rose-600'
+                            ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100'
+                            : 'bg-white border-slate-100 text-slate-500 hover:text-rose-600'
                             }`}
                         >
                           {f.isBlocked ? <ShieldOff className="w-3 h-3" /> : <Ban className="w-3 h-3" />}

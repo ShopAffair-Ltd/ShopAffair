@@ -29,8 +29,11 @@ export const createApp = (): Express => {
   app.use(helmet());
   app.use(
     cors({
-      origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:5173', 'http://localhost:5174', 'https://www.shopaffair.shop', 'https://shop-affair.vercel.app', 'https://shops-lake.vercel.app'],
-      credentials: true
+
+      origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:5173', 'http://localhost:5174', 'https://shopaffair.shop', 'https://www.shopaffair.shop', 'https://shop-affair.vercel.app', 'https://shops-lake.vercel.app'],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
     })
   );
   app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
