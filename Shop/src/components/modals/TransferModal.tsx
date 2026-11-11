@@ -26,6 +26,7 @@ interface TransferModalProps {
   verifiedAccountNumber?: string;
   verifiedBankName?: string;
   verifiedBankCode?: string;
+  virtualAccountNumber?: string;
 }
 
 const looksLikeNameMatch = (a: string, b: string): boolean => {
@@ -53,7 +54,8 @@ export default function TransferModal({
   accountHolderName,
   verifiedAccountNumber,
   verifiedBankName,
-  verifiedBankCode
+  verifiedBankCode,
+  virtualAccountNumber
 }: TransferModalProps) {
   const [transferAmount, setTransferAmount] = useState('');
   const [transferBeneficiary, setTransferBeneficiary] = useState('');
@@ -75,9 +77,16 @@ export default function TransferModal({
     if (!isOpen) return;
 
     try {
-      const stored = localStorage.getItem(`shopfair_withdrawal_accs_${activeUsername}`);
-      const list: SavedAccount[] = stored ? JSON.parse(stored) : [];
-      if (verifiedAccountNumber && !list.some(a => a.accountNumber === verifiedAccountNumber)) {
+      const storageKey = `shopfair_withdrawal_accs_${activeUsername}`;
+      const stored = localStorage.getItem(storageKey);
+      const rawList: SavedAccount[] = stored ? JSON.parse(stored) : [];
+      // Never allow the user's Wema virtual funding account to sit in saved withdrawal accounts
+      const list = rawList.filter((a) => !virtualAccountNumber || a.accountNumber !== virtualAccountNumber);
+      if (list.length !== rawList.length) {
+        localStorage.setItem(storageKey, JSON.stringify(list));
+      }
+
+      if (verifiedAccountNumber && verifiedAccountNumber !== virtualAccountNumber && !list.some(a => a.accountNumber === verifiedAccountNumber)) {
         list.unshift({
           accountNumber: verifiedAccountNumber,
           bankCode: verifiedBankCode || '',
@@ -87,15 +96,19 @@ export default function TransferModal({
         });
       }
       setSavedAccounts(list);
-      if (list.length > 0 && !transferBeneficiary) {
+      if (list.length > 0 && (!transferBeneficiary || transferBeneficiary === virtualAccountNumber)) {
         setTransferBeneficiary(list[0].accountNumber);
         setSelectedBankCode(list[0].bankCode);
         setResolvedName(list[0].accountName);
+      } else if (transferBeneficiary === virtualAccountNumber) {
+        setTransferBeneficiary('');
+        setSelectedBankCode('');
+        setResolvedName(null);
       }
     } catch {
       // ignore
     }
-  }, [isOpen, activeUsername, verifiedAccountNumber, verifiedBankName, verifiedBankCode, accountHolderName]);
+  }, [isOpen, activeUsername, verifiedAccountNumber, verifiedBankName, verifiedBankCode, virtualAccountNumber, accountHolderName]);
 
   const handleSelectAccount = (acc: SavedAccount) => {
     setTransferBeneficiary(acc.accountNumber);
@@ -113,6 +126,22 @@ export default function TransferModal({
       setBankMatches([]);
       setResolvedName(null);
       setSelectedBankCode('');
+      return;
+    }
+
+    if (virtualAccountNumber && transferBeneficiary === virtualAccountNumber) {
+      setBankMatches([]);
+      setResolvedName(null);
+      setSelectedBankCode('');
+      setError('You cannot withdraw to your Wema wallet funding account. Please use your personal bank account.');
+      return;
+    }
+
+    if (
+      !showManualForm &&
+      selectedBankCode &&
+      savedAccounts.some((a) => a.accountNumber === transferBeneficiary && a.bankCode === selectedBankCode)
+    ) {
       return;
     }
 
@@ -141,7 +170,7 @@ export default function TransferModal({
         }
       })
       .finally(() => setResolving(false));
-  }, [transferBeneficiary, verifiedAccountNumber, accountHolderName]);
+  }, [transferBeneficiary, verifiedAccountNumber, virtualAccountNumber, accountHolderName, showManualForm, selectedBankCode, savedAccounts]);
 
   const handleSelectBankMatch = (match: ResolvedBankMatch) => {
     setSelectedBankCode(match.bankCode);
@@ -156,6 +185,11 @@ export default function TransferModal({
   const handleSubmit = async () => {
     const amt = parseFloat(transferAmount);
     setError(null);
+
+    if (virtualAccountNumber && transferBeneficiary === virtualAccountNumber) {
+      setError('You cannot withdraw to your Wema wallet funding account. Please use your personal bank account.');
+      return;
+    }
 
     if (!resolvedName) {
       setError('Please enter a valid account number and select a bank first');

@@ -299,17 +299,23 @@ export const requestWithdrawal = async (params: {
     throw new ApiError(402, 'Insufficient wallet balance');
   }
 
+  if (user.accountNumber && accountNumber === user.accountNumber) {
+    throw new ApiError(
+      400,
+      'You cannot withdraw to your Wema wallet funding account. Please enter your personal bank account.'
+    );
+  }
+
   const resolved = await paystack.resolveAccountNumber(accountNumber, bankCode);
 
-  const isVerifiedAccount = !!user.accountNumber && user.accountNumber === accountNumber;
   const isPreviousWithdrawalAccount = !!user.withdrawalAccountNumber && user.withdrawalAccountNumber === accountNumber;
   const nameMatches = namesLikelyMatch(resolved.account_name, user.name);
 
-  if (!isVerifiedAccount && !isPreviousWithdrawalAccount && !nameMatches) {
+  if (!isPreviousWithdrawalAccount && !nameMatches) {
     throw new ApiError(
       403,
       `This account is registered to "${resolved.account_name}", which doesn't match your verified account name. ` +
-      `Withdrawals are only allowed to your verified account or an account in your own name.`
+      `Withdrawals are only allowed to your registered personal account or an account in your own name.`
     );
   }
 

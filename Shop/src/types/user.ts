@@ -38,8 +38,8 @@ export interface UserProfile {
   rating?: number;
   reviewsCount?: number;
   totalSales?: number;
-  createdAt?: string;  
-  updatedAt?: string;  
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuditLog {

@@ -93,9 +93,10 @@ function GlobalOverlays() {
         onAddAuditLog={addAuditLog}
         activeUsername={activeProfile.username}
         accountHolderName={activeProfile.withdrawalAccountName || activeProfile.name}
-        verifiedAccountNumber={activeProfile.withdrawalAccountNumber || activeProfile.accountNumber}
-        verifiedBankName={activeProfile.withdrawalBankName || activeProfile.bankName}
+        verifiedAccountNumber={activeProfile.withdrawalAccountNumber}
+        verifiedBankName={activeProfile.withdrawalBankName}
         verifiedBankCode={activeProfile.withdrawalBankCode}
+        virtualAccountNumber={activeProfile.accountNumber}
       />
       <RedeemPromoModal isOpen={redeemOpen} onClose={closeRedeem} onRedeem={redeemPromo} />
     </>
