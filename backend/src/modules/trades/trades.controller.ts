@@ -18,7 +18,8 @@ import {
   fundTrade,
   verifyPickupCode,
   updateTradeStatus,
-  forceCancelTrade
+  forceCancelTrade,
+  forceReleaseTrade
 } from './trades.service';
 
 const requireUser = (req: Request) => {
@@ -88,5 +89,11 @@ export const updateStatus = asyncHandler(async (req: Request, res: Response) => 
 export const forceCancel = asyncHandler(async (req: Request, res: Response) => {
   const { id } = tradeIdParamSchema.parse(req.params);
   const trade = await forceCancelTrade(id);
+  res.status(200).json({ trade });
+});
+
+export const forceRelease = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = tradeIdParamSchema.parse(req.params);
+  const trade = await forceReleaseTrade(id);
   res.status(200).json({ trade });
 });

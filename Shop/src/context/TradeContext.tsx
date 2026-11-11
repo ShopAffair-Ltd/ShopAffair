@@ -17,6 +17,7 @@ interface TradeContextType {
   verifyPickupCode: (tradeId: string, code: string) => Promise<TradeItem>;
   updateTradeStatus: (id: string, status: EscrowStatus) => Promise<TradeItem>;
   forceCancelTrade: (tradeId: string) => Promise<TradeItem>;
+  forceReleaseTrade: (tradeId: string) => Promise<TradeItem>;
   getTradeById: (id: string) => TradeItem | undefined;
   getUserTrades: (username: string) => TradeItem[];
   totalTrades: number;
@@ -91,6 +92,12 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
     return updated;
   };
 
+  const forceReleaseTrade: TradeContextType['forceReleaseTrade'] = async (tradeId) => {
+    const updated = await tradeService.forceReleaseTrade(tradeId);
+    setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
+    return updated;
+  };
+
   const getTradeById = (id: string) => trades.find((t) => t.id === id);
 
   const getUserTrades = (username: string) =>
@@ -110,6 +117,7 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
         verifyPickupCode,
         updateTradeStatus,
         forceCancelTrade,
+        forceReleaseTrade,
         getTradeById,
         getUserTrades,
         totalTrades: trades.length

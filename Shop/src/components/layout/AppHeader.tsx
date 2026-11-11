@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, User, Settings, LogOut, ArrowLeft } from 'lucide-react';
+import { Bell, User, Settings, LogOut, ArrowLeft, CheckCheck } from 'lucide-react';
 import { UserProfile } from '../../types';
+import { useNotifications } from '../../context/NotificationContext';
 
 type ActiveTab = 'home' | 'trade' | 'chat' | 'market' | 'profile' | 'checkout' | 'myStore' | 'storeProfile';
 
@@ -32,7 +34,10 @@ export default function AppHeader({
   onBack,
   chatPartnerName
 }: AppHeaderProps) {
+  const navigate = useNavigate();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   return (
     <div className="bg-white px-4 py-3 border-b border-slate-100 flex items-center justify-between shadow-xs sticky top-0 z-30">
@@ -53,17 +58,82 @@ export default function AppHeader({
       </div>
 
       <div className="flex items-center gap-2.5 relative">
-        <button
-          onClick={() => alert('Notifications: No unread compliance or payment alerts at this time.')}
-          className="w-9 h-9 rounded-full bg-slate-50 border border-slate-100/80 flex items-center justify-center text-slate-500 relative hover:bg-slate-100 transition-colors cursor-pointer"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-purple-600 rounded-full animate-pulse" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => {
+              setNotifOpen((v) => !v);
+              setProfileDropdownOpen(false);
+            }}
+            className="w-9 h-9 rounded-full bg-slate-50 border border-slate-100/80 flex items-center justify-center text-slate-500 relative hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label="Notifications"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-purple-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          <AnimatePresence>
+            {notifOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 mt-2 w-72 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                >
+                  <div className="px-3.5 py-2.5 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-sans font-bold text-slate-900">Notifications</span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-[10px] font-sans font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 cursor-pointer bg-transparent border-0"
+                      >
+                        <CheckCheck className="w-3 h-3" /> Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
+                    {notifications.length === 0 ? (
+                      <p className="text-[11px] font-sans text-slate-400 text-center py-6 px-3">
+                        No notifications yet.
+                      </p>
+                    ) : (
+                      notifications.slice(0, 15).map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={() => {
+                            if (!n.read) markAsRead(n.id);
+                          }}
+                          className={`w-full text-left px-3.5 py-2.5 hover:bg-slate-50 transition-colors cursor-pointer border-0 ${
+                            n.read ? 'bg-white' : 'bg-purple-50/40'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-[11px] font-sans font-bold text-slate-800">{n.title}</span>
+                            {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0 mt-1" />}
+                          </div>
+                          <p className="text-[10px] font-sans text-slate-500 mt-0.5 leading-snug">{n.message}</p>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
 
         <div className="relative">
           <button
-            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            onClick={() => {
+              setProfileDropdownOpen(!profileDropdownOpen);
+              setNotifOpen(false);
+            }}
             className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center cursor-pointer hover:border-purple-300 transition-colors"
           >
             {activeProfile.profilePicture ? (
@@ -102,7 +172,7 @@ export default function AppHeader({
                     </button>
                     <button
                       onClick={() => {
-                        onNavigateTab('profile');
+                        navigate('/profile?screen=settings');
                         setProfileDropdownOpen(false);
                       }}
                       className="w-full px-3 py-2 text-left text-xs font-sans hover:bg-slate-50 text-slate-700 flex items-center gap-2 cursor-pointer border-0 bg-transparent"

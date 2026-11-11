@@ -11,10 +11,9 @@ const requireUser = (req: Request) => {
 };
 
 export const getSellerReviews = asyncHandler(async (req: Request, res: Response) => {
-  const user = requireUser(req);
   const username = req.params.username as string;
 
-  const result = await reviewService.getSellerReviews(username, user.id);
+  const result = await reviewService.getSellerReviews(username, req.user?.id);
   res.status(200).json(result);
 });
 

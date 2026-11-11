@@ -40,6 +40,12 @@ export const redeemSchema = z.object({
   code: z.string().min(3).max(30)
 });
 
+export const p2pTransferSchema = z.object({
+  recipientUsername: z.string().trim().min(2).max(50),
+  amount: z.coerce.number().positive().min(100, 'Minimum transfer amount is ₦100'),
+  note: z.string().trim().max(120).optional()
+});
+
 export type FundWalletInput = z.infer<typeof fundWalletSchema>;
 export type VerifyFundingInput = z.infer<typeof verifyFundingSchema>;
 export type PayFromWalletInput = z.infer<typeof payFromWalletSchema>;
@@ -49,3 +55,4 @@ export type ResolveAccountAllBanksInput = z.infer<typeof resolveAccountAllBanksS
 export type WithdrawInput = z.infer<typeof withdrawSchema>;
 export type SubscribeInput = z.infer<typeof subscribeSchema>;
 export type RedeemInput = z.infer<typeof redeemSchema>;
+export type P2pTransferInput = z.infer<typeof p2pTransferSchema>;

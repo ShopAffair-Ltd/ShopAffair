@@ -190,3 +190,22 @@ export const redeemPromoCode = async (code: string): Promise<{ creditAmount: num
   const { data } = await api.post<{ creditAmount: number }>('/payments/promo/redeem', { code });
   return data;
 };
+
+export interface P2pTransferResult {
+  reference: string;
+  amount: number;
+  walletBalance: number;
+  recipient: {
+    username: string;
+    name: string;
+  };
+}
+
+export const transferWalletToUser = async (params: {
+  recipientUsername: string;
+  amount: number;
+  note?: string;
+}): Promise<P2pTransferResult> => {
+  const { data } = await api.post<P2pTransferResult>('/payments/wallet/p2p-transfer', params);
+  return data;
+};

@@ -394,7 +394,13 @@ export const forceCancelTrade = async (tradeId: string) => {
       throw new ApiError(409, `Trade cannot be cancelled while in status ${trade.status}`);
     }
 
-    if (trade.status === 'FUNDED' && trade.buyerId) {
+    const escrowLock = trade.buyerId
+      ? await tx.walletTransaction.findFirst({
+          where: { tradeId, userId: trade.buyerId, type: 'ESCROW_LOCK', status: 'SUCCESS' }
+        })
+      : null;
+
+    if ((trade.status === 'FUNDED' || trade.status === 'DISPUTED') && trade.buyerId && escrowLock) {
       const refundAmount = new Prisma.Decimal(trade.amount).plus(trade.deliveryFee);
 
       await tx.user.update({
@@ -445,4 +451,85 @@ export const forceCancelTrade = async (tradeId: string) => {
   }
 
   return cancelledTrade;
+};
+
+export const forceReleaseTrade = async (tradeId: string) => {
+  const completedTrade = await prisma.$transaction(async (tx) => {
+    const trade = await tx.trade.findUnique({ where: { id: tradeId } });
+    if (!trade) {
+      throw new ApiError(404, 'Trade not found');
+    }
+    if (trade.status !== 'FUNDED' && trade.status !== 'DISPUTED') {
+      throw new ApiError(409, `Only funded or disputed trades can be released to the seller (current status: ${trade.status})`);
+    }
+    if (!trade.buyerId) {
+      throw new ApiError(409, 'Trade has no associated buyer');
+    }
+
+    const escrowLock = await tx.walletTransaction.findFirst({
+      where: { tradeId, userId: trade.buyerId, type: 'ESCROW_LOCK', status: 'SUCCESS' }
+    });
+    if (!escrowLock) {
+      throw new ApiError(409, 'No locked escrow balance found for this trade');
+    }
+
+    const tradeAmount = new Prisma.Decimal(trade.amount);
+    const platformFee = tradeAmount.times(PLATFORM_FEE_RATE).toDecimalPlaces(2);
+    const releaseAmount = tradeAmount.minus(platformFee).plus(trade.deliveryFee);
+
+    await tx.user.update({
+      where: { id: trade.creatorId },
+      data: { walletBalance: { increment: releaseAmount } }
+    });
+
+    await tx.walletTransaction.create({
+      data: {
+        userId: trade.creatorId,
+        type: 'ESCROW_RELEASE',
+        provider: 'MANUAL',
+        amount: releaseAmount,
+        status: 'SUCCESS',
+        tradeId
+      }
+    });
+
+    await tx.walletTransaction.create({
+      data: {
+        userId: trade.creatorId,
+        type: 'PLATFORM_FEE',
+        provider: 'MANUAL',
+        amount: platformFee,
+        status: 'SUCCESS',
+        tradeId
+      }
+    });
+
+    return tx.trade.update({
+      where: { id: tradeId },
+      data: { status: 'COMPLETED', pausedByFreeze: false }
+    });
+  });
+
+  await notify({
+    userId: completedTrade.creatorId,
+    title: 'Dispute resolved — payout released',
+    message: `An administrator ruled in your favor for "${completedTrade.title}". Escrow funds have been released to your wallet.`,
+    type: 'SUCCESS'
+  });
+
+  if (completedTrade.buyerId) {
+    await notify({
+      userId: completedTrade.buyerId,
+      title: 'Dispute resolved',
+      message: `An administrator reviewed "${completedTrade.title}" and released escrow to the seller.`,
+      type: 'INFO'
+    });
+  }
+
+  await postTradeSystemMessage(
+    completedTrade.id,
+    'Dispute resolved by admin. Escrow has been released to the seller — this trade is now complete.'
+  );
+
+  return completedTrade;
 };

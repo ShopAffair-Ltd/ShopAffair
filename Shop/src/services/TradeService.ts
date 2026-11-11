@@ -190,6 +190,11 @@ export const forceCancelTrade = async (tradeId: string): Promise<TradeItem> => {
   return mapToTradeItem(data.trade);
 };
 
+export const forceReleaseTrade = async (tradeId: string): Promise<TradeItem> => {
+  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/force-release`);
+  return mapToTradeItem(data.trade);
+};
+
 const mapConditionToMarketLabel = (condition: string | undefined): 'New' | 'Like New' | 'Gently Used' | 'Fair' => {
   const normalized = (condition ?? '').trim().toLowerCase();
   if (normalized === 'new') return 'New';

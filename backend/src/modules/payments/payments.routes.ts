@@ -13,7 +13,8 @@ import {
   subscribe,
   getSubscription,
   getPlans,
-  redeemPromo
+  redeemPromo,
+  p2pTransfer
 } from './payments.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
 
@@ -55,6 +56,7 @@ router.post('/wallet/resolve-account', requireAuth, resolveAccount);
 // doesn't have to manually search for and pick their bank.
 router.post('/wallet/resolve-account-all-banks', requireAuth, resolveAccountAllBanks);
 router.post('/wallet/withdraw', requireAuth, withdrawalLimiter, withdraw);
+router.post('/wallet/p2p-transfer', requireAuth, withdrawalLimiter, p2pTransfer);
 router.get('/subscription', requireAuth, getSubscription);
 router.post('/subscription', requireAuth, subscribe);
 router.get('/plans', getPlans);

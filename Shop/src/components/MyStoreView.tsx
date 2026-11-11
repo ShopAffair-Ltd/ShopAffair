@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -15,7 +15,11 @@ import {
   Trash2,
   Users,
   Ban,
-  ShieldOff
+  ShieldOff,
+  Store,
+  Camera,
+  Check,
+  Loader2
 } from 'lucide-react';
 import { UserProfile, MarketProduct } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +35,8 @@ import * as wallPostService from '../services/wallPostService';
 import type { WallPost as ApiWallPost } from '../services/wallPostService';
 import { fetchMyFollowers, StoreFollower } from '../services/followService';
 import { chatService } from '../services/chatService';
+import { userService } from '../services/userService';
+import { uploadImage } from '../services/UploadService';
 
 function mapApiPost(apiPost: ApiWallPost, currentUserId: string): WallPost {
   return {
@@ -52,7 +58,7 @@ function mapApiPost(apiPost: ApiWallPost, currentUserId: string): WallPost {
 
 export default function MyStoreView() {
   const navigate = useNavigate();
-  const { user: activeProfile } = useAuth();
+  const { user: activeProfile, updateUser } = useAuth();
   const { products, addProduct, editProduct, deleteProduct } = useMarket();
   const onBack = () => navigate('/');
 
@@ -76,6 +82,71 @@ export default function MyStoreView() {
   const [followers, setFollowers] = useState<StoreFollower[]>([]);
   const [followersLoading, setFollowersLoading] = useState(true);
   const [blockActionId, setBlockActionId] = useState<string | null>(null);
+
+  // ---- Store profile settings form state ---------------------------------
+  const [storeNameDraft, setStoreNameDraft] = useState(activeProfile?.storeName || '');
+  const [storeCategoryDraft, setStoreCategoryDraft] = useState(activeProfile?.storeCategory || 'Electronics');
+  const [storeLocationDraft, setStoreLocationDraft] = useState(activeProfile?.location || 'Nigeria');
+  const [storeBioDraft, setStoreBioDraft] = useState(activeProfile?.bio || '');
+  const [coverImageDraft, setCoverImageDraft] = useState(activeProfile?.coverImage || '');
+  const [storeProfileSaving, setStoreProfileSaving] = useState(false);
+  const [storeProfileSaved, setStoreProfileSaved] = useState(false);
+  const [storeProfileError, setStoreProfileError] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!activeProfile) return;
+    setStoreNameDraft(activeProfile.storeName || '');
+    setStoreCategoryDraft(activeProfile.storeCategory || 'Electronics');
+    setStoreLocationDraft(activeProfile.location || 'Nigeria');
+    setStoreBioDraft(activeProfile.bio || '');
+    setCoverImageDraft(activeProfile.coverImage || '');
+  }, [activeProfile?.id]);
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeProfile) return;
+    setUploadingCover(true);
+    setStoreProfileError(null);
+    try {
+      const url = await uploadImage(file);
+      setCoverImageDraft(url);
+      const updated = await userService.updateMyStoreProfile({ coverImage: url });
+      updateUser({ ...activeProfile, ...updated, coverImage: url });
+      setStoreProfileSaved(true);
+      setTimeout(() => setStoreProfileSaved(false), 2500);
+    } catch {
+      setStoreProfileError('Could not upload cover image. Please try again.');
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const handleSaveStoreProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeProfile) return;
+    setStoreProfileSaving(true);
+    setStoreProfileSaved(false);
+    setStoreProfileError(null);
+    try {
+      const payload = {
+        storeName: storeNameDraft.trim(),
+        storeCategory: storeCategoryDraft.trim(),
+        location: storeLocationDraft.trim(),
+        bio: storeBioDraft.trim(),
+        ...(coverImageDraft ? { coverImage: coverImageDraft } : {})
+      };
+      const updated = await userService.updateMyStoreProfile(payload);
+      updateUser({ ...activeProfile, ...updated, ...payload });
+      setStoreProfileSaved(true);
+      setTimeout(() => setStoreProfileSaved(false), 2500);
+    } catch {
+      setStoreProfileError('Failed to save store profile settings. Please try again.');
+    } finally {
+      setStoreProfileSaving(false);
+    }
+  };
 
   useEffect(() => {
     fetchMyFollowers()
@@ -313,10 +384,14 @@ export default function MyStoreView() {
         style={{ paddingBottom: 'max(140px, calc(140px + env(safe-area-inset-bottom, 0px)))' }}
       >
         <div className="relative">
-          <div className="h-24 w-full bg-slate-800" />
+          <div className="h-24 w-full bg-slate-800 relative overflow-hidden">
+            {activeProfile.coverImage && (
+              <img src={activeProfile.coverImage} alt="Store Cover" className="w-full h-full object-cover opacity-80" />
+            )}
+          </div>
 
           <div className="px-4">
-            <div className="flex items-end justify-between -mt-8">
+            <div className="flex items-end justify-between -mt-8 relative z-10">
               <div className="w-16 h-16 rounded-full bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center bg-purple-100 text-purple-600 font-display font-black text-xl">
                 {activeProfile.profilePicture ? (
                   <img src={activeProfile.profilePicture} alt={activeProfile.name} className="w-full h-full object-cover" />
@@ -331,7 +406,7 @@ export default function MyStoreView() {
 
             <div className="mt-2">
               <h2 className="text-base font-display font-black text-slate-900 flex items-center gap-1.5">
-                {activeProfile.name}
+                {activeProfile.storeName || activeProfile.name}
                 {activeProfile.verificationStatus === 'VERIFIED' && (
                   <ShieldCheck className="w-4 h-4 text-teal-500 fill-teal-50" />
                 )}
@@ -484,49 +559,6 @@ export default function MyStoreView() {
                       </div>
                       <p className="text-[10px] font-sans font-extrabold text-slate-800 mt-0.5">₦{prod.price.toLocaleString()}</p>
                     </div>
-
-                    {/* Catalogue delete popup: delete permanently, or make private instead */}
-                    <AnimatePresence>
-                      {deleteConfirmId === prod.id && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
-                          onClick={() => setDeleteConfirmId(null)}
-                        >
-                          <motion.div
-                            initial={{ scale: 0.95, y: 10 }}
-                            animate={{ scale: 1, y: 0 }}
-                            onClick={e => e.stopPropagation()}
-                            className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl"
-                          >
-                            <h3 className="text-sm font-display font-bold text-slate-900 mb-1">What would you like to do?</h3>
-                            <p className="text-[11px] font-sans text-slate-500 mb-4">"{prod.title}"</p>
-                            <div className="space-y-2">
-                              <button
-                                onClick={() => handleMakePrivate(prod.id)}
-                                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-bold text-xs rounded-xl cursor-pointer"
-                              >
-                                Make Private (only you can see)
-                              </button>
-                              <button
-                                onClick={() => handleDeleteProduct(prod.id)}
-                                className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-sans font-bold text-xs rounded-xl cursor-pointer"
-                              >
-                                Delete Trade Permanently
-                              </button>
-                              <button
-                                onClick={() => setDeleteConfirmId(null)}
-                                className="w-full py-2 text-slate-400 font-sans text-xs cursor-pointer"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </motion.div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </div>
                 ))}
               </div>
@@ -539,7 +571,128 @@ export default function MyStoreView() {
 
           {/* SETTINGS */}
           {activeTab === 'settings' && (
-            <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 mt-3 space-y-2">
+            <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 mt-3 space-y-3">
+              {/* Store Profile & Branding */}
+              <form onSubmit={handleSaveStoreProfile} className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Store className="w-3.5 h-3.5 text-purple-600" />
+                    <span className="text-[10px] font-sans font-bold text-slate-600 uppercase tracking-wide">
+                      Store Profile & Branding
+                    </span>
+                  </div>
+                  {storeProfileSaved && (
+                    <span className="text-[10px] font-sans font-bold text-emerald-600 flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Saved
+                    </span>
+                  )}
+                </div>
+
+                {storeProfileError && (
+                  <div className="p-2.5 bg-red-50 text-red-700 rounded-lg border border-red-100 text-[11px] font-sans font-semibold">
+                    {storeProfileError}
+                  </div>
+                )}
+
+                <div className="space-y-2.5">
+                  <div>
+                    <label className="block text-[10px] font-sans font-bold text-slate-400 uppercase mb-1">
+                      Cover Banner
+                    </label>
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-12 w-24 rounded-lg bg-slate-800 overflow-hidden shrink-0 border border-slate-200">
+                        {coverImageDraft && (
+                          <img src={coverImageDraft} alt="Cover preview" className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => coverInputRef.current?.click()}
+                        disabled={uploadingCover}
+                        className="px-3 py-2 bg-white border border-slate-200 hover:border-purple-300 rounded-lg text-[11px] font-sans font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        {uploadingCover ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5 text-purple-600" />}
+                        {uploadingCover ? 'Uploading...' : 'Change Cover'}
+                      </button>
+                      <input
+                        ref={coverInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCoverUpload}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-sans font-bold text-slate-400 uppercase mb-1">
+                      Store Name
+                    </label>
+                    <input
+                      type="text"
+                      value={storeNameDraft}
+                      onChange={(e) => setStoreNameDraft(e.target.value)}
+                      placeholder={activeProfile.name}
+                      maxLength={100}
+                      className="w-full text-xs font-sans px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-sans font-bold text-slate-400 uppercase mb-1">
+                        Category
+                      </label>
+                      <select
+                        value={storeCategoryDraft}
+                        onChange={(e) => setStoreCategoryDraft(e.target.value)}
+                        className="w-full text-xs font-sans px-2.5 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-400"
+                      >
+                        {CATEGORY_CHIPS.filter((c) => c !== 'All').map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-sans font-bold text-slate-400 uppercase mb-1">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        value={storeLocationDraft}
+                        onChange={(e) => setStoreLocationDraft(e.target.value)}
+                        placeholder="e.g. Lagos, Nigeria"
+                        maxLength={120}
+                        className="w-full text-xs font-sans px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-sans font-bold text-slate-400 uppercase mb-1">
+                      Store Bio
+                    </label>
+                    <textarea
+                      value={storeBioDraft}
+                      onChange={(e) => setStoreBioDraft(e.target.value)}
+                      rows={3}
+                      maxLength={500}
+                      placeholder="Describe what you sell, delivery times, and warranty..."
+                      className="w-full text-xs font-sans px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-purple-400 resize-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={storeProfileSaving}
+                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-sans font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  {storeProfileSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  {storeProfileSaving ? 'Saving Store Settings...' : 'Save Store Profile'}
+                </button>
+              </form>
+
               <button
                 onClick={openAddProduct}
                 className="w-full flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl hover:bg-purple-50/40 hover:border-purple-200 transition-colors cursor-pointer outline-none text-left"
@@ -577,7 +730,7 @@ export default function MyStoreView() {
                         <Pencil className="w-3 h-3" />
                       </button>
                       <button
-                        onClick={() => handleDeleteProduct(prod.id)}
+                        onClick={() => setDeleteConfirmId(prod.id)}
                         className="w-7 h-7 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-500 hover:text-rose-600 cursor-pointer outline-none shrink-0"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -667,6 +820,52 @@ export default function MyStoreView() {
             onSubmit={handleAddOrEditProduct}
           />
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deleteConfirmId && (() => {
+          const targetProd = storeProducts.find((p) => p.id === deleteConfirmId);
+          if (!targetProd) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
+              onClick={() => setDeleteConfirmId(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-2xl p-5 w-full max-w-xs shadow-xl"
+              >
+                <h3 className="text-sm font-display font-bold text-slate-900 mb-1">What would you like to do?</h3>
+                <p className="text-[11px] font-sans text-slate-500 mb-4">"{targetProd.title}"</p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleMakePrivate(targetProd.id)}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-bold text-xs rounded-xl cursor-pointer"
+                  >
+                    Make Private (only you can see)
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProduct(targetProd.id)}
+                    className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-sans font-bold text-xs rounded-xl cursor-pointer"
+                  >
+                    Delete Trade Permanently
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmId(null)}
+                    className="w-full py-2 text-slate-400 font-sans text-xs cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
     </div>
   );

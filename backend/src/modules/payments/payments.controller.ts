@@ -8,7 +8,8 @@ import {
   resolveAccountAllBanksSchema,
   withdrawSchema,
   subscribeSchema,
-  redeemSchema
+  redeemSchema,
+  p2pTransferSchema
 } from './payments.validation';
 import {
   initiateWalletFunding,
@@ -24,7 +25,8 @@ import {
   subscribeToStorePlan,
   getSubscriptionStatus,
   listAllWithdrawals,
-  listAllTransactions
+  listAllTransactions,
+  transferBetweenWallets
 } from './payments.service';
 import { redeemPromoCode } from '../settings/settings.service';
 
@@ -136,5 +138,17 @@ export const redeemPromo = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const { code } = redeemSchema.parse(req.body);
   const result = await redeemPromoCode(user.id, code);
+  res.status(200).json(result);
+});
+
+export const p2pTransfer = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const { recipientUsername, amount, note } = p2pTransferSchema.parse(req.body);
+  const result = await transferBetweenWallets({
+    senderId: user.id,
+    recipientUsername,
+    amountNaira: amount,
+    note
+  });
   res.status(200).json(result);
 });

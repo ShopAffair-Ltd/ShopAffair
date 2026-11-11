@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { create, update, cancel, list, getOne, fund, verifyPickup, updateStatus, forceCancel } from './trades.controller';
+import { create, update, cancel, list, getOne, fund, verifyPickup, updateStatus, forceCancel, forceRelease } from './trades.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requireRole } from '../../middleware/role.middleware';
 
@@ -32,5 +32,6 @@ router.post('/:id/fund', requireAuth, writeLimiter, fund);
 router.post('/:id/verify-pickup', requireAuth, pickupLimiter, verifyPickup);
 router.patch('/:id/status', requireAuth, writeLimiter, updateStatus);
 router.post('/:id/force-cancel', requireAuth, requireRole('admin'), forceCancel);
+router.post('/:id/force-release', requireAuth, requireRole('admin'), forceRelease);
 
 export default router;

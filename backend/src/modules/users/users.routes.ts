@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth } from '../../middleware/auth.middleware.js';
 import { prisma } from '../../config/db.js';
 
 const router = Router();
@@ -21,8 +21,14 @@ router.get('/me', requireAuth, async (req, res) => {
       rejectionReason: true,
       bankName: true,
       accountNumber: true,
+      withdrawalBankName: true,
+      withdrawalBankCode: true,
+      withdrawalAccountNumber: true,
+      withdrawalAccountName: true,
       walletBalance: true,
+      promoBalance: true,
       isPro: true,
+      storePlan: true,
       avatarColor: true,
       phoneNumber: true,
       profilePicture: true,
@@ -50,6 +56,87 @@ router.get('/me', requireAuth, async (req, res) => {
     return;
   }
   
+  res.json({ user });
+});
+
+// Update current user's personal profile & delivery address
+router.patch('/me', requireAuth, async (req, res) => {
+  const userId = (req as any).user.id;
+  const { name, username, phoneNumber, deliveryAddress, profilePicture } = req.body as {
+    name?: string;
+    username?: string;
+    phoneNumber?: string;
+    deliveryAddress?: string;
+    profilePicture?: string;
+  };
+
+  const data: Record<string, string> = {};
+  if (typeof name === 'string' && name.trim()) data.name = name.trim();
+  if (typeof phoneNumber === 'string') data.phoneNumber = phoneNumber.trim();
+  if (typeof deliveryAddress === 'string') data.deliveryAddress = deliveryAddress.trim();
+  if (typeof profilePicture === 'string' && profilePicture.trim()) data.profilePicture = profilePicture.trim();
+
+  if (typeof username === 'string' && username.trim()) {
+    const normalized = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (normalized.length < 3) {
+      res.status(400).json({ message: 'Username must be at least 3 letters/numbers.' });
+      return;
+    }
+    const existing = await prisma.user.findFirst({
+      where: { username: normalized, id: { not: userId } },
+      select: { id: true }
+    });
+    if (existing) {
+      res.status(409).json({ message: 'That username is already taken.' });
+      return;
+    }
+    data.username = normalized;
+  }
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data,
+    select: {
+      id: true,
+      tempId: true,
+      name: true,
+      username: true,
+      email: true,
+      role: true,
+      verificationStatus: true,
+      rejectionReason: true,
+      bankName: true,
+      accountNumber: true,
+      withdrawalBankName: true,
+      withdrawalBankCode: true,
+      withdrawalAccountNumber: true,
+      withdrawalAccountName: true,
+      walletBalance: true,
+      promoBalance: true,
+      isPro: true,
+      storePlan: true,
+      avatarColor: true,
+      phoneNumber: true,
+      profilePicture: true,
+      totalTrades: true,
+      completedTrades: true,
+      completionRate: true,
+      tier: true,
+      deliveryAddress: true,
+      storeName: true,
+      bio: true,
+      location: true,
+      storeCategory: true,
+      coverImage: true,
+      createdAt: true,
+      updatedAt: true,
+      lastSeenAt: true,
+      rating: true,
+      reviewsCount: true,
+      totalSales: true
+    }
+  });
+
   res.json({ user });
 });
 
@@ -118,8 +205,8 @@ router.get('/', requireAuth, async (req, res) => {
   res.json({ users: usersWithChatEligibility });
 });
 
-// Get user by username
-router.get('/username/:username', requireAuth, async (req, res) => {
+// Get user by username (publicly accessible so store links work before login)
+router.get('/username/:username', optionalAuth, async (req, res) => {
   const username = req.params.username as string;
   const user = await prisma.user.findUnique({
     where: { username },
@@ -152,10 +239,10 @@ router.get('/username/:username', requireAuth, async (req, res) => {
   res.json({ user });
 });
 
-// Get user stats
-router.get('/:username/stats', requireAuth, async (req, res) => {
+// Get user stats (publicly accessible for store profiles)
+router.get('/:username/stats', optionalAuth, async (req, res) => {
   const username = req.params.username as string;
-  const currentUserId = (req as any).user.id;
+  const currentUserId = (req as any).user?.id as string | undefined;
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -180,14 +267,16 @@ router.get('/:username/stats', requireAuth, async (req, res) => {
     return;
   }
 
-  const isFollowing = await prisma.follow.findUnique({
-    where: {
-      followerId_followingId: {
-        followerId: currentUserId,
-        followingId: user.id
-      }
-    }
-  });
+  const isFollowing = currentUserId
+    ? await prisma.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: currentUserId,
+            followingId: user.id
+          }
+        }
+      })
+    : null;
 
   res.json({
     rating: user.rating || 0,
@@ -350,17 +439,26 @@ router.patch('/me/role', requireAuth, async (req, res) => {
 // Update store profile
 router.patch('/me/store-profile', requireAuth, async (req, res) => {
   const userId = (req as any).user.id;
-  const { storeName, bio, location, storeCategory, coverImage } = req.body;
-  
+  const { storeName, bio, location, storeCategory, coverImage, profilePicture } = req.body as {
+    storeName?: string;
+    bio?: string;
+    location?: string;
+    storeCategory?: string;
+    coverImage?: string;
+    profilePicture?: string;
+  };
+
+  const data: Record<string, string> = {};
+  if (typeof storeName === 'string') data.storeName = storeName.trim();
+  if (typeof bio === 'string') data.bio = bio.trim();
+  if (typeof location === 'string') data.location = location.trim();
+  if (typeof storeCategory === 'string') data.storeCategory = storeCategory.trim();
+  if (typeof coverImage === 'string' && coverImage.trim()) data.coverImage = coverImage.trim();
+  if (typeof profilePicture === 'string' && profilePicture.trim()) data.profilePicture = profilePicture.trim();
+
   const user = await prisma.user.update({
     where: { id: userId },
-    data: {
-      storeName,
-      bio,
-      location,
-      storeCategory,
-      coverImage
-    },
+    data,
     select: {
       id: true,
       username: true,
@@ -369,7 +467,8 @@ router.patch('/me/store-profile', requireAuth, async (req, res) => {
       bio: true,
       location: true,
       storeCategory: true,
-      coverImage: true
+      coverImage: true,
+      profilePicture: true
     }
   });
   res.json({ user });

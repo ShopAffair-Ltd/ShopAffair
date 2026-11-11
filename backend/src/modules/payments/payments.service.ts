@@ -618,3 +618,106 @@ export const listAllTransactions = async (page: number, limit: number) => {
   ]);
   return { items, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
 };
+
+export const transferBetweenWallets = async (params: {
+  senderId: string;
+  recipientUsername: string;
+  amountNaira: number;
+  note?: string;
+}) => {
+  const cleanHandle = params.recipientUsername.trim().replace(/^@+/, '');
+  if (!cleanHandle) {
+    throw new ApiError(400, 'Please enter a valid recipient username');
+  }
+
+  const amountDecimal = new Prisma.Decimal(params.amountNaira);
+  const refSeed = crypto.randomBytes(6).toString('hex');
+  const outRef = `SF-P2P-${refSeed}-OUT`;
+  const inRef = `SF-P2P-${refSeed}-IN`;
+
+  const result = await prisma.$transaction(async (tx) => {
+    const sender = await tx.user.findUnique({ where: { id: params.senderId } });
+    if (!sender) {
+      throw new ApiError(404, 'Sender account not found');
+    }
+
+    const recipient = await tx.user.findFirst({
+      where: { username: { equals: cleanHandle, mode: 'insensitive' } }
+    });
+    if (!recipient) {
+      throw new ApiError(404, `No ShopAffair user found with handle @${cleanHandle}`);
+    }
+    if (recipient.id === sender.id) {
+      throw new ApiError(400, 'You cannot transfer funds to your own wallet');
+    }
+    if (recipient.isFrozen) {
+      throw new ApiError(403, 'This recipient account cannot receive transfers right now');
+    }
+
+    if (new Prisma.Decimal(sender.walletBalance).lessThan(amountDecimal)) {
+      throw new ApiError(402, 'Insufficient wallet balance for this transfer');
+    }
+
+    const updatedSender = await tx.user.update({
+      where: { id: sender.id },
+      data: { walletBalance: { decrement: amountDecimal } },
+      select: { id: true, username: true, name: true, walletBalance: true }
+    });
+
+    await tx.user.update({
+      where: { id: recipient.id },
+      data: { walletBalance: { increment: amountDecimal } }
+    });
+
+    await tx.walletTransaction.create({
+      data: {
+        userId: sender.id,
+        type: 'WITHDRAWAL',
+        provider: 'MANUAL',
+        amount: amountDecimal,
+        status: 'SUCCESS',
+        reference: outRef
+      }
+    });
+
+    await tx.walletTransaction.create({
+      data: {
+        userId: recipient.id,
+        type: 'FUNDING',
+        provider: 'MANUAL',
+        amount: amountDecimal,
+        status: 'SUCCESS',
+        reference: inRef
+      }
+    });
+
+    return { updatedSender, recipient };
+  });
+
+  const noteSuffix = params.note?.trim() ? ` — "${params.note.trim()}"` : '';
+
+  await Promise.all([
+    notify({
+      userId: result.updatedSender.id,
+      title: 'Wallet transfer sent',
+      message: `You sent ₦${params.amountNaira.toLocaleString()} to @${result.recipient.username}${noteSuffix}.`,
+      type: 'SUCCESS'
+    }),
+    notify({
+      userId: result.recipient.id,
+      title: 'Wallet transfer received',
+      message: `You received ₦${params.amountNaira.toLocaleString()} from @${result.updatedSender.username}${noteSuffix}.`,
+      type: 'SUCCESS'
+    })
+  ]);
+
+  return {
+    reference: outRef,
+    amount: params.amountNaira,
+    walletBalance: Number(result.updatedSender.walletBalance),
+    recipient: {
+      username: result.recipient.username,
+      name: result.recipient.name
+    }
+  };
+};

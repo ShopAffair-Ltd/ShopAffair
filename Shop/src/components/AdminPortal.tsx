@@ -38,7 +38,7 @@ import { SettingsTab } from './admin/SettingsTab';
 export default function AdminPortal() {
   const navigate = useNavigate();
   const { user: activeProfile, logout } = useAuth();
-  const { trades, forceCancelTrade } = useTrades();
+  const { trades, forceCancelTrade, forceReleaseTrade } = useTrades();
   const [pendingKycCount, setPendingKycCount] = useState(0);
 
   useEffect(() => {
@@ -46,6 +46,7 @@ export default function AdminPortal() {
   }, []);
 
   const onForceCancelTrade = (tradeId: string) => forceCancelTrade(tradeId);
+  const onForceReleaseTrade = (tradeId: string) => forceReleaseTrade(tradeId);
   const onClose = () => {
     logout();
     navigate('/');
@@ -150,7 +151,13 @@ export default function AdminPortal() {
       case 'Support':
         return <SupportTab />;
       case 'Disputes':
-        return <DisputesTab trades={trades} onForceCancelTrade={onForceCancelTrade} />;
+        return (
+          <DisputesTab
+            trades={trades}
+            onForceCancelTrade={onForceCancelTrade}
+            onForceReleaseTrade={onForceReleaseTrade}
+          />
+        );
       case 'Pending Groups':
         return <PendingGroupsTab />;
       case 'CMS':

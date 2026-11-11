@@ -36,6 +36,15 @@ export interface UpdateStoreProfileInput {
   location?: string;
   storeCategory?: string;
   coverImage?: string;
+  profilePicture?: string;
+}
+
+export interface UpdateMyProfileInput {
+  name?: string;
+  username?: string;
+  phoneNumber?: string;
+  deliveryAddress?: string;
+  profilePicture?: string;
 }
 
 export interface UserStatsResponse {
@@ -67,8 +76,13 @@ export const userService = {
     return data.profile;
   },
   
+  updateMyProfile: async (input: UpdateMyProfileInput) => {
+    const { data } = await api.patch<{ user: Partial<UserProfile> }>('/users/me', input);
+    return data.user;
+  },
+
   updateMyStoreProfile: async (input: UpdateStoreProfileInput) => {
-    const { data } = await api.patch<{ user: unknown }>('/users/me/store-profile', input);
+    const { data } = await api.patch<{ user: Partial<UserProfile> }>('/users/me/store-profile', input);
     return data.user;
   },
   

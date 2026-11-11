@@ -38,6 +38,7 @@ export default function HomeView() {
   const [referModalOpen, setReferModalOpen] = useState(false);
   const [quickTransferOpen, setQuickTransferOpen] = useState(false);
   const [balanceRefreshing, setBalanceRefreshing] = useState(false);
+  const [referralCopied, setReferralCopied] = useState(false);
   const pullStartY = React.useRef<number | null>(null);
 
   // Pulls the real balance from the backend (/payments/wallet/balance)
@@ -619,12 +620,15 @@ export default function HomeView() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(`SHOPAFFAIR-${user.username.toUpperCase()}-REFER`);
-                  alert('Referral link copied to clipboard!');
-                  setReferModalOpen(false);
+                  setReferralCopied(true);
+                  setTimeout(() => {
+                    setReferralCopied(false);
+                    setReferModalOpen(false);
+                  }, 1200);
                 }}
                 className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-sans font-bold text-xs rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer border border-purple-400/50"
               >
-                Copy & Share Link
+                {referralCopied ? 'Copied to Clipboard!' : 'Copy & Share Link'}
               </button>
             </motion.div>
           </div>

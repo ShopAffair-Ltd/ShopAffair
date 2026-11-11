@@ -1,7 +1,7 @@
 import { prisma } from '../../config/db.js';
 import { ApiError } from '../../utils/ApiError.js';
 
-export const getSellerReviews = async (username: string, currentUserId: string) => {
+export const getSellerReviews = async (username: string, currentUserId?: string) => {
   const seller = await prisma.user.findUnique({
     where: { username },
     select: {
@@ -27,10 +27,12 @@ export const getSellerReviews = async (username: string, currentUserId: string) 
           profilePicture: true
         }
       },
-      helpfulVotes: {
-        where: { userId: currentUserId },
-        select: { id: true }
-      }
+      helpfulVotes: currentUserId
+        ? {
+            where: { userId: currentUserId },
+            select: { id: true }
+          }
+        : false
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -53,7 +55,7 @@ export const getSellerReviews = async (username: string, currentUserId: string) 
     content: r.content,
     date: r.createdAt.toISOString(),
     helpful: r.helpfulCount,
-    isHelpful: r.helpfulVotes.length > 0,
+    isHelpful: Array.isArray(r.helpfulVotes) ? r.helpfulVotes.length > 0 : false,
     orderId: r.orderId
   }));
 
