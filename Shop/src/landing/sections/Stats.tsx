@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Reveal, Counter } from '../motion-utils';
-import { Coins, Users, Package, ShieldCheck } from 'lucide-react';
+import { Users, Package, ShieldCheck } from 'lucide-react';
 import { api } from '../../services/api';
 
 interface LandingStats {
   totalTraders: number;
   totalProducts: number;
   completedTrades: number;
-  totalEscrowedAmount: number;
 }
 
 export function Stats() {
@@ -31,14 +30,6 @@ export function Stats() {
   }, []);
 
   const statItems = [
-    {
-      icon: Coins,
-      value: stats?.totalEscrowedAmount ?? 0,
-      prefix: '₦',
-      suffix: '',
-      label: 'Volume Escrowed',
-      desc: 'Total escrow trades funded on ShopAffair'
-    },
     {
       icon: Users,
       value: stats?.totalTraders ?? 0,
@@ -69,12 +60,12 @@ export function Stats() {
     <section className="px-6 py-20 bg-slate-950 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(139,92,246,0.08),transparent_50%)]" />
 
-      <div className="max-w-5xl mx-auto relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12">
           {statItems.map((item, idx) => {
             const Icon = item.icon;
             return (
-              <Reveal key={idx} delay={idx * 0.1} className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-3">
+              <Reveal key={idx} delay={idx * 0.1} className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-3">
                 <div className="p-3 bg-white/5 border border-white/10 rounded-lg text-purple-400">
                   <Icon className="w-6 h-6 stroke-[1.5]" />
                 </div>

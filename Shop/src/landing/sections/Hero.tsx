@@ -220,17 +220,6 @@ export const Hero: React.FC<HeroProps> = ({ onEnterPlatform, onRegister }) => {
             <Store className="w-4 h-4" /> Register Merchant Account
           </motion.button>
         </motion.div>
-
-        <motion.div
-          variants={item}
-          animate={reduced ? {} : { y: [0, -8, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          className="pt-6 flex items-center justify-center gap-6 text-[10px] font-mono text-slate-400"
-        >
-          <span>₦2.4B+ Escrowed</span>
-          <span className="w-1 h-1 rounded-full bg-purple-200" />
-          <span>18,000+ Verified Traders</span>
-        </motion.div>
       </motion.div>
     </div>
   );

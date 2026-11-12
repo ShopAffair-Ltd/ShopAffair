@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Package } from 'lucide-react';
 import { fetchProducts } from '../../services/productService';
-import { MarketProduct } from '../../types';
+import { fetchTrades, mapTradeToMarketProduct } from '../../services/TradeService';
+import { MarketProduct, TradeType } from '../../types';
 
 interface NewlyListedProps {
   onSelectProduct: (productId: string) => void;
@@ -14,10 +15,16 @@ export function NewlyListed({ onSelectProduct }: NewlyListedProps) {
 
   useEffect(() => {
     let cancelled = false;
-    fetchProducts({ limit: 24 })
-      .then((res) => {
+    Promise.all([
+      fetchProducts({ limit: 24 }),
+      fetchTrades({ type: TradeType.SUPPLY, limit: 24 }).catch(() => ({ items: [] }))
+    ])
+      .then(([productRes, tradeRes]) => {
         if (!cancelled) {
-          setProducts(res.items || []);
+          const tradesAsProducts = (tradeRes.items || [])
+            .map(mapTradeToMarketProduct)
+            .filter((item): item is MarketProduct => item !== null);
+          setProducts([...(productRes.items || []), ...tradesAsProducts]);
         }
       })
       .catch(() => {
