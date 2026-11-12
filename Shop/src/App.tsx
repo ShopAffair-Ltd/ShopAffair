@@ -235,7 +235,7 @@ function TransferHistoryRoute() {
 function TradeHistoryRoute() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { trades, cancelTrade } = useTrades();
+  const { trades, cancelTrade, deleteTrade } = useTrades();
   if (!user) return null;
   return (
     <TradeHistoryView
@@ -244,6 +244,9 @@ function TradeHistoryRoute() {
       onSelectTrade={(id) => navigate(`/trade/${id}`)}
       onCancelTrade={async (id) => {
         await cancelTrade(id);
+      }}
+      onDeleteTrade={async (id) => {
+        await deleteTrade(id);
       }}
       onBack={() => navigate(-1)}
     />
@@ -345,7 +348,7 @@ function StoreProfileRoute() {
           storeName: sellerData.storeName || `${sellerData.name}'s Store`,
           location: sellerData.location || 'Nigeria',
           category: sellerData.storeCategory || 'General',
-          plan: sellerData.isPro ? 'Pro Plan' : 'Free Plan',
+          plan: sellerData.storePlan === 'TRIAL' ? 'Trial Plan' : sellerData.isPro ? 'Pro Plan' : 'Free Plan',
           bio: sellerData.bio || 'No bio available',
           rating: sellerData.rating || 0,
           reviewsCount: sellerData.reviewsCount || 0,

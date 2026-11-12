@@ -10,6 +10,8 @@ interface ChatSocketEvents {
   onError: (data: { message: string }) => void;
   onNewMessageNotification: (data: { chatRoomId: string; message: string; senderId: string }) => void;
   onNewNotification: (data: { id: string; title: string; message: string; type: string; createdAt: string }) => void;
+  onIncomingCall: (data: { chatRoomId: string; callerId: string; callerName: string; callerUsername: string }) => void;
+  onCallEnded: (data: { chatRoomId: string; byUserId: string }) => void;
 }
 
 class ChatSocket {
@@ -92,6 +94,17 @@ class ChatSocket {
     this.socket.on('new_notification', (data: any) => {
       this.emit('onNewNotification', data);
     });
+
+    this.socket.on(
+      'incoming_call',
+      (data: { chatRoomId: string; callerId: string; callerName: string; callerUsername: string }) => {
+        this.emit('onIncomingCall', data);
+      }
+    );
+
+    this.socket.on('call_ended', (data: { chatRoomId: string; byUserId: string }) => {
+      this.emit('onCallEnded', data);
+    });
   }
 
   private isConnected(): boolean {
@@ -133,6 +146,16 @@ class ChatSocket {
   stopTyping(chatRoomId: string) {
     if (!this.isConnected()) return;
     this.socket!.emit('typing_stop', { chatRoomId });
+  }
+
+  callUser(data: { chatRoomId: string; targetUserId: string; callerName: string; callerUsername: string }) {
+    if (!this.isConnected()) return;
+    this.socket!.emit('call_user', data);
+  }
+
+  endCall(data: { targetUserId: string; chatRoomId: string }) {
+    if (!this.isConnected()) return;
+    this.socket!.emit('end_call', data);
   }
 
   disconnect() {

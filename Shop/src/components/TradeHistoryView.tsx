@@ -8,6 +8,7 @@ interface TradeHistoryViewProps {
     activeUsername: string;
     onSelectTrade: (id: string) => void;
     onCancelTrade: (tradeId: string) => Promise<void>;
+    onDeleteTrade?: (tradeId: string) => Promise<void>;
     onBack: () => void;
 }
 
@@ -17,9 +18,11 @@ interface TradeHistoryViewProps {
 const isUnengaged = (trade: TradeItem) =>
     (trade.status === EscrowStatus.DRAFT || trade.status === EscrowStatus.PENDING) && !trade.buyerUsername;
 
-export default function TradeHistoryView({ trades, activeUsername, onSelectTrade, onCancelTrade, onBack }: TradeHistoryViewProps) {
+export default function TradeHistoryView({ trades, activeUsername, onSelectTrade, onCancelTrade, onDeleteTrade, onBack }: TradeHistoryViewProps) {
     const [cancelingId, setCancelingId] = useState<string | null>(null);
     const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
     // History is every trade the user has been party to (as creator or
     // buyer) that has left the live open-market/offer flow - completed,
@@ -46,6 +49,17 @@ export default function TradeHistoryView({ trades, activeUsername, onSelectTrade
         } finally {
             setCancelingId(null);
             setConfirmCancelId(null);
+        }
+    };
+
+    const handleDelete = async (tradeId: string) => {
+        if (!onDeleteTrade) return;
+        setDeletingId(tradeId);
+        try {
+            await onDeleteTrade(tradeId);
+        } finally {
+            setDeletingId(null);
+            setConfirmDeleteId(null);
         }
     };
 
@@ -113,31 +127,58 @@ export default function TradeHistoryView({ trades, activeUsername, onSelectTrade
                             </div>
 
                             {trade.creatorUsername === activeUsername && isUnengaged(trade) && (
-                                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
+                                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 flex-wrap">
                                     {confirmCancelId === trade.id ? (
                                         <>
                                             <span className="text-[10px] font-sans text-slate-500 flex-1">Cancel this listing?</span>
                                             <button
                                                 onClick={() => handleCancel(trade.id)}
                                                 disabled={cancelingId === trade.id}
-                                                className="px-3 py-1.5 bg-red-600 text-white text-[10px] font-sans font-bold rounded-lg disabled:opacity-60"
+                                                className="px-3 py-1.5 bg-red-600 text-white text-[10px] font-sans font-bold rounded-lg disabled:opacity-60 cursor-pointer"
                                             >
                                                 {cancelingId === trade.id ? 'Cancelling...' : 'Yes, cancel'}
                                             </button>
                                             <button
                                                 onClick={() => setConfirmCancelId(null)}
-                                                className="px-3 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-sans font-bold rounded-lg"
+                                                className="px-3 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-sans font-bold rounded-lg cursor-pointer"
+                                            >
+                                                Keep it
+                                            </button>
+                                        </>
+                                    ) : confirmDeleteId === trade.id ? (
+                                        <>
+                                            <span className="text-[10px] font-sans text-slate-500 flex-1">Delete permanently?</span>
+                                            <button
+                                                onClick={() => handleDelete(trade.id)}
+                                                disabled={deletingId === trade.id}
+                                                className="px-3 py-1.5 bg-red-600 text-white text-[10px] font-sans font-bold rounded-lg disabled:opacity-60 cursor-pointer"
+                                            >
+                                                {deletingId === trade.id ? 'Deleting...' : 'Yes, delete'}
+                                            </button>
+                                            <button
+                                                onClick={() => setConfirmDeleteId(null)}
+                                                className="px-3 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-sans font-bold rounded-lg cursor-pointer"
                                             >
                                                 Keep it
                                             </button>
                                         </>
                                     ) : (
-                                        <button
-                                            onClick={() => setConfirmCancelId(trade.id)}
-                                            className="px-3 py-1.5 bg-red-50 text-red-600 text-[10px] font-sans font-bold rounded-lg border border-red-100"
-                                        >
-                                            Cancel listing
-                                        </button>
+                                        <>
+                                            <button
+                                                onClick={() => setConfirmCancelId(trade.id)}
+                                                className="px-3 py-1.5 bg-amber-50 text-amber-700 text-[10px] font-sans font-bold rounded-lg border border-amber-100 cursor-pointer"
+                                            >
+                                                Cancel listing
+                                            </button>
+                                            {onDeleteTrade && (
+                                                <button
+                                                    onClick={() => setConfirmDeleteId(trade.id)}
+                                                    className="px-3 py-1.5 bg-red-50 text-red-600 text-[10px] font-sans font-bold rounded-lg border border-red-100 cursor-pointer"
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             )}

@@ -148,6 +148,34 @@ export const cancelOwnTrade = async (tradeId: string, userId: string) => {
   });
 };
 
+export const deleteOwnTrade = async (tradeId: string, userId: string) => {
+  const trade = await prisma.trade.findUnique({ where: { id: tradeId } });
+
+  if (!trade) {
+    throw new ApiError(404, 'Trade not found');
+  }
+  if (trade.creatorId !== userId) {
+    throw new ApiError(403, 'You can only delete your own trade listings');
+  }
+  if (trade.buyerId || !['DRAFT', 'PENDING', 'REFUNDED'].includes(trade.status)) {
+    throw new ApiError(409, 'This trade cannot be deleted because it has already been engaged or funded');
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.chatMessage.updateMany({
+      where: { sharedTradeId: tradeId },
+      data: { sharedTradeId: null }
+    });
+    await tx.chatRoom.updateMany({
+      where: { associatedTradeId: tradeId },
+      data: { associatedTradeId: null }
+    });
+    await tx.trade.delete({ where: { id: tradeId } });
+  });
+
+  return { deleted: true, id: tradeId };
+};
+
 export const getTradeById = async (id: string, userId: string | null) => {
   const trade = await prisma.trade.findUnique({
     where: { id },

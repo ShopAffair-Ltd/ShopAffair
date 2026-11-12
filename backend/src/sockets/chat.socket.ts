@@ -35,6 +35,27 @@ export const setupChatSocket = (io: Server) => {
       socket.leave(`chat:${chatRoomId}`);
     });
 
+    socket.on(
+      'call_user',
+      (data: { chatRoomId: string; targetUserId: string; callerName: string; callerUsername: string }) => {
+        if (!data?.targetUserId) return;
+        io.to(`user:${data.targetUserId}`).emit('incoming_call', {
+          chatRoomId: data.chatRoomId,
+          callerId: userId,
+          callerName: data.callerName,
+          callerUsername: data.callerUsername
+        });
+      }
+    );
+
+    socket.on('end_call', (data: { targetUserId: string; chatRoomId: string }) => {
+      if (!data?.targetUserId) return;
+      io.to(`user:${data.targetUserId}`).emit('call_ended', {
+        chatRoomId: data.chatRoomId,
+        byUserId: userId
+      });
+    });
+
     socket.on('send_message', async (data: { chatRoomId: string; content: string; attachmentName?: string }) => {
       try {
         const message = await chatService.sendMessage(

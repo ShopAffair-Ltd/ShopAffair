@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { MarketProduct } from '../types';
+import { MarketProduct, TradeType, TradeVisibility, EscrowStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useMarket } from '../context/MarketContext';
+import { useTrades } from '../context/TradeContext';
 import { useChat } from '../context/ChatContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -70,7 +71,7 @@ const hotDeals = [
     id: 'hot_4',
     title: 'PREMIUM DEALS',
     subtitle: 'Luxury items at best prices',
-    bgGradient: 'from-amber-600 via-orange-700 to-yellow-700',
+    bgGradient: 'from-violet-700 via-purple-600 to-indigo-700',
     tag: 'PREMIUM',
     tag2: 'EXCLUSIVE',
     timeLeft: '2h 15m',
@@ -88,6 +89,7 @@ export default function MarketView() {
   const { openRegister } = useAuthModal();
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
   const { products, isLoading: productsLoading, error: productsError } = useMarket();
+  const { trades } = useTrades();
   const { startChatWithSeller } = useChat();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -183,7 +185,36 @@ export default function MarketView() {
     return matchesSearch && matchesCategory && matchesFilters(product);
   });
 
-  const filteredDemands: never[] = [];
+  const filteredDemands = trades
+    .filter(
+      (t) =>
+        t.type === TradeType.REQUEST &&
+        t.visibility === TradeVisibility.MARKET &&
+        t.status === EscrowStatus.PENDING
+    )
+    .map((t) => ({
+      id: t.id,
+      title: t.title,
+      price: t.amount,
+      buyerName: t.creatorName || t.creatorUsername,
+      buyerUsername: t.creatorUsername,
+      category: String(t.category),
+      condition: t.condition || 'Any',
+      description: t.description || '',
+      image: t.image || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=150',
+      offersCount: 0,
+      status: 'Active'
+    }))
+    .filter((demand) => {
+      const matchesSearch =
+        demand.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        demand.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCategory =
+        selectedCategory === 'Trending' || demand.category.toLowerCase() === selectedCategory.toLowerCase();
+
+      return matchesSearch && matchesCategory;
+    });
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);

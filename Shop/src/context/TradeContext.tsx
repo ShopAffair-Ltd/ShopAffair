@@ -13,6 +13,7 @@ interface TradeContextType {
   ) => Promise<TradeItem>;
   editTrade: (tradeId: string, updates: tradeService.EditTradePayload) => Promise<TradeItem>;
   cancelTrade: (tradeId: string) => Promise<TradeItem>;
+  deleteTrade: (tradeId: string) => Promise<void>;
   fundTrade: (tradeId: string) => Promise<TradeItem>;
   verifyPickupCode: (tradeId: string, code: string) => Promise<TradeItem>;
   updateTradeStatus: (id: string, status: EscrowStatus) => Promise<TradeItem>;
@@ -68,6 +69,11 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
     return updated;
   };
 
+  const deleteTrade: TradeContextType['deleteTrade'] = async (tradeId) => {
+    await tradeService.deleteTrade(tradeId);
+    setTrades((prev) => prev.filter((t) => t.id !== tradeId));
+  };
+
   const fundTrade: TradeContextType['fundTrade'] = async (tradeId) => {
     const updated = await tradeService.fundTrade(tradeId);
     setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
@@ -113,6 +119,7 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
         createTrade,
         editTrade,
         cancelTrade,
+        deleteTrade,
         fundTrade,
         verifyPickupCode,
         updateTradeStatus,

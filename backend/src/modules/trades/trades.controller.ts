@@ -13,6 +13,7 @@ import {
   createTrade,
   editTrade,
   cancelOwnTrade,
+  deleteOwnTrade,
   listTrades,
   getTradeById,
   fundTrade,
@@ -61,6 +62,13 @@ export const cancel = asyncHandler(async (req: Request, res: Response) => {
   const { id } = tradeIdParamSchema.parse(req.params);
   const trade = await cancelOwnTrade(id, user.id);
   res.status(200).json({ trade });
+});
+
+export const remove = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const { id } = tradeIdParamSchema.parse(req.params);
+  const result = await deleteOwnTrade(id, user.id);
+  res.status(200).json(result);
 });
 
 export const fund = asyncHandler(async (req: Request, res: Response) => {

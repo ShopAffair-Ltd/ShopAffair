@@ -170,6 +170,10 @@ export const cancelTrade = async (tradeId: string): Promise<TradeItem> => {
   return mapToTradeItem(data.trade);
 };
 
+export const deleteTrade = async (tradeId: string): Promise<void> => {
+  await api.delete(`/trades/${tradeId}`);
+};
+
 export const fundTrade = async (tradeId: string): Promise<TradeItem> => {
   const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/fund`);
   return mapToTradeItem(data.trade);

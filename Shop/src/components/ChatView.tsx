@@ -7,6 +7,9 @@ import ChatSidebar from './chatSidebar';
 import ChatWindow from './chatWindow';
 import ChatModals from './chatModals';
 import { chatSocket } from '../sockets/chat.socket';
+import { api } from '../services/api';
+import { reviewService, Review } from '../services/reviewService';
+import { PhoneCall, PhoneOff, Star, ShieldCheck, Store, X } from 'lucide-react';
 
 interface ChatViewProps {
   onChatSelect?: (room: ChatRoom | null) => void;
@@ -17,9 +20,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const { user } = useAuth();
   const { chatRooms, sendMessage, markAsRead, sendError, clearSendError, loadFullChatHistory } = useChat();
   const navigate = useNavigate();
-  // The active DM thread lives in the URL (/chat/:roomUsername) so refresh
-  // reloads the same conversation and the phone/browser back button returns
-  // to the chat list instead of jumping to the home screen.
+
   const { roomUsername } = useParams<{ roomUsername?: string }>();
   const activeProfile = user;
 
@@ -35,6 +36,16 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const [showChatMenu, setShowChatMenu] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [storeIconShake, setStoreIconShake] = useState(true);
+  const [incomingCall, setIncomingCall] = useState<{
+    chatRoomId: string;
+    callerId: string;
+    callerName: string;
+    callerUsername: string;
+  } | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [partnerProfile, setPartnerProfile] = useState<any>(null);
+  const [partnerReviews, setPartnerReviews] = useState<Review[]>([]);
+  const [loadingPartnerProfile, setLoadingPartnerProfile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const previousRoomIdRef = useRef<string | null>(null);
 
@@ -120,13 +131,45 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
     }
   };
 
+  useEffect(() => {
+    const handleIncoming = (data: {
+      chatRoomId: string;
+      callerId: string;
+      callerName: string;
+      callerUsername: string;
+    }) => {
+      setIncomingCall(data);
+    };
+    const handleEnded = () => {
+      setIncomingCall(null);
+    };
+    chatSocket.on('onIncomingCall', handleIncoming);
+    chatSocket.on('onCallEnded', handleEnded);
+    return () => {
+      chatSocket.off('onIncomingCall', handleIncoming);
+      chatSocket.off('onCallEnded', handleEnded);
+    };
+  }, []);
+
   const handleVoiceCall = () => {
-    if (!selectedRoom) return;
+    if (!selectedRoom || !activeProfile) return;
     if (selectedRoom.participantRole === 'ai') {
       setCallToast("Micha AI doesn't support voice calls. Ask me anything here!");
       return;
     }
-    setCallToast(`Calling ${selectedRoom.participantName}...`);
+    const other = (selectedRoom.participants || []).find(
+      (p: any) => (p.user?.username || p.username) !== activeProfile.username
+    );
+    const targetUserId = other?.userId || other?.user?.id || other?.id;
+    if (targetUserId) {
+      chatSocket.callUser({
+        chatRoomId: selectedRoom.id,
+        targetUserId,
+        callerName: activeProfile.name,
+        callerUsername: activeProfile.username
+      });
+    }
+    setCallToast(`Ringing ${selectedRoom.participantName}...`);
   };
 
   const handleVisitStoreFromChat = () => {
@@ -135,9 +178,30 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
     setStoreIconShake(false);
   };
 
-  const handleViewProfileFromChat = () => {
-    if (!selectedRoom) return;
-    navigate(`/profile/${selectedRoom.participantUsername}`);
+  const handleViewProfileFromChat = async () => {
+    if (!selectedRoom || selectedRoom.type === 'GROUP' || selectedRoom.type === 'COMMUNITY') return;
+    setProfileModalOpen(true);
+    setLoadingPartnerProfile(true);
+    setPartnerProfile(null);
+    setPartnerReviews([]);
+    try {
+      const [userRes, reviewsRes] = await Promise.all([
+        api.get(`/users/username/${selectedRoom.participantUsername}`),
+        reviewService
+          .getSellerReviews(selectedRoom.participantUsername)
+          .then((r) => r.data)
+          .catch(() => ({
+            reviews: [],
+            stats: { averageRating: 0, totalReviews: 0 }
+          }))
+      ]);
+      setPartnerProfile(userRes.data.user);
+      setPartnerReviews(reviewsRes.reviews || []);
+    } catch {
+      // keep modal open with fallback room info
+    } finally {
+      setLoadingPartnerProfile(false);
+    }
   };
 
   const isSellerChat = selectedRoom?.participantRole === 'seller' && selectedRoom?.participantUsername !== activeProfile?.username;
@@ -219,6 +283,124 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
         onNewCommunity={() => { }}
         onChatCreated={handleChatCreated}
       />
+
+      {incomingCall && (
+        <div className="fixed inset-x-4 top-20 z-[120] max-w-sm mx-auto bg-white border border-purple-200 rounded-2xl shadow-2xl p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center animate-pulse shrink-0">
+              <PhoneCall className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-sans font-bold text-slate-900 truncate">{incomingCall.callerName}</p>
+              <p className="text-[11px] font-sans text-purple-600">Incoming voice call...</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                chatSocket.endCall({ targetUserId: incomingCall.callerId, chatRoomId: incomingCall.chatRoomId });
+                setIncomingCall(null);
+              }}
+              className="p-2 rounded-full bg-red-50 text-red-600 hover:bg-red-100 cursor-pointer"
+              aria-label="Decline call"
+            >
+              <PhoneOff className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {profileModalOpen && selectedRoom && (
+        <div className="fixed inset-0 z-[120] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full border border-slate-100 shadow-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-display font-bold text-slate-900">User Profile</h3>
+              <button
+                type="button"
+                onClick={() => setProfileModalOpen(false)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {loadingPartnerProfile ? (
+              <div className="py-8 flex justify-center">
+                <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-full bg-purple-100 text-purple-700 font-bold text-lg flex items-center justify-center overflow-hidden shrink-0">
+                    {partnerProfile?.profilePicture ? (
+                      <img src={partnerProfile.profilePicture} alt={partnerProfile.name} className="w-full h-full object-cover" />
+                    ) : (
+                      (partnerProfile?.name || selectedRoom.participantName).charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-sans font-bold text-slate-900 truncate">
+                        {partnerProfile?.name || selectedRoom.participantName}
+                      </p>
+                      {partnerProfile?.verificationStatus === 'VERIFIED' && (
+                        <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs font-mono text-slate-400 truncate">
+                      @{partnerProfile?.username || selectedRoom.participantUsername}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600">
+                      <span className="flex items-center gap-0.5 font-semibold">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        {(partnerProfile?.rating ?? 0).toFixed(1)}
+                      </span>
+                      <span className="text-slate-400">({partnerReviews.length} reviews)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {partnerProfile?.role === 'seller' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileModalOpen(false);
+                      navigate(`/store/${partnerProfile.id || partnerProfile.username}`);
+                    }}
+                    className="w-full py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-sans font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Store className="w-3.5 h-3.5" /> Visit Seller Store
+                  </button>
+                )}
+
+                <div className="border-t border-slate-100 pt-3 space-y-2">
+                  <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                    Past Trade Reviews
+                  </p>
+                  {partnerReviews.length === 0 ? (
+                    <p className="text-xs font-sans text-slate-400 py-3 text-center">No trade reviews yet.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {partnerReviews.map((rev) => (
+                        <div key={rev.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-bold text-slate-800">{rev.reviewerName}</span>
+                            <span className="flex items-center gap-0.5 text-amber-500 font-bold">
+                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {rev.rating}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-snug">{rev.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
