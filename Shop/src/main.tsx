@@ -13,31 +13,34 @@ import { StoreProvider } from './context/StoreContext';
 import { WalletProvider } from './context/WalletContext';
 import { AdminProvider } from './context/AdminContext';
 import { CommunityProvider } from './context/CommunityContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <AuthProvider>
-      <AuthModalProvider>
-        <CartProvider>
-          <ChatProvider>
-            <MarketProvider>
-              <FavoritesProvider>
-                <TradeProvider>
-                  <StoreProvider>
-                    <WalletProvider>
-                      <AdminProvider>
-                        <CommunityProvider>
-                          <App />
-                        </CommunityProvider>
-                      </AdminProvider>
-                    </WalletProvider>
-                  </StoreProvider>
-                </TradeProvider>
-              </FavoritesProvider>
-            </MarketProvider>
-          </ChatProvider>
-        </CartProvider>
-      </AuthModalProvider>
+      <NotificationProvider>
+        <AuthModalProvider>
+          <CartProvider>
+            <ChatProvider>
+              <MarketProvider>
+                <FavoritesProvider>
+                  <TradeProvider>
+                    <StoreProvider>
+                      <WalletProvider>
+                        <AdminProvider>
+                          <CommunityProvider>
+                            <App />
+                          </CommunityProvider>
+                        </AdminProvider>
+                      </WalletProvider>
+                    </StoreProvider>
+                  </TradeProvider>
+                </FavoritesProvider>
+              </MarketProvider>
+            </ChatProvider>
+          </CartProvider>
+        </AuthModalProvider>
+      </NotificationProvider>
     </AuthProvider>
   </BrowserRouter>,
 );

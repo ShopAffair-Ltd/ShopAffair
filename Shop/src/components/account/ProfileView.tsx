@@ -404,7 +404,17 @@ export default function ProfileView() {
             <span className="text-xs font-sans font-bold">Back</span>
           </button>
         ) : (
-          <h1 className="text-xl font-display font-black text-slate-900 tracking-tight">Profile</h1>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="p-1.5 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer text-slate-600 flex items-center"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-xl font-display font-black text-slate-900 tracking-tight">Profile</h1>
+          </div>
         )}
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-mono font-bold bg-purple-50 text-purple-600 px-2.5 py-1 rounded-full uppercase">
@@ -455,9 +465,11 @@ export default function ProfileView() {
                     )}
                   </div>
                   <button 
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingAvatar}
-                    className="absolute -bottom-1 -right-1 p-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white rounded-full border-2 border-white shadow-sm transition-colors cursor-pointer"
+                    className="absolute -bottom-1 -right-1 p-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white rounded-full border-2 border-white shadow-sm transition-colors cursor-pointer"
+                    title="Upload profile picture"
                   >
                     {isUploadingAvatar ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
                   </button>
@@ -470,11 +482,20 @@ export default function ProfileView() {
                   />
                 </div>
 
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingAvatar}
+                  className="mb-2 text-[11px] font-sans font-bold text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1 rounded-full transition-colors cursor-pointer disabled:opacity-60"
+                >
+                  {isUploadingAvatar ? 'Uploading photo...' : 'Upload Profile Photo'}
+                </button>
+
                 <div>
                   <h2 className="text-lg font-sans font-black text-slate-900 flex items-center justify-center gap-1.5">
                     {activeProfile.name}
                     {activeProfile.verificationStatus === 'VERIFIED' && (
-                      <ShieldCheck className="w-4.5 h-4.5 text-orange-500 fill-orange-500/10" />
+                      <ShieldCheck className="w-4.5 h-4.5 text-purple-600 fill-purple-500/10" />
                     )}
                   </h2>
                   <p className="text-xs text-slate-400 font-sans">@{activeProfile.username}</p>
@@ -494,14 +515,14 @@ export default function ProfileView() {
               {/* Store Plan Banner */}
               <button 
                 onClick={() => navigateScreen('subscription')}
-                className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white p-4 rounded-2xl flex items-center justify-between shadow-md shadow-orange-500/10 transition-all text-left cursor-pointer border-0"
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white p-4 rounded-2xl flex items-center justify-between shadow-md shadow-purple-500/15 transition-all text-left cursor-pointer border-0"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/10 rounded-xl">
-                    <Sparkles className="w-5 h-5 text-amber-200" />
+                  <div className="p-2 bg-white/15 rounded-xl">
+                    <Sparkles className="w-5 h-5 text-purple-100" />
                   </div>
                   <div>
-                    <span className="block text-xs font-bold tracking-wide text-orange-100 uppercase">
+                    <span className="block text-xs font-bold tracking-wide text-purple-100 uppercase">
                       {subscriptionStatus?.isPro || activeProfile.isPro
                         ? `${subscriptionStatus?.storePlan === 'TRIAL' ? 'Trial' : 'Starter'} Plan Active`
                         : 'Upgrade Your Store'}
@@ -523,7 +544,9 @@ export default function ProfileView() {
                   <span className="text-[10px] text-slate-400 font-sans font-medium">Total Trades</span>
                 </div>
                 <div className="bg-white p-3.5 rounded-2xl border border-slate-100 text-center shadow-xs">
-                  <span className="block text-lg font-sans font-black text-emerald-600">{tradeMetrics.rate}</span>
+                  <span className="block text-lg font-sans font-black text-purple-600">
+                    {tradeMetrics.rate && tradeMetrics.rate !== 'null' ? tradeMetrics.rate : '0%'}
+                  </span>
                   <span className="text-[10px] text-slate-400 font-sans font-medium">Completion</span>
                 </div>
                 <div className="bg-white p-3.5 rounded-2xl border border-slate-100 text-center shadow-xs">

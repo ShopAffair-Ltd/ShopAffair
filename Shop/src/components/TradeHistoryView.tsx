@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { AlertCircle, Info } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Info } from 'lucide-react';
 import { TradeItem, EscrowStatus, TradeType } from '../types';
 
 interface TradeHistoryViewProps {
@@ -51,7 +51,15 @@ export default function TradeHistoryView({ trades, activeUsername, onSelectTrade
 
     return (
         <div className="flex-1 flex flex-col bg-white h-full overflow-hidden pb-24">
-            <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+            <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={onBack}
+                    className="p-1.5 -ml-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                    aria-label="Go back"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
                 <h2 className="text-base font-display font-bold text-slate-900">Trade History</h2>
             </div>
 

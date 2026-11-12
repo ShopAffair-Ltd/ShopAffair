@@ -75,6 +75,8 @@ export default function TransferModal({
 
   useEffect(() => {
     if (!isOpen) return;
+    setShowManualForm(false);
+    setError(null);
 
     try {
       const storageKey = `shopfair_withdrawal_accs_${activeUsername}`;
@@ -308,7 +310,7 @@ export default function TransferModal({
                   }}
                   className="text-[11px] font-bold text-purple-600 hover:text-purple-700 cursor-pointer pt-1 block"
                 >
-                  + Use another bank account
+                  Change / Use another bank account
                 </button>
               </div>
             )}
@@ -334,7 +336,7 @@ export default function TransferModal({
                     onChange={(e) => setTransferBeneficiary(e.target.value.replace(/\D/g, ''))}
                     placeholder="e.g. 0123456789"
                     disabled={submitting}
-                    className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl disabled:opacity-60"
+                    className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 disabled:opacity-60"
                   />
                 </div>
 
@@ -406,7 +408,7 @@ export default function TransferModal({
                 onChange={(e) => setTransferAmount(e.target.value)}
                 placeholder="e.g. 2000"
                 disabled={submitting}
-                className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl disabled:opacity-60"
+                className="w-full text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 disabled:opacity-60"
               />
             </div>
 

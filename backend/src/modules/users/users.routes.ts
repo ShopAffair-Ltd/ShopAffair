@@ -205,11 +205,11 @@ router.get('/', requireAuth, async (req, res) => {
   res.json({ users: usersWithChatEligibility });
 });
 
-// Get user by username (publicly accessible so store links work before login)
+// Get user by username or seller ID (publicly accessible so store links work before login)
 router.get('/username/:username', optionalAuth, async (req, res) => {
-  const username = req.params.username as string;
-  const user = await prisma.user.findUnique({
-    where: { username },
+  const identifier = req.params.username as string;
+  const user = await prisma.user.findFirst({
+    where: { OR: [{ id: identifier }, { username: identifier }] },
     select: {
       id: true,
       tempId: true,

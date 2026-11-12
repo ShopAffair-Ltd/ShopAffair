@@ -1,8 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, MoreVertical, Pin, Users, Bot, Sparkles,
-  MessageSquarePlus, UsersIcon, Users2, Store
+  MessageSquarePlus, UsersIcon, Users2, Store, ArrowLeft
 } from 'lucide-react';
 import { ChatRoom } from '../types';
 
@@ -42,6 +43,7 @@ export default function ChatSidebar({
   onShowNewGroup,
   onShowNewCommunity,
 }: ChatSidebarProps) {
+  const navigate = useNavigate();
   const tabFiltered = allRooms.filter((room) => {
     if (activeTab === 'All') return true;
     if (activeTab === 'Unread') return room.unreadCount > 0;
@@ -146,7 +148,17 @@ export default function ChatSidebar({
     <div className="w-full flex-col h-full flex">
       <div className="sticky top-0 bg-[#F8F9FC] z-10 px-4 pt-4 pb-0 border-b border-slate-100">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-display font-bold text-slate-900">Chats</h1>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="p-1.5 -ml-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-2xl font-display font-bold text-slate-900">Chats</h1>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={onShowNewChat}

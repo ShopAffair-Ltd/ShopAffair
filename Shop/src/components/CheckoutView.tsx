@@ -371,7 +371,7 @@ export default function CheckoutView() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isSubmitting || orderItems.length === 0}
-                className={`w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-sans font-black text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-orange-100 transition-colors flex items-center justify-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-85 pointer-events-none' : ''
+                className={`w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-sans font-black text-xs uppercase tracking-wider rounded-lg shadow-lg shadow-purple-100 transition-colors flex items-center justify-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-85 pointer-events-none' : ''
                   }`}
               >
                 {isSubmitting ? (

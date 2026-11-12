@@ -233,7 +233,7 @@ export default function MyStoreView() {
     // as-is sent visitors to the owner-only route, where the page ends up
     // showing whichever account is currently logged in as the "owner"
     // rather than this store's actual username.
-    const url = `${window.location.origin}/store/${activeProfile.username}`;
+    const url = `${window.location.origin}/store/${activeProfile.id}`;
     const shareData = {
       title: `Check out ${activeProfile.name}'s store on ShopAffair!`,
       text: `Visit ${activeProfile.name}'s store on ShopAffair! Quality products and great deals.`,

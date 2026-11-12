@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { Cpu } from 'lucide-react';
 
@@ -14,6 +14,8 @@ interface PreloaderProps {
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState('Initializing secure channels...');
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -23,14 +25,13 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           return 100;
         }
 
-        if (prev === 25) setStatusText('Verifying SSL security gates...');
-        if (prev === 55) setStatusText('Synchronizing Nigerian banking API nodes...');
-        if (prev === 80) setStatusText('Assembling secure escrow vaults...');
-        if (prev === 95) setStatusText('Ready!');
+        if (prev === 20) setStatusText('Verifying SSL security gates...');
+        if (prev === 50) setStatusText('Synchronizing escrow vaults...');
+        if (prev === 80) setStatusText('Ready!');
 
-        return prev + 5;
+        return Math.min(100, prev + 10);
       });
-    }, 100);
+    }, 30);
 
     return () => clearInterval(timer);
   }, []);
@@ -38,11 +39,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   useEffect(() => {
     if (progress === 100) {
       const delay = setTimeout(() => {
-        onComplete();
-      }, 500);
+        onCompleteRef.current();
+      }, 150);
       return () => clearTimeout(delay);
     }
-  }, [progress, onComplete]);
+  }, [progress]);
 
   return (
     <motion.div
@@ -59,14 +60,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="relative flex items-center justify-center w-24 h-24 rounded-3xl bg-white text-white shadow-xl shadow-purple-200 mb-8 border border-purple-100"
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          className="relative flex items-center justify-center w-24 h-24 rounded-full bg-white text-white shadow-xl shadow-purple-200 mb-8 border border-purple-100"
         >
-          <img src="/Image/logo.png" alt="ShopAffairlogo" className="w-16 h-16 object-contain" />
+          <img src="/Image/logo.png" alt="ShopAffairlogo" className="w-14 h-14 object-contain" />
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 4, ease: 'linear' }}
-            className="absolute inset-0 border-4 border-purple-300 border-t-transparent rounded-3xl"
+            transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+            className="absolute inset-0 border-4 border-purple-300 border-t-transparent rounded-full"
           />
         </motion.div>
 
