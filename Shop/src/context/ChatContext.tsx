@@ -6,7 +6,7 @@ import { chatSocket } from '../sockets/chat.socket';
 
 interface ChatContextType {
   chatRooms: ChatRoom[];
-  sendMessage: (roomId: string, text: string) => void;
+  sendMessage: (roomId: string, text: string, options?: { sharedTradeId?: string }) => void;
   getChatRoom: (roomId: string) => ChatRoom | undefined;
   getChatWithUser: (username: string) => ChatRoom | undefined;
   createChatRoom: (participantUsername: string, participantName: string) => void;
@@ -281,7 +281,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     };
   }, [user, selectedRoomId]);
 
-  const sendMessage = async (roomId: string, text: string) => {
+  const sendMessage = async (roomId: string, text: string, options?: { sharedTradeId?: string }) => {
     if (!user) return;
 
     const tempId = `temp_${Date.now()}`;
@@ -312,7 +312,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     );
 
     setPendingMessages((prev) => ({ ...prev, [tempId]: roomId }));
-    chatSocket.sendMessage(roomId, text);
+    chatSocket.sendMessage(roomId, text, undefined, options?.sharedTradeId);
   };
 
   const getChatRoom = (roomId: string) => {

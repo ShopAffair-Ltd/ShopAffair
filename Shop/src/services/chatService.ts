@@ -76,7 +76,7 @@ export const chatService = {
   createCommunity: (data: { name: string; description?: string; settings?: any }) =>
     api.post<{ chatRoom: ChatRoom }>('/chat/community', data),
 
-  sendMessage: (chatRoomId: string, data: { content: string; attachmentName?: string }) =>
+  sendMessage: (chatRoomId: string, data: { content: string; attachmentName?: string; sharedTradeId?: string }) =>
     api.post<{ message: ChatMessage }>(`/chat/${chatRoomId}/messages`, data),
 
   markAsRead: (chatRoomId: string) => api.post(`/chat/${chatRoomId}/read`),

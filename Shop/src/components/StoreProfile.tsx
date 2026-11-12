@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   ArrowLeft, MessageCircle, Share2, ThumbsUp,
@@ -75,6 +75,20 @@ export default function StoreProfile({
   communityPosts = []
 }: StoreProfileProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const fromProduct = searchParams.get('fromProduct') || (location.state as { returnToProduct?: string } | null)?.returnToProduct;
+
+  const handleBackNavigation = () => {
+    if (fromProduct) {
+      navigate(`/market?product=${encodeURIComponent(fromProduct)}`);
+    } else if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
+  };
+
   const { user: viewer } = useAuth();
   const [activeTab, setActiveTab] = useState<'wall' | 'products' | 'reviews'>('wall');
   const [isFollowing, setIsFollowing] = useState(seller.followingByMe ?? false);
@@ -313,7 +327,7 @@ export default function StoreProfile({
 
       <div className="sticky top-0 bg-white z-20 px-4 py-3 border-b border-slate-100 flex items-center justify-between shadow-sm">
         <button
-          onClick={onBack}
+          onClick={handleBackNavigation}
           className="p-2 rounded-full hover:bg-slate-100 transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-slate-600" />

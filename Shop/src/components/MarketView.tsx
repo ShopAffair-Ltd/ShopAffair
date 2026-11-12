@@ -128,13 +128,15 @@ export default function MarketView() {
     const openId = searchParams.get('product') || searchParams.get('open');
     if (openId && products.some((p) => p.id === openId)) {
       setSelectedProduct(products.find((p) => p.id === openId) ?? null);
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete('open');
-        next.delete('product');
-        return next;
-      }, { replace: true });
-    } else {
+      if (searchParams.get('open')) {
+        setSearchParams((prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('open');
+          next.set('product', openId);
+          return next;
+        }, { replace: true });
+      }
+    } else if (!openId) {
       window.scrollTo({ top: 0 });
     }
   }, [searchParams, products, setSearchParams]);
@@ -223,29 +225,57 @@ export default function MarketView() {
   const goToSlide = (index: number) => setCurrentSlide(index);
   const goToHotDealSlide = (index: number) => setHotDealSlide(index);
 
-  const handleVisitStore = (sellerUsername: string) => {
-    navigate(`/store/${sellerUsername}`);
+  const handleVisitStore = (sellerUsername: string, returnProductId?: string) => {
+    const productId = returnProductId || selectedProduct?.id;
+    navigate(
+      `/store/${sellerUsername}${productId ? `?fromProduct=${encodeURIComponent(productId)}` : ''}`,
+      { state: { returnToProduct: productId } }
+    );
   };
 
-  const handleStartChatWithSeller = (sellerUsername: string, sellerName: string) => {
-    // Goes straight to this seller's DM thread, not the general chat list -
-    // if there's an active trade between the two parties, ChatWindow
-    // already shows it highlighted at the top of the thread automatically.
+  const handleStartChatWithSeller = (
+    sellerUsername: string,
+    sellerName: string,
+    product?: MarketProduct
+  ) => {
+    const item = product || selectedProduct;
     startChatWithSeller(sellerUsername, sellerName);
-    navigate(`/chat/${sellerUsername}`);
+    navigate(`/chat/${sellerUsername}`, {
+      state: item
+        ? {
+            enquiryTrade: {
+              id: item.id,
+              title: item.title,
+              amount: item.price,
+              image: item.image,
+              category: item.category,
+              condition: item.condition,
+              sellerUsername: item.sellerUsername,
+              sellerName: item.sellerName
+            }
+          }
+        : undefined
+    });
   };
 
   const handleProceedToCheckout = (productId?: string) => {
     if (!activeProfile || activeProfile.verificationStatus === 'GUEST') {
       openRegister();
-    } else {
-      // Products in the cart can be from different sellers, so checking
-      // out one item shouldn't force the buyer to also pay for everything
-      // else in the cart at once. A productId here means "just this one" -
-      // CheckoutView uses it to show/submit a single-item order instead of
-      // the whole cart, which stays untouched for later.
-      navigate('/checkout', productId ? { state: { onlyProductId: productId } } : undefined);
+      return;
     }
+    if (productId) {
+      if (isTradeBasedProductId(productId)) {
+        navigate(`/trade?open=${stripTradeIdPrefix(productId)}`);
+        return;
+      }
+      const prod = products.find((p) => p.id === productId);
+      if (prod) {
+        addToCart(prod);
+      }
+      navigate('/checkout', { state: { onlyProductId: productId } });
+      return;
+    }
+    navigate('/checkout');
   };
 
   return (

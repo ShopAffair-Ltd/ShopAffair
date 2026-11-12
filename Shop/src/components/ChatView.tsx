@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatRoom } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import ChatSidebar from './chatSidebar';
 import ChatWindow from './chatWindow';
 import ChatModals from './chatModals';
@@ -20,6 +20,8 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const { user } = useAuth();
   const { chatRooms, sendMessage, markAsRead, sendError, clearSendError, loadFullChatHistory, togglePinChat, clearChatRoom, blockChatUser } = useChat();
   const navigate = useNavigate();
+  const location = useLocation();
+  const enquiryTrade = (location.state as { enquiryTrade?: any } | null)?.enquiryTrade;
 
   const { roomUsername } = useParams<{ roomUsername?: string }>();
   const activeProfile = user;
@@ -108,7 +110,15 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
     e.preventDefault();
     if (!selectedRoom || !messageText.trim()) return;
 
-    sendMessage(selectedRoom.id, messageText.trim());
+    let tradeIdToShare: string | undefined = undefined;
+    if (enquiryTrade?.id) {
+      const cleanId = String(enquiryTrade.id).replace(/^trade:/, '');
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)) {
+        tradeIdToShare = cleanId;
+      }
+    }
+
+    sendMessage(selectedRoom.id, messageText.trim(), { sharedTradeId: tradeIdToShare });
     setMessageText('');
   };
 
@@ -320,6 +330,7 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
             isSellerChat={isSellerChat}
             onTypingStart={handleTypingStart}
             onTypingStop={handleTypingStop}
+            enquiryTrade={enquiryTrade}
           />
         </>
       )}

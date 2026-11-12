@@ -28,7 +28,8 @@ export const createCommunitySchema = z.object({
 
 export const sendMessageSchema = z.object({
   content: z.string().min(1).max(5000),
-  attachmentName: z.string().optional()
+  attachmentName: z.string().optional(),
+  sharedTradeId: z.string().uuid().optional().nullable()
 });
 
 export const postTradeSchema = z.object({

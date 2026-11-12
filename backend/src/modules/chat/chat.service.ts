@@ -385,7 +385,13 @@ export const getChatRoom = async (chatRoomId: string, userId: string) => {
   return chatRoom;
 };
 
-export const sendMessage = async (chatRoomId: string, senderId: string, content: string, attachmentName?: string) => {
+export const sendMessage = async (
+  chatRoomId: string,
+  senderId: string,
+  content: string,
+  attachmentName?: string,
+  sharedTradeId?: string | null
+) => {
   const chatRoom = await prisma.chatRoom.findUnique({
     where: { id: chatRoomId },
     include: { participants: true }
@@ -445,12 +451,21 @@ export const sendMessage = async (chatRoomId: string, senderId: string, content:
     }
   }
 
+  let validSharedTradeId: string | null = null;
+  if (sharedTradeId) {
+    const trade = await prisma.trade.findUnique({ where: { id: sharedTradeId } });
+    if (trade) {
+      validSharedTradeId = sharedTradeId;
+    }
+  }
+
   const message = await prisma.chatMessage.create({
     data: {
       chatRoomId,
       senderId,
       content,
-      attachmentName
+      attachmentName,
+      sharedTradeId: validSharedTradeId
     },
     include: {
       sender: {
@@ -462,7 +477,8 @@ export const sendMessage = async (chatRoomId: string, senderId: string, content:
           avatarColor: true,
           profilePicture: true
         }
-      }
+      },
+      sharedTrade: true
     }
   });
 

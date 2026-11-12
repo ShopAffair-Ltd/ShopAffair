@@ -33,6 +33,16 @@ interface ChatWindowProps {
   isSellerChat: boolean;
   onTypingStart?: () => void;
   onTypingStop?: () => void;
+  enquiryTrade?: {
+    id: string;
+    title: string;
+    amount: number;
+    image?: string;
+    category?: string;
+    condition?: string;
+    sellerUsername?: string;
+    sellerName?: string;
+  } | null;
 }
 
 export default function ChatWindow({
@@ -60,6 +70,7 @@ export default function ChatWindow({
   isSellerChat,
   onTypingStart,
   onTypingStop,
+  enquiryTrade
 }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
@@ -335,29 +346,93 @@ export default function ChatWindow({
         </div>
       </div>
 
-      {selectedRoom.activeTrade && !['COMPLETED', 'REFUNDED'].includes(selectedRoom.activeTrade.status) && (
-        <button
-          onClick={() => navigate(`/trade?open=${selectedRoom.activeTrade!.id}`)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 bg-amber-50 border-b border-amber-100 hover:bg-amber-100/70 transition-colors text-left"
-        >
-          <div className="w-8 h-8 rounded-lg bg-white border border-amber-200 overflow-hidden shrink-0 flex items-center justify-center">
-            {selectedRoom.activeTrade.image ? (
-              <img src={selectedRoom.activeTrade.image} alt={selectedRoom.activeTrade.title} className="w-full h-full object-cover" />
-            ) : (
-              <Package className="w-4 h-4 text-amber-400" />
+      {/* Featured / Active Trade or Inquiry Preview Card */}
+      {(() => {
+        const featuredTrade = enquiryTrade || (selectedRoom.activeTrade && !['COMPLETED', 'REFUNDED'].includes(selectedRoom.activeTrade.status) ? selectedRoom.activeTrade : null);
+        if (!featuredTrade) return null;
+
+        const tradeStatus = 'status' in featuredTrade ? (featuredTrade as { status?: string }).status : 'Negotiation';
+        const tradeCategory = 'category' in featuredTrade ? (featuredTrade as { category?: string }).category : undefined;
+        const tradeCondition = 'condition' in featuredTrade ? (featuredTrade as { condition?: string }).condition : undefined;
+
+        return (
+          <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/70 to-amber-50/90 border-b border-amber-200/70 px-4 py-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[10px] font-sans font-bold text-amber-900 uppercase tracking-wide mb-1.5">
+              <span className="flex items-center gap-1 font-mono">
+                <Package className="w-3 h-3 text-amber-600" />
+                Listing #{String(featuredTrade.id || '').replace(/^trade:/, '').slice(0, 8).toUpperCase()}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 font-extrabold text-[9px] tracking-normal">
+                {enquiryTrade ? 'Inquiry · Negotiation' : `Active Trade · ${tradeStatus || 'Escrow'}`}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-xl border border-amber-200/60 shadow-xs">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
+                  {featuredTrade.image ? (
+                    <img src={featuredTrade.image} alt={featuredTrade.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Package className="w-5 h-5 text-amber-500" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-sans font-bold text-slate-900 truncate">{featuredTrade.title}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs font-sans font-black text-purple-700">
+                      ₦{Number(featuredTrade.amount || 0).toLocaleString()}
+                    </span>
+                    {tradeCategory && (
+                      <span className="text-[9px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {tradeCategory}
+                      </span>
+                    )}
+                    {tradeCondition && (
+                      <span className="text-[9px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {tradeCondition}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const rawId = String(featuredTrade.id || '');
+                  if (rawId.startsWith('trade:') || !rawId.includes('-')) {
+                    navigate(`/trade?open=${rawId.replace(/^trade:/, '')}`);
+                  } else {
+                    navigate(`/market?product=${encodeURIComponent(rawId)}`);
+                  }
+                }}
+                className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[11px] font-bold shadow-xs transition-all shrink-0 cursor-pointer flex items-center gap-1"
+              >
+                <span>View</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {enquiryTrade && selectedRoom.messages.length === 0 && (
+              <div className="mt-2 flex items-center justify-between gap-2 pt-1 border-t border-amber-200/50">
+                <span className="text-[11px] font-medium text-amber-900">
+                  Enquiring about this item?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const inquiryTemplate = `Hi @${selectedRoom.participantUsername}, I'm interested in "${featuredTrade.title}" (₦${Number(featuredTrade.amount || 0).toLocaleString()}). What's your best price?`;
+                    setMessageText(inquiryTemplate);
+                  }}
+                  className="text-[11px] font-bold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                >
+                  Use inquiry message
+                </button>
+              </div>
             )}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-sans font-bold text-amber-600 uppercase tracking-wide">
-              Active Trade · {selectedRoom.activeTrade.status}
-            </p>
-            <p className="text-xs font-sans font-semibold text-slate-800 truncate">
-              {selectedRoom.activeTrade.title} · ₦{selectedRoom.activeTrade.amount.toLocaleString()}
-            </p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
-        </button>
-      )}
+        );
+      })()}
 
       <AnimatePresence>
         {callToast && (
@@ -401,31 +476,54 @@ export default function ChatWindow({
 
           if (msg.sharedTrade) {
             const trade = msg.sharedTrade;
+            const hasCustomText = msg.content && !msg.content.startsWith('Shared a trade:');
             return (
-              <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+              <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} gap-1.5`}>
+                {hasCustomText && (
+                  <div
+                    className={`max-w-[82%] rounded-[26px] px-5 py-3 text-[14px] leading-relaxed font-sans ${
+                      isMe ? 'bg-purple-600 text-white rounded-br-lg' : 'bg-white text-slate-800 rounded-bl-lg'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                )}
                 <button
-                  onClick={() => navigate(`/trade?open=${trade.id}`)}
-                  className="max-w-[82%] w-72 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all text-left cursor-pointer overflow-hidden"
+                  onClick={() => {
+                    const rawId = String(trade.id || '');
+                    if (rawId.startsWith('trade:') || !rawId.includes('-')) {
+                      navigate(`/trade?open=${rawId.replace(/^trade:/, '')}`);
+                    } else {
+                      navigate(`/trade?open=${rawId}`);
+                    }
+                  }}
+                  className="max-w-[82%] w-76 bg-white border border-amber-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all text-left cursor-pointer overflow-hidden p-3"
                 >
-                  <div className="flex items-center gap-3 p-3">
+                  <div className="flex items-center justify-between text-[9px] font-bold text-amber-800 uppercase tracking-wide mb-1.5">
+                    <span>Trade Item</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                      {trade.status || 'Active'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
                       {trade.image ? (
                         <img src={trade.image} alt={trade.title} className="w-full h-full object-cover" />
                       ) : (
-                        <Package className="w-5 h-5 text-slate-300" />
+                        <Package className="w-5 h-5 text-amber-500" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-sans font-bold text-slate-800 truncate">{trade.title}</p>
-                      <p className="text-sm font-sans font-bold text-purple-600 mt-0.5">
-                        ₦{trade.amount.toLocaleString()}
+                      <p className="text-sm font-sans font-black text-purple-600 mt-0.5">
+                        ₦{Number(trade.amount || 0).toLocaleString()}
                       </p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                   </div>
                 </button>
                 {time && (
-                  <span className="text-[12px] font-sans mt-2 px-1 text-slate-400">{time}</span>
+                  <span className="text-[12px] font-sans px-1 text-slate-400">{time}</span>
                 )}
               </div>
             );

@@ -362,7 +362,15 @@ function StoreProfileRoute() {
           joinedDate: sellerData.createdAt || undefined
         }}
         products={products.filter((p) => p.sellerUsername === username)}
-        onBack={() => navigate(-1)}
+        onBack={() => {
+          const sp = new URLSearchParams(window.location.search);
+          const fromProd = sp.get('fromProduct');
+          if (fromProd) {
+            navigate(`/market?product=${encodeURIComponent(fromProd)}`);
+          } else {
+            navigate(-1);
+          }
+        }}
         onChat={(sellerUsername: string, sellerName: string) => {
           startChatWithSeller(sellerUsername, sellerName);
           navigate(`/chat/${sellerUsername}`);

@@ -125,12 +125,12 @@ class ChatSocket {
     this.socket!.emit('leave_chat', chatRoomId);
   }
 
-  sendMessage(chatRoomId: string, content: string, attachmentName?: string) {
+  sendMessage(chatRoomId: string, content: string, attachmentName?: string, sharedTradeId?: string) {
     if (!this.isConnected()) {
       this.emit('onError', { message: 'Not connected — check your internet connection and try again.' });
       return;
     }
-    this.socket!.emit('send_message', { chatRoomId, content, attachmentName });
+    this.socket!.emit('send_message', { chatRoomId, content, attachmentName, sharedTradeId });
   }
 
   markAsRead(chatRoomId: string) {

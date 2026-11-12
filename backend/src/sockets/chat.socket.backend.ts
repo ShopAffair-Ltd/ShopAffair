@@ -35,13 +35,14 @@ export const setupChatSocket = (io: Server) => {
       socket.leave(`chat:${chatRoomId}`);
     });
 
-    socket.on('send_message', async (data: { chatRoomId: string; content: string; attachmentName?: string }) => {
+    socket.on('send_message', async (data: { chatRoomId: string; content: string; attachmentName?: string; sharedTradeId?: string }) => {
       try {
         const message = await chatService.sendMessage(
           data.chatRoomId,
           userId,
           data.content,
-          data.attachmentName
+          data.attachmentName,
+          data.sharedTradeId
         );
 
         io.to(`chat:${data.chatRoomId}`).emit('new_message', message);

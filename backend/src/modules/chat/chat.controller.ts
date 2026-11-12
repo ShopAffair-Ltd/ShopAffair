@@ -63,7 +63,13 @@ export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
   const chatRoomId = req.params.chatRoomId as string;
   const input = sendMessageSchema.parse(req.body);
 
-  const message = await chatService.sendMessage(chatRoomId, user.id, input.content, input.attachmentName);
+  const message = await chatService.sendMessage(
+    chatRoomId,
+    user.id,
+    input.content,
+    input.attachmentName,
+    input.sharedTradeId
+  );
   res.status(201).json({ message });
 });
 

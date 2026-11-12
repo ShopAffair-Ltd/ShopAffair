@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Flame, Store, Car, Home, Smartphone, Shirt, Wrench, Tag,
   PhoneIcon, Gift, Cpu, ChevronLeft, Clock, Star, Plus, Lock,
   ShoppingBag, ArrowRight, X, Trash2, Minus, ChevronRight,
   Search, ShoppingCart, Heart, Eye, EyeOff, SlidersHorizontal,
   Zap, Sparkles, Gem, Truck, Shield, Coffee, Headphones, Watch, Camera, Laptop, Package,
-  User, MapPin, QrCode, Share2
+  User, MapPin, QrCode, Share2, MessageCircle
 } from 'lucide-react';
 import { MarketProduct, UserProfile, CartItem } from '../types';
 import QuickTransferModal from './QuickTransferModal';
@@ -83,11 +84,11 @@ interface MarketProductListProps {
   onUpdateCartQty: (productId: string, delta: number) => void;
   onRemoveFromCart: (productId: string) => void;
   onProceedToCheckout: (productId?: string) => void;
-  onStartChatWithSeller: (sellerUsername: string, sellerName: string) => void;
+  onStartChatWithSeller: (sellerUsername: string, sellerName: string, product?: MarketProduct) => void;
   isOwnListing: (product: MarketProduct) => boolean;
   quickTransferOpen: boolean;
   setQuickTransferOpen: (open: boolean) => void;
-  onVisitStore: (sellerUsername: string) => void; // Changed to string
+  onVisitStore: (sellerUsername: string, returnProductId?: string) => void;
 }
 
 export default function MarketProductList({
@@ -126,10 +127,30 @@ export default function MarketProductList({
   onVisitStore
 }: MarketProductListProps) {
 
+  const [, setSearchParams] = useSearchParams();
   const { isFavorited, toggleFavorite } = useFavorites();
   const activeGroupData = categoryGroups.find((g) => g.name === activeGroup);
   const hotDealTouchStartX = React.useRef<number | null>(null);
   const [qrProduct, setQrProduct] = React.useState<MarketProduct | null>(null);
+
+  const handleSelectProduct = (prod: MarketProduct) => {
+    setSelectedProduct(prod);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('product', prod.id);
+      return next;
+    });
+  };
+
+  const handleCloseProduct = () => {
+    setSelectedProduct(null);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('product');
+      next.delete('open');
+      return next;
+    });
+  };
 
   const openGroup = (groupName: string) => {
     setActiveGroup(groupName);
@@ -339,7 +360,7 @@ export default function MarketProductList({
                   return (
                     <div
                       key={prod.id}
-                      onClick={() => setSelectedProduct(prod)}
+                      onClick={() => handleSelectProduct(prod)}
                       className="bg-white border border-slate-100/90 rounded-lg overflow-hidden shadow-2xs cursor-pointer flex flex-col justify-between hover:border-slate-200 transition-all relative"
                     >
                       {ownListing && (
@@ -384,18 +405,29 @@ export default function MarketProductList({
                             <span>@{prod.sellerUsername}</span>
                           </div>
 
-                          {/* Visit Store Button - BLINKING */}
+                          {/* Subtle Visit Store Icon Button */}
                           {!ownListing && (
-                            <button
+                            <motion.button
+                              type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onVisitStore(prod.sellerUsername);
+                                onVisitStore(prod.sellerUsername, prod.id);
                               }}
-                              className="flex items-center gap-1 text-[7px] text-purple-600 font-bold mt-0.5 animate-pulse hover:animate-none transition-all bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded-full"
+                              className="inline-flex items-center gap-1 text-[8px] text-purple-700 font-bold bg-purple-50 hover:bg-purple-100 px-1.5 py-0.5 rounded-full border border-purple-200/60 mt-1 transition-all cursor-pointer"
+                              title={`Visit @${prod.sellerUsername}'s Store`}
+                              animate={{
+                                rotate: [0, -5, 5, -5, 5, 0]
+                              }}
+                              transition={{
+                                duration: 1.1,
+                                repeat: Infinity,
+                                repeatDelay: 2.5,
+                                ease: 'easeInOut'
+                              }}
                             >
-                              <Store className="w-2.5 h-2.5" />
-                              Visit Store
-                            </button>
+                              <Store className="w-2.5 h-2.5 text-purple-600" />
+                              <span>Visit Store</span>
+                            </motion.button>
                           )}
                         </div>
 
@@ -610,18 +642,22 @@ export default function MarketProductList({
       {/* Product Modal */}
       <AnimatePresence>
         {selectedProduct && (
-          <div className="fixed inset-0 z-45 bg-slate-900/50 backdrop-blur-xs flex items-end justify-center">
+          <div
+            className="fixed inset-0 z-45 bg-slate-900/50 backdrop-blur-xs flex items-end justify-center"
+            onClick={handleCloseProduct}
+          >
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              onClick={(e) => e.stopPropagation()}
               className="bg-white w-full max-w-md rounded-t-xl shadow-2xl border-t border-slate-150 max-h-[90vh] flex flex-col"
             >
               <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto my-3" />
 
               <button
-                onClick={() => setSelectedProduct(null)}
+                onClick={handleCloseProduct}
                 className="absolute top-3 left-4 p-1.5 rounded-full text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -637,7 +673,7 @@ export default function MarketProductList({
               </button>
 
               <button
-                onClick={() => setSelectedProduct(null)}
+                onClick={handleCloseProduct}
                 className="absolute top-3 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -678,9 +714,32 @@ export default function MarketProductList({
                 </div>
 
                 <div className="space-y-1">
-                  <span className="inline-block text-[9px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-2 py-0.5 rounded-md">
-                    {selectedProduct.category}
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-block text-[9px] font-bold text-[#7C3AED] bg-[#F5F3FF] px-2 py-0.5 rounded-md">
+                      {selectedProduct.category}
+                    </span>
+                    {!isOwnListing(selectedProduct) && (
+                      <motion.button
+                        type="button"
+                        onClick={() => onVisitStore(selectedProduct.sellerUsername, selectedProduct.id)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200/70 transition-all cursor-pointer shadow-2xs group"
+                        title={`Visit @${selectedProduct.sellerUsername}'s Store`}
+                        animate={{
+                          rotate: [0, -6, 6, -6, 6, 0],
+                          scale: [1, 1.04, 1, 1.04, 1]
+                        }}
+                        transition={{
+                          duration: 1.2,
+                          repeat: Infinity,
+                          repeatDelay: 2.5,
+                          ease: 'easeInOut'
+                        }}
+                      >
+                        <Store className="w-3.5 h-3.5 text-purple-600 transition-transform group-hover:scale-110" />
+                        <span>Visit Store</span>
+                      </motion.button>
+                    )}
+                  </div>
                   <h2 className="text-base font-sans font-black text-slate-900 leading-snug">
                     {selectedProduct.title}
                   </h2>
@@ -700,24 +759,6 @@ export default function MarketProductList({
                     {selectedProduct.description}
                   </p>
                 </div>
-
-                {/* Visit Store Button in Modal - BLINKING */}
-                {!isOwnListing(selectedProduct) && (
-                  <button
-                    onClick={() => {
-                      onVisitStore(selectedProduct.sellerUsername);
-                      setSelectedProduct(null);
-                    }}
-                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-sans font-bold text-xs rounded-lg shadow-lg flex items-center justify-center gap-2 animate-pulse hover:animate-none transition-all duration-300 hover:scale-[1.02]"
-                  >
-                    <Store className="w-4 h-4" />
-                    Visit Store
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                    </span>
-                  </button>
-                )}
               </div>
 
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex gap-3">
@@ -729,22 +770,23 @@ export default function MarketProductList({
                   <>
                     <button
                       onClick={() => {
-                        onStartChatWithSeller(selectedProduct.sellerUsername, selectedProduct.sellerName);
-                        setSelectedProduct(null);
+                        onStartChatWithSeller(selectedProduct.sellerUsername, selectedProduct.sellerName, selectedProduct);
+                        handleCloseProduct();
                       }}
-                      className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-sans font-bold text-xs rounded-lg border border-slate-200/50 cursor-pointer text-center transition-colors"
+                      className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-sans font-bold text-xs rounded-xl border border-slate-200/70 cursor-pointer text-center transition-colors flex items-center justify-center gap-1.5"
                     >
-                      Chat with Seller
+                      <MessageCircle className="w-4 h-4 text-slate-500" />
+                      <span>Chat Seller</span>
                     </button>
                     <button
                       onClick={() => {
-                        onAddToCart(selectedProduct);
-                        setSelectedProduct(null);
-                        setCartOpen(true);
+                        onProceedToCheckout(selectedProduct.id);
+                        handleCloseProduct();
                       }}
-                      className="flex-1 py-3 bg-[#7C3AED] hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer text-center transition-all"
+                      className="flex-1 py-3 bg-[#7C3AED] hover:bg-purple-700 active:scale-[0.98] text-white font-sans font-bold text-xs rounded-xl shadow-md hover:shadow-lg cursor-pointer text-center transition-all flex items-center justify-center gap-1.5"
                     >
-                      Add to Cart
+                      <ShoppingBag className="w-4 h-4" />
+                      <span>Buy Now</span>
                     </button>
                   </>
                 )}
