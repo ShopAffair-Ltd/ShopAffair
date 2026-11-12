@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useParams, useLocation, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams, useLocation, useSearchParams, Navigate } from 'react-router-dom';
 import { MarketProduct } from './types';
 
 import { useAuth } from './context/AuthContext';
@@ -253,6 +253,44 @@ function TradeHistoryRoute() {
   );
 }
 
+function TradeRoute() {
+  const { user } = useAuth();
+  const params = useParams<{ tradeId?: string; mode?: string }>();
+  const [searchParams] = useSearchParams();
+  const openId = searchParams.get('open');
+  const navigate = useNavigate();
+
+  const isSpecificTrade = (!!params.tradeId && params.tradeId !== 'new') || !!openId;
+
+  // Unauthenticated guests can view public trade cards (shared links/QR codes),
+  // but creating a new trade or editing requires an authenticated account.
+  if (!user && (params.tradeId === 'new' || params.mode === 'edit' || !isSpecificTrade)) {
+    return (
+      <ProtectedRoute>
+        <TradeView />
+      </ProtectedRoute>
+    );
+  }
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/market');
+    }
+  };
+
+  return (
+    <Shell
+      showChrome
+      showBackButton={isSpecificTrade}
+      onBack={handleBack}
+    >
+      <TradeView />
+    </Shell>
+  );
+}
+
 function MarketRoute() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -457,9 +495,13 @@ export default function App() {
 
       {showLanding ? (
         <LandingPage
-          onEnterPlatform={() => {
+          onEnterPlatform={(targetPath?: string) => {
             setShowLanding(false);
-            navigate('/market');
+            if (targetPath) {
+              navigate(targetPath);
+            } else if (window.location.pathname === '/' || window.location.pathname === '') {
+              navigate('/market');
+            }
           }}
           onLogin={openLogin}
           onRegister={openRegister}
@@ -505,30 +547,9 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/trade"
-              element={
-                <ProtectedRoute>
-                  <TradeView />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/trade/:tradeId"
-              element={
-                <ProtectedRoute>
-                  <TradeView />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/trade/:tradeId/:mode"
-              element={
-                <ProtectedRoute>
-                  <TradeView />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/trade" element={<TradeRoute />} />
+            <Route path="/trade/:tradeId" element={<TradeRoute />} />
+            <Route path="/trade/:tradeId/:mode" element={<TradeRoute />} />
             <Route
               path="/trade-history"
               element={

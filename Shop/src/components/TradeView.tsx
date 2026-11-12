@@ -77,10 +77,10 @@ export default function TradeView() {
   // Legacy deep-link support: /trade?open=<id>
   React.useEffect(() => {
     const openId = searchParams.get('open');
-    if (openId && trades.some((t) => t.id === openId)) {
+    if (openId) {
       navigate(`/trade/${openId}`, { replace: true });
     }
-  }, [searchParams, trades, navigate]);
+  }, [searchParams, navigate]);
 
   const isSeller = (trade: TradeItem) => !!activeProfile && activeProfile.username === trade.creatorUsername;
   const isBuyer = (trade: TradeItem) => !!trade.buyerUsername && !!activeProfile && activeProfile.username === trade.buyerUsername;
@@ -134,7 +134,13 @@ export default function TradeView() {
           trade={selectedTrade}
           isSeller={isSeller(selectedTrade)}
           isBuyer={isBuyer(selectedTrade)}
-          onBack={() => navigate(-1)}
+          onBack={() => {
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate(activeProfile ? '/trade' : '/market');
+            }
+          }}
           onFundTrade={async (id) => {
             await fundTrade(id);
             if (!tradeFromContext) {
@@ -172,10 +178,10 @@ export default function TradeView() {
           <p className="text-sm font-sans font-bold text-slate-800">Trade not found</p>
           <p className="text-xs font-sans text-slate-400">It may have been removed or the link is invalid.</p>
           <button
-            onClick={() => navigate('/trade')}
+            onClick={() => navigate(activeProfile ? '/trade' : '/market')}
             className="mt-2 px-4 py-2 rounded-full bg-purple-600 text-white text-xs font-sans font-bold"
           >
-            Back to Trades
+            {activeProfile ? 'Back to Trades' : 'Browse Open Market'}
           </button>
         </div>
       )}

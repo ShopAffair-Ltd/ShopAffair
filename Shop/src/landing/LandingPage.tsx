@@ -21,7 +21,7 @@ import { Navbar } from './sections/Navbar';
 import { Reveal, usePrefersReducedMotion } from './motion-utils';
 
 interface LandingPageProps {
-  onEnterPlatform: () => void;
+  onEnterPlatform: (targetPath?: string) => void;
   onLogin: () => void;
   onRegister: () => void;
 }
@@ -70,8 +70,7 @@ export default function LandingPage({ onEnterPlatform, onLogin, onRegister }: La
       <Hero onEnterPlatform={onEnterPlatform} onRegister={onRegister} />
       <NewlyListed
         onSelectProduct={(productId) => {
-          navigate(`/market?product=${encodeURIComponent(productId)}`);
-          onEnterPlatform();
+          onEnterPlatform(`/market?product=${encodeURIComponent(productId)}`);
         }}
       />
       <About />
@@ -158,7 +157,7 @@ export default function LandingPage({ onEnterPlatform, onLogin, onRegister }: La
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onClick={onEnterPlatform}
+              onClick={() => onEnterPlatform()}
               className="w-full sm:w-auto px-7 py-3.5 bg-white hover:bg-purple-50/40 text-purple-700 font-bold text-xs rounded-xl cursor-pointer border border-purple-200 shadow-xs"
             >
               Explore Public Marketplace
