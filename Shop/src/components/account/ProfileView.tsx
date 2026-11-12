@@ -1154,7 +1154,7 @@ export default function ProfileView() {
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </button>
                 <button
-                  onClick={() => navigate('/store')}
+                  onClick={() => navigate('/my-store?tab=settings')}
                   className="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left cursor-pointer"
                 >
                   <span className="text-xs font-bold text-slate-800">Manage Store Branding & Settings</span>

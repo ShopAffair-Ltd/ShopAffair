@@ -245,8 +245,16 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
 const MAX_PICKUP_ATTEMPTS = 5;
 export const PLATFORM_FEE_RATE = 0.013;
 
+const getEffectivePlatformFeeRate = async (tx: Prisma.TransactionClient): Promise<number> => {
+  const setting = await tx.platformSetting.findUnique({ where: { key: 'escrow_fee' } });
+  if (!setting) return PLATFORM_FEE_RATE;
+  const parsed = Number(setting.value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 25) return PLATFORM_FEE_RATE;
+  return parsed / 100;
+};
+
 export const verifyPickupCode = async (tradeId: string, sellerId: string, code: string) => {
-  const completedTrade = await prisma.$transaction(async (tx) => {
+  const { completedTrade, feeRate } = await prisma.$transaction(async (tx) => {
     const trade = await tx.trade.findUnique({ where: { id: tradeId } });
 
     if (!trade) {
@@ -277,8 +285,9 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
       throw new ApiError(409, 'Trade has no associated buyer');
     }
 
+    const effectiveRate = await getEffectivePlatformFeeRate(tx);
     const tradeAmount = new Prisma.Decimal(trade.amount);
-    const platformFee = tradeAmount.times(PLATFORM_FEE_RATE).toDecimalPlaces(2);
+    const platformFee = tradeAmount.times(effectiveRate).toDecimalPlaces(2);
     const releaseAmount = tradeAmount.minus(platformFee).plus(trade.deliveryFee);
 
     await tx.user.update({
@@ -308,17 +317,21 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
       }
     });
 
-    return tx.trade.update({
+    const updated = await tx.trade.update({
       where: { id: tradeId },
       data: { status: 'COMPLETED' }
     });
+
+    return { completedTrade: updated, feeRate: effectiveRate };
   });
+
+  const feePercentLabel = Number((feeRate * 100).toFixed(2));
 
   await Promise.all([
     notify({
       userId: completedTrade.creatorId,
       title: 'Payment released',
-      message: `Pickup confirmed for "${completedTrade.title}". Funds have been added to your wallet (a 1.3% platform fee was deducted from the sale amount).`,
+      message: `Pickup confirmed for "${completedTrade.title}". Funds have been added to your wallet (a ${feePercentLabel}% platform fee was deducted from the sale amount).`,
       type: 'SUCCESS'
     }),
     completedTrade.buyerId
@@ -473,8 +486,9 @@ export const forceReleaseTrade = async (tradeId: string) => {
       throw new ApiError(409, 'No locked escrow balance found for this trade');
     }
 
+    const effectiveRate = await getEffectivePlatformFeeRate(tx);
     const tradeAmount = new Prisma.Decimal(trade.amount);
-    const platformFee = tradeAmount.times(PLATFORM_FEE_RATE).toDecimalPlaces(2);
+    const platformFee = tradeAmount.times(effectiveRate).toDecimalPlaces(2);
     const releaseAmount = tradeAmount.minus(platformFee).plus(trade.deliveryFee);
 
     await tx.user.update({

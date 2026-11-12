@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowLeft,
@@ -58,11 +58,22 @@ function mapApiPost(apiPost: ApiWallPost, currentUserId: string): WallPost {
 
 export default function MyStoreView() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user: activeProfile, updateUser } = useAuth();
   const { products, addProduct, editProduct, deleteProduct } = useMarket();
   const onBack = () => navigate('/');
 
-  const [activeTab, setActiveTab] = useState<StoreTab>('wall');
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<StoreTab>(
+    tabParam === 'catalogue' || tabParam === 'settings' ? tabParam : 'wall'
+  );
+
+  useEffect(() => {
+    const param = searchParams.get('tab');
+    if (param === 'wall' || param === 'catalogue' || param === 'settings') {
+      setActiveTab(param);
+    }
+  }, [searchParams]);
 
   // ---- Wall state -----------------------------------------------------
   const [wallPosts, setWallPosts] = useState<WallPost[]>([]);
@@ -102,7 +113,14 @@ export default function MyStoreView() {
     setStoreLocationDraft(activeProfile.location || 'Nigeria');
     setStoreBioDraft(activeProfile.bio || '');
     setCoverImageDraft(activeProfile.coverImage || '');
-  }, [activeProfile?.id]);
+  }, [
+    activeProfile?.id,
+    activeProfile?.storeName,
+    activeProfile?.storeCategory,
+    activeProfile?.location,
+    activeProfile?.bio,
+    activeProfile?.coverImage
+  ]);
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
