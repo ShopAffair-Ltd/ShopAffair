@@ -6,10 +6,11 @@ import {
   ShoppingBag, ArrowRight, X, Trash2, Minus, ChevronRight,
   Search, ShoppingCart, Heart, Eye, EyeOff, SlidersHorizontal,
   Zap, Sparkles, Gem, Truck, Shield, Coffee, Headphones, Watch, Camera, Laptop, Package,
-  User, MapPin
+  User, MapPin, QrCode
 } from 'lucide-react';
 import { MarketProduct, UserProfile, CartItem } from '../types';
 import QuickTransferModal from './QuickTransferModal';
+import QrShareModal from './modals/QrShareModal';
 import { useFavorites } from '../context/FavoritesContext';
 
 interface SubCategory {
@@ -128,6 +129,7 @@ export default function MarketProductList({
   const { isFavorited, toggleFavorite } = useFavorites();
   const activeGroupData = categoryGroups.find((g) => g.name === activeGroup);
   const hotDealTouchStartX = React.useRef<number | null>(null);
+  const [qrProduct, setQrProduct] = React.useState<MarketProduct | null>(null);
 
   const openGroup = (groupName: string) => {
     setActiveGroup(groupName);
@@ -626,6 +628,14 @@ export default function MarketProductList({
               </button>
 
               <button
+                onClick={() => setQrProduct(selectedProduct)}
+                className="absolute top-3 right-12 p-1.5 rounded-full text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors cursor-pointer"
+                title="Share Product QR Card"
+              >
+                <QrCode className="w-4 h-4" />
+              </button>
+
+              <button
                 onClick={() => setSelectedProduct(null)}
                 className="absolute top-3 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
               >
@@ -836,6 +846,18 @@ export default function MarketProductList({
       </AnimatePresence>
 
       <QuickTransferModal open={quickTransferOpen} onClose={() => setQuickTransferOpen(false)} />
+
+      {qrProduct && (
+        <QrShareModal
+          isOpen={!!qrProduct}
+          onClose={() => setQrProduct(null)}
+          kind="product"
+          title={qrProduct.title}
+          subtitle={`₦${qrProduct.price.toLocaleString()} • ${qrProduct.sellerName}`}
+          url={`${window.location.origin}/market?product=${encodeURIComponent(qrProduct.id)}`}
+          imageUrl={qrProduct.image}
+        />
+      )}
     </>
   );
 }

@@ -24,6 +24,7 @@ import {
 import { UserProfile, MarketProduct } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useMarket } from '../context/MarketContext';
+import QrShareModal from './modals/QrShareModal';
 import {
   StoreTab,
   WallPost,
@@ -225,28 +226,12 @@ export default function MyStoreView() {
       ? (storeProducts.reduce((sum, p) => sum + p.rating, 0) / storeProducts.length).toFixed(1)
       : '0.0';
 
+  const [showStoreQrModal, setShowStoreQrModal] = useState(false);
+
   // ---- SHARE STORE FUNCTION ----------------------------------------------
   const handleShareStore = () => {
     if (!activeProfile) return;
-    // Build the PUBLIC store link explicitly - window.location.href here
-    // is always "/my-store" (this is the owner-only view), so sharing it
-    // as-is sent visitors to the owner-only route, where the page ends up
-    // showing whichever account is currently logged in as the "owner"
-    // rather than this store's actual username.
-    const url = `${window.location.origin}/store/${activeProfile.id}`;
-    const shareData = {
-      title: `Check out ${activeProfile.name}'s store on ShopAffair!`,
-      text: `Visit ${activeProfile.name}'s store on ShopAffair! Quality products and great deals.`,
-      url: url,
-    };
-
-    if (navigator.share) {
-      navigator.share(shareData).catch(() => { });
-    } else {
-      navigator.clipboard.writeText(url).then(() => {
-        alert('Store link copied to clipboard! Share it with your friends.');
-      });
-    }
+    setShowStoreQrModal(true);
   };
 
   // ---- Wall handlers ------------------------------------------------------
@@ -885,6 +870,18 @@ export default function MyStoreView() {
           );
         })()}
       </AnimatePresence>
+
+      {activeProfile && (
+        <QrShareModal
+          isOpen={showStoreQrModal}
+          onClose={() => setShowStoreQrModal(false)}
+          kind="store"
+          title={activeProfile.storeName || `${activeProfile.name}'s Store`}
+          subtitle={`@${activeProfile.username}`}
+          url={`${window.location.origin}/store/${activeProfile.id}`}
+          imageUrl={activeProfile.coverImage || activeProfile.profilePicture}
+        />
+      )}
     </div>
   );
 }

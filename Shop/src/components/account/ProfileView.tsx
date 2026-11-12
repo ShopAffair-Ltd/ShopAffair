@@ -5,14 +5,16 @@ import {
   User, MapPin, BarChart3, CreditCard, History, Star, 
   AlertCircle, RefreshCw, Settings, ChevronRight, Copy, 
   Check, Camera, ArrowLeft, LogOut, ShieldCheck, 
-  Bell, Lock, Sparkles, TrendingUp, Loader2
+  Bell, Lock, Sparkles, TrendingUp, Loader2, QrCode, KeyRound
 } from 'lucide-react';
 import { EscrowStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useTrades } from '../../context/TradeContext';
 import { useStore } from '../../context/StoreContext';
 import { userService } from '../../services/userService';
+import * as authService from '../../services/authService';
 import { uploadImage } from '../../services/UploadService';
+import QrShareModal from '../modals/QrShareModal';
 import {
   fetchWalletTransactions,
   WalletTransaction,
@@ -117,6 +119,18 @@ export default function ProfileView() {
   const [isEditingPin, setIsEditingPin] = useState(false);
   const [pinDraft, setPinDraft] = useState('');
   const [pinError, setPinError] = useState<string | null>(null);
+  const [showQrCard, setShowQrCard] = useState(false);
+
+  // Password change & forgot password reset states
+  const [passwordMode, setPasswordMode] = useState<'none' | 'change' | 'forgot'>('none');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [resetCodeSent, setResetCodeSent] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
 
   // Real data states for transactions, subscription, and reviews
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
@@ -501,16 +515,27 @@ export default function ProfileView() {
                   <p className="text-xs text-slate-400 font-sans">@{activeProfile.username}</p>
                 </div>
 
-                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-xl">
-                  <span className="text-[10px] font-mono text-slate-500">ID: #{activeProfile.tempId || activeProfile.id}</span>
-                  <button 
-                    onClick={handleCopyId}
-                    className="p-1 hover:bg-slate-200/50 rounded-md transition-colors cursor-pointer text-slate-400 hover:text-slate-600"
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200/50 rounded-xl">
+                    <span className="text-[10px] font-mono text-slate-500">ID: #{activeProfile.tempId || activeProfile.id}</span>
+                    <button
+                      onClick={handleCopyId}
+                      className="p-1 hover:bg-slate-200/50 rounded-md transition-colors cursor-pointer text-slate-400 hover:text-slate-600"
+                    >
+                      {copiedId ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowQrCard(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200/60 text-purple-700 rounded-xl text-[10px] font-sans font-bold transition-colors cursor-pointer"
                   >
-                    {copiedId ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <QrCode className="w-3.5 h-3.5" />
+                    Share QR Card
                   </button>
                 </div>
               </div>
+              
 
               {/* Store Plan Banner */}
               <button 
@@ -1157,6 +1182,212 @@ export default function ProfileView() {
                     )}
                     {pinError && <p className="text-[10px] text-red-500">{pinError}</p>}
                   </div>
+
+                  {/* Password & Account Recovery */}
+                  <div className="pt-3 border-t border-slate-100 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <span className="flex items-center gap-1.5 font-semibold text-slate-800">
+                          <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+                          Account Password
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Change your password or reset via email OTP
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPasswordMode((m) => (m === 'change' ? 'none' : 'change'));
+                            setPasswordError(null);
+                            setPasswordSuccess(null);
+                          }}
+                          className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg cursor-pointer text-[10px]"
+                        >
+                          {passwordMode === 'change' ? 'Cancel' : 'Change'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPasswordMode((m) => (m === 'forgot' ? 'none' : 'forgot'));
+                            setPasswordError(null);
+                            setPasswordSuccess(null);
+                            setResetCodeSent(false);
+                          }}
+                          className="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold rounded-lg cursor-pointer text-[10px]"
+                        >
+                          {passwordMode === 'forgot' ? 'Cancel' : 'Forgot?'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {passwordError && (
+                      <p className="text-[11px] text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">
+                        {passwordError}
+                      </p>
+                    )}
+                    {passwordSuccess && (
+                      <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-2 rounded-xl">
+                        {passwordSuccess}
+                      </p>
+                    )}
+
+                    {passwordMode === 'change' && (
+                      <div className="space-y-2 pt-1">
+                        <input
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          placeholder="Current password"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-purple-600"
+                        />
+                        <input
+                          type="password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="New password (min 8 characters)"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-purple-600"
+                        />
+                        <input
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm new password"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-purple-600"
+                        />
+                        <button
+                          type="button"
+                          disabled={passwordLoading}
+                          onClick={async () => {
+                            setPasswordError(null);
+                            setPasswordSuccess(null);
+                            if (!currentPassword || newPassword.length < 8) {
+                              setPasswordError('Enter your current password and a new password (8+ chars).');
+                              return;
+                            }
+                            if (newPassword !== confirmPassword) {
+                              setPasswordError('New passwords do not match.');
+                              return;
+                            }
+                            setPasswordLoading(true);
+                            try {
+                              await authService.changePassword({ currentPassword, newPassword });
+                              setPasswordSuccess('Password updated successfully!');
+                              setCurrentPassword('');
+                              setNewPassword('');
+                              setConfirmPassword('');
+                              setPasswordMode('none');
+                            } catch (err: unknown) {
+                              const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                              setPasswordError(msg || 'Failed to change password.');
+                            } finally {
+                              setPasswordLoading(false);
+                            }
+                          }}
+                          className="w-full py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs cursor-pointer"
+                        >
+                          {passwordLoading ? 'Updating...' : 'Update Password'}
+                        </button>
+                      </div>
+                    )}
+
+                    {passwordMode === 'forgot' && (
+                      <div className="space-y-2 pt-1">
+                        <p className="text-[11px] text-slate-500">
+                          We will send a 6-digit verification code to <span className="font-semibold text-slate-700">{activeProfile.email}</span>.
+                        </p>
+                        {!resetCodeSent ? (
+                          <button
+                            type="button"
+                            disabled={passwordLoading}
+                            onClick={async () => {
+                              setPasswordError(null);
+                              setPasswordSuccess(null);
+                              setPasswordLoading(true);
+                              try {
+                                await authService.requestPasswordReset(activeProfile.email);
+                                setResetCodeSent(true);
+                                setPasswordSuccess(`Reset code sent to ${activeProfile.email}`);
+                              } catch (err: unknown) {
+                                const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                                setPasswordError(msg || 'Failed to send reset code.');
+                              } finally {
+                                setPasswordLoading(false);
+                              }
+                            }}
+                            className="w-full py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs cursor-pointer"
+                          >
+                            {passwordLoading ? 'Sending code...' : 'Send Reset Code to Email'}
+                          </button>
+                        ) : (
+                          <>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={resetCode}
+                              onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              placeholder="Enter 6-digit email code"
+                              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-purple-600"
+                            />
+                            <input
+                              type="password"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              placeholder="New password (min 8 characters)"
+                              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-purple-600"
+                            />
+                            <input
+                              type="password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              placeholder="Confirm new password"
+                              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-purple-600"
+                            />
+                            <button
+                              type="button"
+                              disabled={passwordLoading}
+                              onClick={async () => {
+                                setPasswordError(null);
+                                setPasswordSuccess(null);
+                                if (resetCode.length < 4 || newPassword.length < 8) {
+                                  setPasswordError('Enter the 6-digit code and a new password (8+ chars).');
+                                  return;
+                                }
+                                if (newPassword !== confirmPassword) {
+                                  setPasswordError('Passwords do not match.');
+                                  return;
+                                }
+                                setPasswordLoading(true);
+                                try {
+                                  await authService.resetPassword({
+                                    email: activeProfile.email,
+                                    code: resetCode,
+                                    newPassword
+                                  });
+                                  setPasswordSuccess('Password reset successfully!');
+                                  setResetCode('');
+                                  setNewPassword('');
+                                  setConfirmPassword('');
+                                  setResetCodeSent(false);
+                                  setPasswordMode('none');
+                                } catch (err: unknown) {
+                                  const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                                  setPasswordError(msg || 'Invalid or expired code.');
+                                } finally {
+                                  setPasswordLoading(false);
+                                }
+                              }}
+                              className="w-full py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs cursor-pointer"
+                            >
+                              {passwordLoading ? 'Resetting...' : 'Verify Code & Reset Password'}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1323,6 +1554,15 @@ export default function ProfileView() {
         </AnimatePresence>
       </div>
 
+      <QrShareModal
+        isOpen={showQrCard}
+        onClose={() => setShowQrCard(false)}
+        kind="trader"
+        title={activeProfile.name}
+        subtitle={`@${activeProfile.username}`}
+        url={`${window.location.origin}/store/${activeProfile.id}`}
+        imageUrl={activeProfile.profilePicture}
+      />
     </div>
   );
 }

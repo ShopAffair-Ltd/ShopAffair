@@ -10,7 +10,8 @@ import {
   verifySignupOtp,
   resendSignupOtpHandler,
   forgotPassword,
-  resetPasswordHandler
+  resetPasswordHandler,
+  changePasswordHandler
 } from './auth.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
 
@@ -56,6 +57,7 @@ router.post('/register/verify-email', otpVerifyLimiter, verifySignupOtp);
 router.post('/register/resend-otp', otpSendLimiter, resendSignupOtpHandler);
 router.post('/forgot-password', otpSendLimiter, forgotPassword);
 router.post('/reset-password', otpVerifyLimiter, resetPasswordHandler);
+router.post('/change-password', requireAuth, changePasswordHandler);
 router.post('/login', loginLimiter, login);
 router.get('/me', requireAuth, me);
 

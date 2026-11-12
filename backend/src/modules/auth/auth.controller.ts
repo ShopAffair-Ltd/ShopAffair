@@ -9,7 +9,8 @@ import {
   verifySignupOtpSchema,
   resendOtpSchema,
   requestPasswordResetSchema,
-  resetPasswordSchema
+  resetPasswordSchema,
+  changePasswordSchema
 } from './auth.validation';
 import {
   startRegistrationDraft,
@@ -21,7 +22,8 @@ import {
   verifySignupEmail,
   resendSignupOtp,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
+  changePassword
 } from './auth.service';
 
 const sanitizeUser = (user: Record<string, unknown>) => {
@@ -80,6 +82,17 @@ export const resetPasswordHandler = asyncHandler(async (req: Request, res: Respo
   const { email, code, newPassword } = resetPasswordSchema.parse(req.body);
   await resetPassword(email, code, newPassword);
   res.status(200).json({ message: 'Password reset successfully' });
+});
+
+export const changePasswordHandler = asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req as Request & { user?: { id: string } }).user?.id;
+  if (!userId) {
+    res.status(401).json({ message: 'Not authenticated' });
+    return;
+  }
+  const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+  await changePassword(userId, currentPassword, newPassword);
+  res.status(200).json({ message: 'Password updated successfully' });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {

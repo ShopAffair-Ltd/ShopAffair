@@ -17,6 +17,7 @@ import * as wallPostService from '../services/wallPostService';
 import type { WallPost as ApiWallPost } from '../services/wallPostService';
 import * as tradeService from '../services/TradeService';
 import { EscrowStatus } from '../types/trade';
+import QrShareModal from './modals/QrShareModal';
 
 function mapApiPost(apiPost: ApiWallPost, sellerId: string): WallPost {
   return {
@@ -82,6 +83,7 @@ export default function StoreProfile({
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);
+  const [showStoreQrModal, setShowStoreQrModal] = useState(false);
   const [stats, setStats] = useState({
     rating: seller.rating || 0,
     reviewsCount: seller.reviewsCount || 0,
@@ -321,20 +323,9 @@ export default function StoreProfile({
         </span>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => {
-              const url = `${window.location.origin}/store/${seller.username}`;
-              if (navigator.share) {
-                navigator.share({
-                  title: `${seller.storeName || seller.name} on ShopAffair`,
-                  url
-                }).catch(() => {});
-              } else {
-                navigator.clipboard.writeText(url);
-                alert('Store link copied to clipboard!');
-              }
-            }}
+            onClick={() => setShowStoreQrModal(true)}
             className="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-600 cursor-pointer"
-            title="Share store"
+            title="Share store QR"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -690,6 +681,16 @@ export default function StoreProfile({
         </div>
 
       </div>
+
+      <QrShareModal
+        isOpen={showStoreQrModal}
+        onClose={() => setShowStoreQrModal(false)}
+        kind="store"
+        title={seller.storeName || seller.name}
+        subtitle={`@${seller.username}`}
+        url={`${window.location.origin}/store/${seller.id || seller.username}`}
+        imageUrl={seller.avatar}
+      />
     </div>
   );
 }

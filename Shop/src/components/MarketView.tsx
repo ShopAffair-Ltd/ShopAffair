@@ -125,12 +125,13 @@ export default function MarketView() {
   const [hotDealSlide, setHotDealSlide] = useState(0);
 
   useEffect(() => {
-    const openId = searchParams.get('open');
+    const openId = searchParams.get('product') || searchParams.get('open');
     if (openId && products.some((p) => p.id === openId)) {
       setSelectedProduct(products.find((p) => p.id === openId) ?? null);
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
         next.delete('open');
+        next.delete('product');
         return next;
       }, { replace: true });
     } else {

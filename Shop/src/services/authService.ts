@@ -170,3 +170,12 @@ export interface ResetPasswordPayload {
 export const resetPassword = async (payload: ResetPasswordPayload): Promise<void> => {
   await api.post('/auth/reset-password', payload);
 };
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export const changePassword = async (payload: ChangePasswordPayload): Promise<void> => {
+  await api.post('/auth/change-password', payload);
+};

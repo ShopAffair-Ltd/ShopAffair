@@ -282,3 +282,23 @@ export const resetPassword = async (email: string, code: string, newPassword: st
     data: { passwordHash }
   });
 };
+
+export const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user || user.isDraft || !user.passwordHash) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) {
+    throw new ApiError(400, 'Current password is incorrect');
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash }
+  });
+};
