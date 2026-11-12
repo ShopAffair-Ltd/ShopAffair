@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Loader2, CheckCircle2 } from 'lucide-react';
+import { X, Loader2, CheckCircle2, Lock } from 'lucide-react';
 import { resolveAccountAllBanks, ResolvedBankMatch } from '../../services/paymentService';
+import { useAuth } from '../../context/AuthContext';
 
 interface SavedAccount {
   accountNumber: string;
@@ -57,8 +58,11 @@ export default function TransferModal({
   verifiedBankCode,
   virtualAccountNumber
 }: TransferModalProps) {
+  const { user } = useAuth();
   const [transferAmount, setTransferAmount] = useState('');
   const [transferBeneficiary, setTransferBeneficiary] = useState('');
+  const [pinInput, setPinInput] = useState('');
+  const [configuredPin, setConfiguredPin] = useState('');
   const [selectedBankCode, setSelectedBankCode] = useState('');
 
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +115,20 @@ export default function TransferModal({
       // ignore
     }
   }, [isOpen, activeUsername, verifiedAccountNumber, verifiedBankName, verifiedBankCode, virtualAccountNumber, accountHolderName]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setPinInput('');
+    if (user?.id) {
+      try {
+        const raw = localStorage.getItem(`shopfair_user_prefs_${user.id}`);
+        const parsed = raw ? JSON.parse(raw) : {};
+        setConfiguredPin(typeof parsed.tradingPin === 'string' ? parsed.tradingPin : '');
+      } catch {
+        setConfiguredPin('');
+      }
+    }
+  }, [isOpen, user?.id]);
 
   const handleSelectAccount = (acc: SavedAccount) => {
     setTransferBeneficiary(acc.accountNumber);
@@ -193,9 +211,36 @@ export default function TransferModal({
       return;
     }
 
-    if (!resolvedName) {
-      setError('Please enter a valid account number and select a bank first');
+    if (!selectedBankCode || !resolvedName) {
+      setError('Please enter a valid account number and select your bank first.');
       return;
+    }
+
+    if (!amt || Number.isNaN(amt) || amt < 100) {
+      setError('Minimum withdrawal amount is ₦100.');
+      return;
+    }
+
+    if (pinInput.length !== 4) {
+      setError('Please enter your 4-digit withdrawal PIN.');
+      return;
+    }
+
+    if (configuredPin) {
+      if (pinInput !== configuredPin) {
+        setError('Incorrect 4-digit PIN. Please try again.');
+        return;
+      }
+    } else if (user?.id) {
+      try {
+        const key = `shopfair_user_prefs_${user.id}`;
+        const raw = localStorage.getItem(key);
+        const existing = raw ? JSON.parse(raw) : {};
+        localStorage.setItem(key, JSON.stringify({ ...existing, tradingPin: pinInput }));
+        setConfiguredPin(pinInput);
+      } catch {
+        // ignore storage error
+      }
     }
 
     setSubmitting(true);
@@ -229,9 +274,9 @@ export default function TransferModal({
       setResolvedName(null);
       onClose();
     } catch (err: unknown) {
-      const backendMessage =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setError(backendMessage ?? 'Transfer failed. Please try again.');
+      const responseData = (err as { response?: { data?: { message?: string; errors?: Array<{ message?: string }> } } })?.response?.data;
+      const detailedError = responseData?.errors?.[0]?.message || responseData?.message;
+      setError(detailedError ?? 'Transfer failed. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -343,29 +388,49 @@ export default function TransferModal({
                 {/* Bank is auto-detected from the account number, same as
                     signup - no manual search needed. If more than one bank
                     matches, the options appear below to pick from. */}
-                {bankMatches.length > 1 && (
-                  <div className="flex flex-col gap-1.5">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase">
-                      This account number matches more than one bank - select yours
-                    </label>
-                    <div className="space-y-1.5 max-h-36 overflow-y-auto">
-                      {bankMatches.map((match) => (
+                {bankMatches.length > 1 && (() => {
+                  const chosenMatch = bankMatches.find((m) => m.bankCode === selectedBankCode);
+                  if (chosenMatch) {
+                    return (
+                      <div className="p-2.5 rounded-xl border border-purple-600 bg-purple-50/60 flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="font-bold text-xs text-slate-800 block truncate">{chosenMatch.bankName}</span>
+                          <span className="text-[10px] text-slate-500 block truncate">{chosenMatch.accountName}</span>
+                        </div>
                         <button
-                          key={match.bankCode}
                           type="button"
-                          onClick={() => handleSelectBankMatch(match)}
-                          className={`w-full p-2.5 rounded-xl border text-left transition-all cursor-pointer ${selectedBankCode === match.bankCode
-                              ? 'border-purple-600 bg-purple-50/60 shadow-xs'
-                              : 'border-slate-100 bg-slate-50 hover:bg-slate-100/80'
-                            }`}
+                          onClick={() => {
+                            setSelectedBankCode('');
+                            setResolvedName(null);
+                          }}
+                          className="text-[11px] font-bold text-purple-600 hover:text-purple-700 shrink-0 cursor-pointer"
                         >
-                          <span className="font-bold text-xs text-slate-800 block">{match.bankName}</span>
-                          <span className="text-[10px] text-slate-500 block">{match.accountName}</span>
+                          Change bank
                         </button>
-                      ))}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase">
+                        This account number matches more than one bank - select yours
+                      </label>
+                      <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                        {bankMatches.map((match) => (
+                          <button
+                            key={match.bankCode}
+                            type="button"
+                            onClick={() => handleSelectBankMatch(match)}
+                            className="w-full p-2.5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/80 text-left transition-all cursor-pointer"
+                          >
+                            <span className="font-bold text-xs text-slate-800 block">{match.bankName}</span>
+                            <span className="text-[10px] text-slate-500 block">{match.accountName}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             )}
 
@@ -412,9 +477,34 @@ export default function TransferModal({
               />
             </div>
 
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase">
+                <Lock className="w-3 h-3 text-purple-600" />
+                {configuredPin ? '4-Digit Withdrawal PIN' : 'Create 4-Digit Withdrawal PIN'}
+              </label>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={pinInput}
+                onChange={(e) => {
+                  setPinInput(e.target.value.replace(/\D/g, '').slice(0, 4));
+                  setError(null);
+                }}
+                placeholder="••••"
+                disabled={submitting}
+                className="w-full text-sm tracking-[0.35em] px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 disabled:opacity-60"
+              />
+              {!configuredPin && (
+                <span className="text-[10px] text-slate-400">
+                  First withdrawal — this PIN will be required to authorize future withdrawals.
+                </span>
+              )}
+            </div>
+
             <button
               onClick={handleSubmit}
-              disabled={submitting || !resolvedName}
+              disabled={submitting || !resolvedName || pinInput.length !== 4}
               className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               {submitting ? (

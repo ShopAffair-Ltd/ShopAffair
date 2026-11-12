@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TradeItem } from '../types';
 import { useTrades } from '../context/TradeContext';
 import { useAuth } from '../context/AuthContext';
+import { fetchTradeById } from '../services/TradeService';
 import TradeListView from './TradeListView';
 import TradeCreateView from './TradeCreateView';
 import TradeDetailView from './TradeDetailView';
@@ -39,7 +40,37 @@ export default function TradeView() {
   const isNew = params.tradeId === 'new';
   const isEdit = params.mode === 'edit';
   const selectedTradeId = !isNew ? params.tradeId ?? null : null;
-  const selectedTrade = selectedTradeId ? trades.find((t) => t.id === selectedTradeId) || null : null;
+  const tradeFromContext = selectedTradeId ? trades.find((t) => t.id === selectedTradeId) || null : null;
+  const [fetchedTrade, setFetchedTrade] = React.useState<TradeItem | null>(null);
+  const [loadingSharedTrade, setLoadingSharedTrade] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!selectedTradeId) {
+      setFetchedTrade(null);
+      return;
+    }
+    if (tradeFromContext) {
+      setFetchedTrade(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingSharedTrade(true);
+    fetchTradeById(selectedTradeId)
+      .then((trade) => {
+        if (!cancelled) setFetchedTrade(trade);
+      })
+      .catch(() => {
+        if (!cancelled) setFetchedTrade(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSharedTrade(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTradeId, tradeFromContext]);
+
+  const selectedTrade = tradeFromContext || fetchedTrade;
 
   // Legacy deep-link support: /trade?open=<id>
   React.useEffect(() => {
@@ -118,12 +149,21 @@ export default function TradeView() {
           onBack={() => navigate(-1)}
           onFundTrade={async (id) => {
             await fundTrade(id);
+            if (!tradeFromContext) {
+              setFetchedTrade(await fetchTradeById(id));
+            }
           }}
           onVerifyPickupCode={async (id, code) => {
             await verifyPickupCode(id, code);
+            if (!tradeFromContext) {
+              setFetchedTrade(await fetchTradeById(id));
+            }
           }}
           onUpdateStatus={async (id, status) => {
             await updateTradeStatus(id, status);
+            if (!tradeFromContext) {
+              setFetchedTrade(await fetchTradeById(id));
+            }
           }}
           onEditTrade={(id) => navigate(`/trade/${id}/edit`)}
           onCancelTrade={async (id) => {
@@ -133,7 +173,13 @@ export default function TradeView() {
         />
       )}
 
-      {selectedTradeId && !selectedTrade && !tradesLoading && (
+      {selectedTradeId && !selectedTrade && (tradesLoading || loadingSharedTrade) && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-7 h-7 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      {selectedTradeId && !selectedTrade && !tradesLoading && !loadingSharedTrade && (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
           <p className="text-sm font-sans font-bold text-slate-800">Trade not found</p>
           <p className="text-xs font-sans text-slate-400">It may have been removed or the link is invalid.</p>

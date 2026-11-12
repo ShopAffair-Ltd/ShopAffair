@@ -364,7 +364,7 @@ export const requestWithdrawal = async (params: {
     });
 
     return { transaction: created };
-  });
+  }, { maxWait: 10000, timeout: 15000 });
 
   try {
     const transfer = await paystack.initiateTransfer({

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Search, MoreVertical, Pin, Users, Bot, Sparkles,
-  MessageSquarePlus, UsersIcon, Users2, Store, ArrowLeft
+  Search, MoreVertical, Pin, PinOff, Users, Bot, Sparkles,
+  MessageSquarePlus, UsersIcon, Users2, Store, ArrowLeft,
+  Trash2, Ban, CheckSquare, X
 } from 'lucide-react';
 import { ChatRoom } from '../types';
 
@@ -22,6 +23,9 @@ interface ChatSidebarProps {
   setShowOverflowMenu: (show: boolean) => void;
   onShowNewGroup: () => void;
   onShowNewCommunity: () => void;
+  onTogglePin?: (room: ChatRoom) => void;
+  onClearChat?: (room: ChatRoom) => void;
+  onBlockUser?: (room: ChatRoom) => void;
 }
 
 const isGroupOrCommunity = (room: ChatRoom) =>
@@ -42,8 +46,22 @@ export default function ChatSidebar({
   setShowOverflowMenu,
   onShowNewGroup,
   onShowNewCommunity,
+  onTogglePin,
+  onClearChat,
+  onBlockUser,
 }: ChatSidebarProps) {
   const navigate = useNavigate();
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const highlightedRoom = allRooms.find((r) => r.id === highlightedRoomId) ?? null;
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setHighlightedRoomId(null);
+  };
+
   const tabFiltered = allRooms.filter((room) => {
     if (activeTab === 'All') return true;
     if (activeTab === 'Unread') return room.unreadCount > 0;
@@ -67,14 +85,47 @@ export default function ChatSidebar({
 
   const renderRoomRow = (room: ChatRoom, pinned: boolean) => {
     const isAI = room.participantRole === 'ai';
-    const isSelected = room.id === selectedRoomId;
+    const isHighlighted = highlightedRoomId === room.id;
+    const isSelected = room.id === selectedRoomId || isHighlighted;
+
+    const handleRowClick = () => {
+      if (selectionMode) {
+        setHighlightedRoomId((prev) => (prev === room.id ? null : room.id));
+        return;
+      }
+      onSelectRoom(room);
+    };
+
+    const startLongPress = () => {
+      longPressTimerRef.current = setTimeout(() => {
+        setSelectionMode(true);
+        setHighlightedRoomId(room.id);
+      }, 450);
+    };
+
+    const cancelLongPress = () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+    };
 
     return (
       <div
         key={room.id}
-        onClick={() => onSelectRoom(room)}
+        onClick={handleRowClick}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setSelectionMode(true);
+          setHighlightedRoomId(room.id);
+        }}
+        onTouchStart={startLongPress}
+        onTouchEnd={cancelLongPress}
+        onTouchMove={cancelLongPress}
         className={`p-3 rounded-xl shadow-sm hover:shadow-md cursor-pointer flex items-center justify-between transition-all mb-2 border ${
-          isSelected
+          isHighlighted
+            ? 'bg-purple-100/80 border-purple-500 ring-2 ring-purple-300'
+            : isSelected
             ? 'bg-purple-50 border-purple-300 ring-1 ring-purple-200'
             : isAI
             ? 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'
@@ -210,9 +261,18 @@ export default function ChatSidebar({
                           setShowOverflowMenu(false);
                           onShowNewCommunity();
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-slate-700 hover:bg-slate-50 transition-colors border-b border-slate-50"
                       >
                         <Users2 className="w-4 h-4 text-slate-400" /> New Community
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowOverflowMenu(false);
+                          setSelectionMode(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        <CheckSquare className="w-4 h-4 text-purple-500" /> Select Chat
                       </button>
                     </motion.div>
                   </>
@@ -253,6 +313,63 @@ export default function ChatSidebar({
             </button>
           ))}
         </div>
+
+        {selectionMode && (
+          <div className="my-2 px-3 py-2 rounded-xl bg-purple-600 text-white flex items-center justify-between gap-2 shadow-sm">
+            <span className="text-xs font-sans font-semibold truncate">
+              {highlightedRoom ? highlightedRoom.participantName : 'Tap a chat to select'}
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {highlightedRoom && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onTogglePin?.(highlightedRoom);
+                      exitSelectionMode();
+                    }}
+                    className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
+                    title={highlightedRoom.isPinned ? 'Unpin chat' : 'Pin chat'}
+                  >
+                    {highlightedRoom.isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClearChat?.(highlightedRoom);
+                      exitSelectionMode();
+                    }}
+                    className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
+                    title="Clear chat"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  {highlightedRoom.participantRole !== 'ai' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onBlockUser?.(highlightedRoom);
+                        exitSelectionMode();
+                      }}
+                      className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 transition-colors"
+                      title="Block account"
+                    >
+                      <Ban className="w-4 h-4" />
+                    </button>
+                  )}
+                </>
+              )}
+              <button
+                type="button"
+                onClick={exitSelectionMode}
+                className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
+                title="Cancel selection"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar">

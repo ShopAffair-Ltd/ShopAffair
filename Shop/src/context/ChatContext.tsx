@@ -17,6 +17,9 @@ interface ChatContextType {
   loading: boolean;
   refreshChats: () => Promise<void>;
   loadFullChatHistory: (roomId: string) => Promise<void>;
+  togglePinChat: (roomId: string) => Promise<void>;
+  clearChatRoom: (roomId: string) => Promise<void>;
+  blockChatUser: (userId: string, reason?: string) => Promise<void>;
   sendError: string | null;
   clearSendError: () => void;
 }
@@ -371,6 +374,37 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const refreshChats = loadChats;
 
+  const togglePinChat = async (roomId: string) => {
+    if (!user) return;
+    const response = await chatService.togglePin(roomId);
+    const nextPinned = response.data?.result?.isPinned;
+    setChatRooms((prev) =>
+      prev.map((room) =>
+        room.id === roomId
+          ? { ...room, isPinned: typeof nextPinned === 'boolean' ? nextPinned : !room.isPinned }
+          : room
+      )
+    );
+  };
+
+  const clearChatRoom = async (roomId: string) => {
+    if (!user) return;
+    await chatService.clearChat(roomId);
+    setChatRooms((prev) =>
+      prev.map((room) =>
+        room.id === roomId
+          ? { ...room, messages: [], lastMessage: 'No messages yet', unreadCount: 0 }
+          : room
+      )
+    );
+  };
+
+  const blockChatUser = async (userId: string, reason?: string) => {
+    if (!user) return;
+    await chatService.blockUser(userId, reason);
+    await loadChats();
+  };
+
   const totalUnread = chatRooms.reduce((sum, r) => sum + r.unreadCount, 0);
 
   return (
@@ -387,6 +421,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       loading,
       refreshChats,
       loadFullChatHistory,
+      togglePinChat,
+      clearChatRoom,
+      blockChatUser,
       sendError,
       clearSendError: () => setSendError(null)
     }}>

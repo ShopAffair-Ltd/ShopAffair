@@ -51,6 +51,7 @@ export default function TradeDetailView({
   const [showShareModal, setShowShareModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
 
   const escrowTotal = trade.amount + trade.deliveryFee;
   const hasInsufficientBalance = !!user && user.walletBalance < escrowTotal;
@@ -108,12 +109,25 @@ export default function TradeDetailView({
   // Escrow release must go through the verified 6-digit pickup code or admin dispute resolution.
 
   const handleCopyLink = async () => {
-    const url = window.location.href;
+    const url = `${window.location.origin}/trade/${trade.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: trade.title,
+          text: `View this trade on ShopAffair (ID: ${trade.id}) — ₦${trade.amount.toLocaleString()}`,
+          url,
+        });
+        return;
+      } catch {
+        // fall through to clipboard if share sheet is dismissed/unsupported
+      }
+    }
     try {
       await navigator.clipboard.writeText(url);
-      alert('Trade link copied to clipboard!');
-    } catch (err) {
-      alert('Failed to copy link.');
+      setCopyToast(true);
+      setTimeout(() => setCopyToast(false), 2500);
+    } catch {
+      alert(`Copy this trade link:\n${url}`);
     }
   };
 
@@ -127,26 +141,27 @@ export default function TradeDetailView({
           <ArrowLeft className="w-5 h-5" />
         </button>
         <span className="text-xs font-mono font-bold text-purple-600">TRADE {trade.id}</span>
-        {isSeller ? (
-          <div className="flex items-center gap-1">
-            <button
-              onClick={handleCopyLink}
-              className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
-              title="Copy Link"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
-              title="Share to Chat/Group"
-            >
-              <Share2 className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="w-8 h-8" />
-        )}
+        <div className="flex items-center gap-1 relative">
+          {copyToast && (
+            <span className="absolute right-0 top-9 whitespace-nowrap bg-slate-900 text-white text-[10px] font-sans font-semibold px-2.5 py-1 rounded-lg shadow-lg">
+              Trade link copied!
+            </span>
+          )}
+          <button
+            onClick={handleCopyLink}
+            className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
+            title="Copy / Share Trade Link"
+          >
+            <Copy className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
+            title="Share to Chat/Group"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <ShareToGroupModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} tradeId={trade.id} />
@@ -194,7 +209,7 @@ export default function TradeDetailView({
           variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
           className="p-4 bg-slate-50 border border-slate-100 rounded-lg"
         >
-          <span className="block text-[10px] font-sans font-bold tracking-wider text-slate-400 mb-3">ESCROW PIPELINE STATE</span>
+          <span className="block text-[10px] font-sans font-bold tracking-wider text-slate-400 mb-3">TRADE STATUS</span>
 
           <div className="flex items-center justify-between relative">
             <div className="absolute left-4 right-4 top-4.5 h-0.5 bg-slate-200 -z-10" />
@@ -202,17 +217,30 @@ export default function TradeDetailView({
             {PIPELINE_STEPS.map((step, idx) => {
               const activeIdx = PIPELINE_ORDER.indexOf(trade.status);
               const stepIdx = PIPELINE_ORDER.indexOf(step.status);
-              const isDone = activeIdx >= stepIdx;
+              const isCompleted =
+                stepIdx < activeIdx ||
+                (trade.status === EscrowStatus.COMPLETED && stepIdx === activeIdx);
+              const isCurrent =
+                stepIdx === activeIdx && trade.status !== EscrowStatus.COMPLETED;
 
               return (
                 <div key={idx} className="flex flex-col items-center">
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center border font-sans font-bold text-xs ${isDone ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-400 border-slate-200'
-                      }`}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center border font-sans font-bold text-xs ${
+                      isCompleted
+                        ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                        : isCurrent
+                        ? 'bg-purple-50 text-purple-600 border-2 border-purple-600 shadow-sm'
+                        : 'bg-white text-slate-400 border-slate-200'
+                    }`}
                   >
                     {idx + 1}
                   </div>
-                  <span className={`text-[10px] font-sans mt-1.5 font-bold ${isDone ? 'text-purple-600' : 'text-slate-400'}`}>
+                  <span
+                    className={`text-[10px] font-sans mt-1.5 font-bold ${
+                      isCompleted || isCurrent ? 'text-purple-600' : 'text-slate-400'
+                    }`}
+                  >
                     {step.label}
                   </span>
                 </div>
@@ -336,7 +364,7 @@ export default function TradeDetailView({
                   disabled={isFunding || hasInsufficientBalance}
                   className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer text-center"
                 >
-                  {isFunding ? 'Funding...' : `Fund Escrow Lock (₦${escrowTotal.toLocaleString()})`}
+                  {isFunding ? 'Processing Payment...' : `Pay Now (₦${escrowTotal.toLocaleString()})`}
                 </button>
               </div>
             ))}

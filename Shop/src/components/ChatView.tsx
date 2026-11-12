@@ -18,7 +18,7 @@ interface ChatViewProps {
 
 export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewProps) {
   const { user } = useAuth();
-  const { chatRooms, sendMessage, markAsRead, sendError, clearSendError, loadFullChatHistory } = useChat();
+  const { chatRooms, sendMessage, markAsRead, sendError, clearSendError, loadFullChatHistory, togglePinChat, clearChatRoom, blockChatUser } = useChat();
   const navigate = useNavigate();
 
   const { roomUsername } = useParams<{ roomUsername?: string }>();
@@ -207,6 +207,55 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
   const isSellerChat = selectedRoom?.participantRole === 'seller' && selectedRoom?.participantUsername !== activeProfile?.username;
   const isAIChat = selectedRoom?.participantRole === 'ai';
 
+  const getOtherParticipantId = (room: ChatRoom): string | null => {
+    const other = room.participants?.find(
+      (p: any) => p.user?.username !== activeProfile?.username && p.username !== activeProfile?.username
+    );
+    return other?.user?.id || other?.userId || other?.id || null;
+  };
+
+  const showToast = (msg: string) => {
+    setCallToast(msg);
+    setTimeout(() => setCallToast(null), 2800);
+  };
+
+  const handleTogglePin = async (room: ChatRoom) => {
+    try {
+      await togglePinChat(room.id);
+      showToast(room.isPinned ? `Unpinned ${room.participantName}` : `Pinned ${room.participantName}`);
+    } catch {
+      showToast('Failed to update pin status');
+    }
+  };
+
+  const handleClearChat = async (room: ChatRoom) => {
+    if (!window.confirm(`Clear all messages in chat with ${room.participantName}?`)) return;
+    try {
+      await clearChatRoom(room.id);
+      showToast(`Cleared chat with ${room.participantName}`);
+    } catch {
+      showToast('Failed to clear chat');
+    }
+  };
+
+  const handleBlockUser = async (room: ChatRoom) => {
+    const targetId = getOtherParticipantId(room);
+    if (!targetId) {
+      showToast('Cannot block this chat');
+      return;
+    }
+    if (!window.confirm(`Block ${room.participantName}? You will no longer receive messages from them.`)) return;
+    try {
+      await blockChatUser(targetId);
+      if (selectedRoom?.id === room.id) {
+        setSelectedRoom(null);
+      }
+      showToast(`Blocked ${room.participantName}`);
+    } catch {
+      showToast('Failed to block account');
+    }
+  };
+
   const handleChatCreated = (username: string) => {
     const room = chatRooms.find(r => r.participantUsername === username);
     if (room) {
@@ -232,6 +281,9 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
           setShowOverflowMenu={setShowOverflowMenu}
           onShowNewGroup={() => setShowNewGroup(true)}
           onShowNewCommunity={() => setShowNewCommunity(true)}
+          onTogglePin={handleTogglePin}
+          onClearChat={handleClearChat}
+          onBlockUser={handleBlockUser}
         />
       </div>
 
@@ -253,6 +305,9 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
             onVoiceCall={handleVoiceCall}
             onVisitStore={handleVisitStoreFromChat}
             onViewProfile={handleViewProfileFromChat}
+            onTogglePin={() => handleTogglePin(selectedRoom)}
+            onClearChat={() => handleClearChat(selectedRoom)}
+            onBlockUser={() => handleBlockUser(selectedRoom)}
             callToast={callToast}
             showChatMenu={showChatMenu}
             setShowChatMenu={setShowChatMenu}

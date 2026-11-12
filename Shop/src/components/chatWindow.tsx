@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Phone, MoreVertical, Bot, Sparkles, Star,
-  Smile, Paperclip, Send, Store, PinOff, Trash2, Ban, Package, ChevronRight, Check, CheckCheck
+  Smile, Paperclip, Send, Store, Pin, PinOff, Trash2, Ban, Package, ChevronRight, Check, CheckCheck
 } from 'lucide-react';
 import { ChatRoom } from '../types';
 import { formatMessageTime } from './chatConstants';
@@ -18,6 +18,9 @@ interface ChatWindowProps {
   onVoiceCall: () => void;
   onVisitStore: () => void;
   onViewProfile: () => void;
+  onTogglePin?: () => void;
+  onClearChat?: () => void;
+  onBlockUser?: () => void;
   callToast: string | null;
   showChatMenu: boolean;
   setShowChatMenu: (show: boolean) => void;
@@ -42,6 +45,9 @@ export default function ChatWindow({
   onVoiceCall,
   onVisitStore,
   onViewProfile,
+  onTogglePin,
+  onClearChat,
+  onBlockUser,
   callToast,
   showChatMenu,
   setShowChatMenu,
@@ -286,22 +292,41 @@ export default function ChatWindow({
                     </button>
                     <button
                       className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-slate-700 hover:bg-slate-50 transition-colors border-b border-slate-50"
-                      onClick={() => setShowChatMenu(false)}
+                      onClick={() => {
+                        setShowChatMenu(false);
+                        onTogglePin?.();
+                      }}
                     >
-                      <PinOff className="w-4 h-4 text-slate-400" /> Pin chat
+                      {selectedRoom.isPinned ? (
+                        <>
+                          <PinOff className="w-4 h-4 text-slate-400" /> Unpin chat
+                        </>
+                      ) : (
+                        <>
+                          <Pin className="w-4 h-4 text-slate-400" /> Pin chat
+                        </>
+                      )}
                     </button>
                     <button
                       className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-slate-700 hover:bg-slate-50 transition-colors border-b border-slate-50"
-                      onClick={() => setShowChatMenu(false)}
+                      onClick={() => {
+                        setShowChatMenu(false);
+                        onClearChat?.();
+                      }}
                     >
                       <Trash2 className="w-4 h-4 text-slate-400" /> Clear chat
                     </button>
-                    <button
-                      className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-red-500 hover:bg-red-50 transition-colors"
-                      onClick={() => setShowChatMenu(false)}
-                    >
-                      <Ban className="w-4 h-4 text-red-500" /> Block account
-                    </button>
+                    {!isAIChat && (
+                      <button
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-xs font-sans font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                        onClick={() => {
+                          setShowChatMenu(false);
+                          onBlockUser?.();
+                        }}
+                      >
+                        <Ban className="w-4 h-4 text-red-500" /> Block account
+                      </button>
+                    )}
                   </motion.div>
                 </>
               )}

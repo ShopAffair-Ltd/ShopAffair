@@ -170,6 +170,34 @@ interface BankMatch {
   bankName: string;
 }
 
+const POPULAR_BANK_CODES = new Set([
+  '999992', // OPay
+  '999991', // PalmPay
+  '50211',  // Kuda
+  '50515',  // Moniepoint MFB
+  '058',    // GTBank
+  '044',    // Access Bank
+  '063',    // Access Bank (Diamond)
+  '057',    // Zenith Bank
+  '033',    // UBA
+  '011',    // First Bank
+  '070',    // Fidelity Bank
+  '035',    // Wema Bank
+  '232',    // Sterling Bank
+  '221',    // Stanbic IBTC
+  '032',    // Union Bank
+  '214',    // FCMB
+  '050',    // Ecobank
+  '076',    // Polaris Bank
+  '215',    // Unity Bank
+  '301',    // Jaiz Bank
+  '101',    // Providus Bank
+  '100',    // Suntrust Bank
+  '102',    // Titan Trust Bank
+  '090267', // Kuda (alt code)
+  '090405', // Moniepoint (alt code)
+]);
+
 const resolveCache = new Map<string, { data: BankMatch[]; expiresAt: number }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -180,17 +208,25 @@ export const resolveAccountAllBanks = async (accountNumber: string): Promise<Ban
   }
 
   const banks = await listBanks();
+  const popularBanks = banks.filter((b) => POPULAR_BANK_CODES.has(b.code));
+  const otherBanks = banks.filter((b) => !POPULAR_BANK_CODES.has(b.code));
 
-  const results = await Promise.all(
-    banks.map(async (bank) => {
-      const resolved = await resolveAccountAtBank(accountNumber, bank.code);
-      return resolved
-        ? { accountName: resolved.account_name, bankCode: bank.code, bankName: bank.name }
-        : null;
-    })
-  );
+  const probeBatch = async (batch: typeof banks): Promise<BankMatch[]> => {
+    const results = await Promise.all(
+      batch.map(async (bank) => {
+        const resolved = await resolveAccountAtBank(accountNumber, bank.code);
+        return resolved
+          ? { accountName: resolved.account_name, bankCode: bank.code, bankName: bank.name }
+          : null;
+      })
+    );
+    return results.filter((r): r is BankMatch => r !== null);
+  };
 
-  const matches = results.filter((r): r is BankMatch => r !== null);
+  let matches = await probeBatch(popularBanks);
+  if (matches.length === 0 && otherBanks.length > 0) {
+    matches = await probeBatch(otherBanks);
+  }
 
   resolveCache.set(accountNumber, { data: matches, expiresAt: Date.now() + CACHE_TTL_MS });
 
