@@ -18,31 +18,31 @@ interface HeroPhase {
 
 const PHASES: HeroPhase[] = [
   {
-    badge: 'Multi-Sig Escrow Validator Active',
+    badge: 'Escrow-Protected Peer-to-Peer Commerce',
     heading: (
       <>
-        Secure Digital Trade in <span className="text-green-600">Nigeria</span> With Absolute Trust.
+        Secure Digital Trade in <span className="text-green-600">Nigeria</span> With Confidence.
       </>
     ),
-    sub: 'Automated multi-signature escrows for buying and selling phones, laptops, and digital services with zero trust deficits.'
+    sub: 'Protected escrow payments for buying and selling phones, electronics, fashion, and services — funds only release when you confirm delivery.'
   },
   {
-    badge: 'Real-Time Network Verification',
+    badge: '6-Digit Pickup Code Verification',
     heading: (
       <>
-        Every Transaction, <span className="text-purple-600">Verified In Real Time.</span>
+        Every Transaction, <span className="text-purple-600">Verified Before Payout.</span>
       </>
     ),
-    sub: 'Every escrow is checked, synced, and settled across a validator mesh built for zero-compromise trading.'
+    sub: 'Buyers fund escrow upfront, inspect items on delivery, and share a 6-digit pickup code before funds are released to the seller.'
   },
   {
-    badge: '18,000+ Verified Traders Online',
+    badge: 'Built for Nigerian Buyers & Sellers',
     heading: (
       <>
         A Trusted Network of <span className="text-purple-600">Verified Traders.</span>
       </>
     ),
-    sub: 'Join a growing web of buyers and sellers protected by automated, tamper-proof escrow logic.'
+    sub: 'Create your storefront, chat directly with customers, and settle completed trades straight to your Nigerian bank account.'
   }
 ];
 

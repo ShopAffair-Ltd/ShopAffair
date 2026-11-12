@@ -4,10 +4,12 @@
  */
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 import { Hero } from './sections/Hero';
+import { NewlyListed } from './sections/NewlyListed';
 import { About } from './sections/About';
 import { HowItWorks } from './sections/HowItWorks';
 import { Stats } from './sections/Stats';
@@ -27,23 +29,24 @@ interface LandingPageProps {
 const faqs = [
   {
     q: 'What is ShopAffair?',
-    a: "ShopAffair is Nigeria's most secure multi-sig escrow system designed for peer-to-peer commerce. We hold buyers' funds securely in dedicated bank assignment vaults until the physical or digital items are fully delivered and verified, completely eliminating payment fraud."
+    a: 'ShopAffair is a secure escrow marketplace for peer-to-peer commerce in Nigeria. Buyers fund trades into escrow upfront, and funds are only released to the seller once delivery is inspected and confirmed with a 6-digit pickup code.'
   },
   {
     q: 'How fast do sellers get paid?',
-    a: "As soon as the buyer clicks 'Release Funds' or our delivery logistics partner confirms a flawless physical dropoff, funds are instantly credited to the seller's virtual wallet and can be disbursed to any external Nigerian bank account within seconds."
+    a: 'As soon as the buyer verifies delivery with the 6-digit pickup code, the payout is credited directly to the seller’s ShopAffair wallet and can be withdrawn to any supported Nigerian bank account.'
   },
   {
     q: 'What are the fees?',
-    a: 'Creating an account and browsing the market is 100% free. Standard trades attract a minimal 1% escrow administration fee. Verified Pro Merchants enjoy absolute zero-fee transactions, high-volume listing limits, and instant settlement channels.'
+    a: 'Creating an account and browsing the marketplace is free. Completed trades carry a transparent 1.3% platform escrow fee deducted from the seller’s payout. Sellers can also subscribe to a Trial or Starter Store plan to unlock full storefront listings.'
   },
   {
-    q: 'How does the compliance audit work?',
-    a: 'To ensure absolute security, all active traders submit a fast, one-time ID and BVN verification. Compliance Desk Admins review documents instantly in the auditing console. Once approved, you receive your dedicated deposit vault.'
+    q: 'How does account verification work?',
+    a: 'Traders verify their email and bank details during signup and can submit identity verification in Profile settings so buyers and sellers can trade with verified identities.'
   }
 ];
 
 export default function LandingPage({ onEnterPlatform, onLogin, onRegister }: LandingPageProps) {
+  const navigate = useNavigate();
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const reduced = usePrefersReducedMotion();
 
@@ -65,6 +68,12 @@ export default function LandingPage({ onEnterPlatform, onLogin, onRegister }: La
       <div className="h-[92px]" />
 
       <Hero onEnterPlatform={onEnterPlatform} onRegister={onRegister} />
+      <NewlyListed
+        onSelectProduct={(productId) => {
+          navigate(`/market?product=${encodeURIComponent(productId)}`);
+          onEnterPlatform();
+        }}
+      />
       <About />
       <HowItWorks />
       <Stats />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Check } from 'lucide-react';
+import { STARTER_PLAN_PRICE_DISPLAY, TRIAL_PLAN_PRICE_DISPLAY } from '../../services/paymentService';
 
 interface PricingProps {
   onEnterPlatform: () => void;
@@ -44,7 +45,7 @@ export const Pricing: React.FC<PricingProps> = ({ onEnterPlatform, onRegister })
                   <Check className="w-4 h-4 text-purple-600" /> <span>Initiate secure escrows</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-purple-600" /> <span>Standard 1.5% fee on trades</span>
+                  <Check className="w-4 h-4 text-purple-600" /> <span>Standard 1.3% fee on completed trades</span>
                 </div>
               </div>
             </div>
@@ -75,26 +76,28 @@ export const Pricing: React.FC<PricingProps> = ({ onEnterPlatform, onRegister })
             </div>
 
             <div className="space-y-6" style={{ transform: "translateZ(20px)" }}>
-              <span className="text-[9px] font-mono font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full uppercase">Premium Store</span>
+              <span className="text-[9px] font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full uppercase">Starter Store</span>
               <div>
                 <div className="flex items-baseline gap-1.5">
-                  <h3 className="text-2xl font-sans font-black text-slate-900 font-display">₦15,000</h3>
-                  <span className="text-[10px] text-slate-400 font-mono">/ month</span>
+                  <h3 className="text-2xl font-sans font-bold text-slate-900">{STARTER_PLAN_PRICE_DISPLAY}</h3>
+                  <span className="text-[10px] text-slate-400">/ month</span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">For professional high-volume merchants.</p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Or start with Trial Plan at {TRIAL_PLAN_PRICE_DISPLAY}/month.
+                </p>
               </div>
               <div className="space-y-2.5 border-t border-purple-100 pt-5 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-purple-600" /> <span>Create persistent store page</span>
+                  <Check className="w-4 h-4 text-purple-600" /> <span>Create persistent public store page</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-purple-600" /> <span>Priority dashboard analytics</span>
+                  <Check className="w-4 h-4 text-purple-600" /> <span>Store analytics & product QR sharing</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-purple-600" /> <span>Zero escrow fee (0%) on trades</span>
+                  <Check className="w-4 h-4 text-purple-600" /> <span>Standard 1.3% escrow protection fee</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-purple-600" /> <span>Pro seller verification label</span>
+                  <Check className="w-4 h-4 text-purple-600" /> <span>Verified merchant store badge</span>
                 </div>
               </div>
             </div>

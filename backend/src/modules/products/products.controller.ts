@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { ApiError } from '../../utils/ApiError';
+import { prisma } from '../../config/db';
 import {
   createProductSchema,
   updateProductSchema,
@@ -27,6 +28,40 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
   const input = createProductSchema.parse(req.body);
   const product = await createProduct(user.id, input);
   res.status(201).json({ product });
+});
+
+export const landingSummary = asyncHandler(async (_req: Request, res: Response) => {
+  const [totalTraders, totalProducts, completedTrades, escrowAgg, recentReviews] = await Promise.all([
+    prisma.user.count({ where: { isDraft: false } }),
+    prisma.product.count(),
+    prisma.trade.count({ where: { status: 'COMPLETED' } }),
+    prisma.trade.aggregate({
+      where: { status: { in: ['FUNDED', 'DELIVERED', 'COMPLETED'] } },
+      _sum: { amount: true }
+    }),
+    prisma.review.findMany({
+      take: 4,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        createdAt: true,
+        reviewer: { select: { name: true, username: true } },
+        seller: { select: { name: true, storeName: true } }
+      }
+    })
+  ]);
+
+  res.status(200).json({
+    stats: {
+      totalTraders,
+      totalProducts,
+      completedTrades,
+      totalEscrowedAmount: Number(escrowAgg._sum.amount ?? 0)
+    },
+    reviews: recentReviews
+  });
 });
 
 export const list = asyncHandler(async (req: Request, res: Response) => {

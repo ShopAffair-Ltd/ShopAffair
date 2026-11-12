@@ -1,47 +1,74 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Reveal, Counter } from '../motion-utils';
-import { Coins, Users, ShieldAlert, Zap } from 'lucide-react';
+import { Coins, Users, Package, ShieldCheck } from 'lucide-react';
+import { api } from '../../services/api';
+
+interface LandingStats {
+  totalTraders: number;
+  totalProducts: number;
+  completedTrades: number;
+  totalEscrowedAmount: number;
+}
 
 export function Stats() {
+  const [stats, setStats] = useState<LandingStats | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get<{ stats: LandingStats }>('/products/landing-summary')
+      .then((res) => {
+        if (!cancelled && res.data?.stats) {
+          setStats(res.data.stats);
+        }
+      })
+      .catch(() => {
+        // leave null if unavailable
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const statItems = [
     {
       icon: Coins,
-      value: 2400000000,
+      value: stats?.totalEscrowedAmount ?? 0,
       prefix: '₦',
-      suffix: '+',
+      suffix: '',
       label: 'Volume Escrowed',
-      desc: 'Secured transaction flow across Nigeria'
+      desc: 'Total escrow trades funded on ShopAffair'
     },
     {
       icon: Users,
-      value: 18000,
+      value: stats?.totalTraders ?? 0,
       prefix: '',
-      suffix: '+',
-      label: 'Active Traders',
-      desc: 'Verified peer-to-peer merchants and buyers'
+      suffix: '',
+      label: 'Registered Traders',
+      desc: 'Active buyers and verified sellers'
     },
     {
-      icon: ShieldAlert,
-      value: 99.9,
+      icon: Package,
+      value: stats?.totalProducts ?? 0,
       prefix: '',
-      suffix: '%',
-      label: 'Fraud Prevention',
-      desc: 'Absolute security via multi-sig protocol'
+      suffix: '',
+      label: 'Listed Products',
+      desc: 'Live items available on the marketplace'
     },
     {
-      icon: Zap,
-      value: 2,
-      prefix: '< ',
-      suffix: ' Min',
-      label: 'Onboarding Time',
-      desc: 'Instant BVN compliance and setup'
+      icon: ShieldCheck,
+      value: stats?.completedTrades ?? 0,
+      prefix: '',
+      suffix: '',
+      label: 'Completed Escrows',
+      desc: 'Trades verified via pickup code release'
     }
   ];
 
   return (
     <section className="px-6 py-20 bg-slate-950 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(139,92,246,0.08),transparent_50%)]" />
-      
+
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {statItems.map((item, idx) => {
@@ -52,10 +79,10 @@ export function Stats() {
                   <Icon className="w-6 h-6 stroke-[1.5]" />
                 </div>
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-display font-black text-white tracking-tight">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     <Counter to={item.value} prefix={item.prefix} suffix={item.suffix} />
                   </h3>
-                  <p className="text-xs font-mono text-purple-300 font-bold uppercase tracking-wider mt-1">{item.label}</p>
+                  <p className="text-xs text-purple-300 font-bold uppercase tracking-wider mt-1">{item.label}</p>
                   <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed max-w-[200px]">{item.desc}</p>
                 </div>
               </Reveal>
