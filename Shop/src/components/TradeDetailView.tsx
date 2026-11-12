@@ -7,6 +7,7 @@ import { TradeItem, EscrowStatus } from '../types';
 import { BuyerPickupCodeDisplay, SellerPickupCodeEntry, MAX_ATTEMPTS } from './EscrowPickupCode';
 import { useAuth } from '../context/AuthContext';
 import { useWallet } from '../context/WalletContext';
+import { useAuthModal } from '../context/AuthModalContext';
 
 interface TradeDetailViewProps {
   trade: TradeItem;
@@ -47,6 +48,7 @@ export default function TradeDetailView({
 }: TradeDetailViewProps) {
   const { user } = useAuth();
   const { openDeposit } = useWallet();
+  const { openLogin } = useAuthModal();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -59,6 +61,10 @@ export default function TradeDetailView({
   const hasInsufficientBalance = !!user && user.walletBalance < escrowTotal;
 
   const handleFund = async () => {
+    if (!user) {
+      openLogin();
+      return;
+    }
     setActionError(null);
     setIsFunding(true);
     try {

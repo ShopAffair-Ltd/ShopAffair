@@ -89,7 +89,7 @@ export default function TradeView() {
     setQrTrade(trade);
   };
 
-  if (!activeProfile) return null;
+  if (!activeProfile && !selectedTradeId) return null;
 
   return (
     <div className="flex-1 flex flex-col bg-white h-full overflow-hidden pb-24">

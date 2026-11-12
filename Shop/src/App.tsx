@@ -394,7 +394,19 @@ export default function App() {
   // visitors with no token.
   useEffect(() => {
     const token = localStorage.getItem('shopfair_token');
-    setShowLanding(!token);
+    const path = window.location.pathname;
+    const isDirectDeepLink =
+      path.startsWith('/trade') ||
+      path.startsWith('/store') ||
+      path.startsWith('/market') ||
+      path.startsWith('/favorites') ||
+      path.startsWith('/checkout');
+
+    if (!token && !isDirectDeepLink && (path === '/' || path === '')) {
+      setShowLanding(true);
+    } else {
+      setShowLanding(false);
+    }
   }, []);
 
   // A successful login or signup issues a token and populates `user`, but
@@ -403,7 +415,9 @@ export default function App() {
   // entering the app. Mirrors what the landing page's own CTA does.
   const handleAuthenticated = () => {
     setShowLanding(false);
-    navigate('/');
+    if (window.location.pathname === '/' || window.location.pathname === '') {
+      navigate('/');
+    }
   };
 
   // One single preloader covers the whole initial load - from "checking if
