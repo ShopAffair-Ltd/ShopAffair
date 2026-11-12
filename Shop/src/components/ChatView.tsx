@@ -40,12 +40,13 @@ export default function ChatView({ onChatSelect, onChatPartnerName }: ChatViewPr
 
   const selectedRoom = React.useMemo(() => {
     if (!roomUsername) return null;
-    return chatRooms.find((r) => r.participantUsername === roomUsername) ?? null;
+    return chatRooms.find((r) => r.id === roomUsername || r.participantUsername === roomUsername) ?? null;
   }, [chatRooms, roomUsername]);
 
   const setSelectedRoom = (room: ChatRoom | null) => {
     if (room) {
-      navigate(`/chat/${room.participantUsername}`);
+      const target = room.type === 'GROUP' || room.type === 'COMMUNITY' ? room.id : room.participantUsername;
+      navigate(`/chat/${target}`);
     } else {
       navigate('/chat');
     }

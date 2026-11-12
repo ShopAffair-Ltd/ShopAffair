@@ -20,9 +20,13 @@ class ChatSocket {
   connect(token: string) {
     if (this.socket?.connected) return;
 
+    const defaultApiOrigin = import.meta.env.PROD
+      ? 'https://shopaffair.onrender.com'
+      : 'http://localhost:5000';
+
     const socketUrl = (
       import.meta.env.VITE_SOCKET_URL ||
-      (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
+      (import.meta.env.VITE_API_URL || defaultApiOrigin).replace(/\/api\/?$/, '')
     );
 
     this.socket = io(socketUrl, {

@@ -37,25 +37,36 @@ const mapApiRoomToChatRoom = (apiRoom: any, currentUsername: string): ChatRoom =
     }
   }
 
+  const isGroupRoom = apiRoom.type === 'GROUP' || apiRoom.type === 'COMMUNITY';
   const otherParticipant = participants.find((p: any) => p.user?.username !== currentUsername);
   const isAI = apiRoom.type === 'DIRECT' && otherParticipant?.user?.username === 'micha_ai';
 
   let participantRole = 'user';
   if (isAI) {
     participantRole = 'ai';
-  } else if (otherParticipant?.user?.role) {
+  } else if (!isGroupRoom && otherParticipant?.user?.role) {
     participantRole = otherParticipant.user.role;
-  } else if (otherParticipant?.role) {
+  } else if (!isGroupRoom && otherParticipant?.role) {
     participantRole = otherParticipant.role;
   }
 
-  const unreadCount = apiRoom.messages?.filter((m: any) => !m.isRead && m.sender?.username !== currentUsername).length || 0;
+  const displayName = isGroupRoom
+    ? apiRoom.name || 'Group Chat'
+    : otherParticipant?.user?.name || otherParticipant?.name || 'Unknown';
+  const roomSlug = isGroupRoom
+    ? apiRoom.id
+    : otherParticipant?.user?.username || otherParticipant?.username || 'Unknown';
+
+  const unreadCount =
+    typeof apiRoom.unreadCount === 'number'
+      ? apiRoom.unreadCount
+      : apiRoom.messages?.filter((m: any) => !m.isRead && m.sender?.username !== currentUsername).length || 0;
 
   return {
     id: apiRoom.id,
-    participantUsername: otherParticipant?.user?.username || otherParticipant?.username || 'Unknown',
-    participantName: otherParticipant?.user?.name || otherParticipant?.name || 'Unknown',
-    participantAvatar: (otherParticipant?.user?.name || otherParticipant?.name || '?').charAt(0).toUpperCase(),
+    participantUsername: roomSlug,
+    participantName: displayName,
+    participantAvatar: displayName.charAt(0).toUpperCase(),
     participantRole: participantRole as 'user' | 'seller' | 'ai',
     lastMessage: apiRoom.lastMessage || 'No messages',
     lastMessageTime: apiRoom.lastMessageAt ? new Date(apiRoom.lastMessageAt).toLocaleTimeString() : 'now',

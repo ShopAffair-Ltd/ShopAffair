@@ -67,8 +67,8 @@ export default function CheckoutView() {
       return;
     }
 
-    if (paymentMethod === 'wallet' && activeProfile.walletBalance < total) {
-      setValidationError(`Insufficient wallet balance. You need ${formatNaira(total - activeProfile.walletBalance)} more. Please top up your wallet or choose another payment method.`);
+    if (activeProfile.walletBalance < total) {
+      setValidationError(`Insufficient wallet balance. You need ${formatNaira(total - activeProfile.walletBalance)} more. Please fund your wallet first.`);
       return;
     }
 
@@ -84,13 +84,10 @@ export default function CheckoutView() {
         deliveryFee: shippingFee
       });
 
-      // Wallet payment: deduct locally now that the server has confirmed the
-      // order was created. (Real wallet debiting happens server-side once a
-      // payments module exists — this keeps the UI number consistent until
-      // then, matching what the backend already computed as `total`.)
-      if (paymentMethod === 'wallet') {
-        updateUser({ ...activeProfile, walletBalance: activeProfile.walletBalance - total });
-      }
+      updateUser({
+        ...activeProfile,
+        walletBalance: result.newWalletBalance ?? Math.max(0, activeProfile.walletBalance - total)
+      });
 
       addAuditLog(
         'ORDER_PLACED',
@@ -290,48 +287,30 @@ export default function CheckoutView() {
                   </div>
 
                   <div
-                    onClick={() => setPaymentMethod('bank_transfer')}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${paymentMethod === 'bank_transfer'
-                        ? 'border-purple-600 bg-purple-50/20'
-                        : 'border-slate-150 hover:bg-slate-50/55'
-                      }`}
+                    className="p-3 rounded-lg border border-slate-100 bg-slate-50/70 opacity-60 cursor-not-allowed flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${paymentMethod === 'bank_transfer' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
-                        }`}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
                         <Landmark className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="block text-xs font-bold text-slate-800">Nigerian Bank Transfer</span>
-                        <span className="block text-[10px] text-slate-400">Direct instant funding on confirmation</span>
+                        <span className="block text-xs font-bold text-slate-600">Nigerian Bank Transfer <span className="text-[9px] text-slate-400 font-semibold">(Fund wallet first)</span></span>
+                        <span className="block text-[10px] text-slate-400">Top up your wallet via Bank Transfer, then pay with Wallet Vault</span>
                       </div>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'bank_transfer' ? 'border-purple-600' : 'border-slate-300'
-                      }`}>
-                      {paymentMethod === 'bank_transfer' && <div className="w-2.5 h-2.5 rounded-full bg-purple-600" />}
                     </div>
                   </div>
 
                   <div
-                    onClick={() => setPaymentMethod('card')}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${paymentMethod === 'card'
-                        ? 'border-purple-600 bg-purple-50/20'
-                        : 'border-slate-150 hover:bg-slate-50/55'
-                      }`}
+                    className="p-3 rounded-lg border border-slate-100 bg-slate-50/70 opacity-60 cursor-not-allowed flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${paymentMethod === 'card' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-500'
-                        }`}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 text-slate-400">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="block text-xs font-bold text-slate-800">Secure Debit / Credit Card</span>
-                        <span className="block text-[10px] text-slate-400">Pay via Kuda instant escrow gate</span>
+                        <span className="block text-xs font-bold text-slate-600">Secure Debit / Credit Card <span className="text-[9px] text-slate-400 font-semibold">(Fund wallet first)</span></span>
+                        <span className="block text-[10px] text-slate-400">Top up your wallet via Card, then pay with Wallet Vault</span>
                       </div>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${paymentMethod === 'card' ? 'border-purple-600' : 'border-slate-300'
-                      }`}>
-                      {paymentMethod === 'card' && <div className="w-2.5 h-2.5 rounded-full bg-purple-600" />}
                     </div>
                   </div>
                 </div>

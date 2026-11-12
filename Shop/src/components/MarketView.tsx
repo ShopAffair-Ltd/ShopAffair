@@ -154,61 +154,6 @@ export default function MarketView() {
   const isOwnListing = (product: MarketProduct) =>
     !!activeProfile && activeProfile.username === product.sellerUsername;
 
-  const mockDemands = [
-    {
-      id: 'dem_1',
-      title: 'Looking for iPhone 15 Pro Max',
-      price: 1050000,
-      buyerName: 'Tech Explorer',
-      buyerUsername: 'techexplore',
-      category: 'Phones',
-      condition: 'New or Like New',
-      description: 'Need a titanium blue or natural titanium 256GB iPhone 15 Pro Max. Must have 95%+ battery health.',
-      image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&q=80&w=150',
-      offersCount: 4,
-      status: 'Active'
-    },
-    {
-      id: 'dem_2',
-      title: 'Toyota Camry 2018+ wanted',
-      price: 15500000,
-      buyerName: 'Auto Dealer NG',
-      buyerUsername: 'autodealer_ng',
-      category: 'Vehicles',
-      condition: 'Foreign Used',
-      description: 'Urgently buying a clean Toyota Camry 2018 or newer. Full option, low mileage preferred.',
-      image: 'https://images.unsplash.com/photo-1621007947382-cc34aa8668c2?auto=format&fit=crop&q=80&w=150',
-      offersCount: 7,
-      status: 'Active'
-    },
-    {
-      id: 'dem_3',
-      title: 'Urgently need 3-Bedroom Lekki Duplex',
-      price: 85000000,
-      buyerName: 'John Estates',
-      buyerUsername: 'john_estates',
-      category: 'Houses',
-      condition: 'New',
-      description: 'Looking to purchase a detached 3-bedroom duplex around Lekki Phase 1 / Orchid Road.',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=150',
-      offersCount: 2,
-      status: 'Active'
-    },
-    {
-      id: 'dem_4',
-      title: 'Looking for Bulk Screen Repair Kits',
-      price: 45000,
-      buyerName: 'FixIt Hub',
-      buyerUsername: 'fixit_hub',
-      category: 'Repair',
-      condition: 'New',
-      description: 'Need 10 sets of high-grade screen separation and repair toolkits for mobile phone workshop.',
-      image: 'https://images.unsplash.com/photo-1597740985671-2a8a3b80f02e?auto=format&fit=crop&q=80&w=150',
-      offersCount: 3,
-      status: 'Active'
-    }
-  ];
-
   const activeFilterCount = [filterLocation, filterMinPrice, filterMaxPrice, filterCondition].filter(Boolean).length;
 
   const matchesFilters = (item: { location?: string; price: number; condition?: string }) => {
@@ -238,16 +183,7 @@ export default function MarketView() {
     return matchesSearch && matchesCategory && matchesFilters(product);
   });
 
-  const filteredDemands = mockDemands.filter((demand) => {
-    const matchesSearch =
-      demand.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      demand.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === 'Trending' || demand.category.toLowerCase() === selectedCategory.toLowerCase();
-
-    return matchesSearch && matchesCategory;
-  });
+  const filteredDemands: never[] = [];
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);

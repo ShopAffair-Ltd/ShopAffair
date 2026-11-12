@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { ApiError } from '../utils/ApiError';
+import { env } from '../config/env';
 
 export const errorMiddleware = (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof ZodError) {
@@ -17,6 +18,8 @@ export const errorMiddleware = (err: unknown, _req: Request, res: Response, _nex
   console.error(err instanceof Error ? err.stack : err);
   res.status(500).json({
     message: 'Something went wrong',
-    detail: err instanceof Error ? err.message : String(err)
+    ...(env.NODE_ENV !== 'production'
+      ? { detail: err instanceof Error ? err.message : String(err) }
+      : {})
   });
 };

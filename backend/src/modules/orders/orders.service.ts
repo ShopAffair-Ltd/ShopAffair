@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { prisma } from '../../config/db';
+import { Prisma } from '../../generated/prisma/client.js';
 import { ApiError } from '../../utils/ApiError';
 import type { CheckoutInput, ListOrdersQuery } from './orders.validation';
 
@@ -11,7 +12,13 @@ export const checkout = async (buyerId: string, input: CheckoutInput) => {
   const orderRef = generateOrderRef();
 
   return prisma.$transaction(async (tx) => {
-    const createdOrders = [];
+    const resolvedItems: Array<{
+      product: NonNullable<Awaited<ReturnType<typeof tx.product.findUnique>>>;
+      quantity: number;
+      lineTotal: number;
+    }> = [];
+
+    let itemsTotal = new Prisma.Decimal(0);
 
     for (const item of input.items) {
       const product = await tx.product.findUnique({ where: { id: item.productId } });
@@ -19,11 +26,39 @@ export const checkout = async (buyerId: string, input: CheckoutInput) => {
       if (!product) {
         throw new ApiError(404, `Product ${item.productId} not found`);
       }
+      if (!product.isListed) {
+        throw new ApiError(400, `Product "${product.title}" is no longer available`);
+      }
       if (product.sellerId === buyerId) {
         throw new ApiError(400, `You cannot purchase your own product: ${product.title}`);
       }
 
       const lineTotal = Number(product.price) * item.quantity;
+      itemsTotal = itemsTotal.plus(lineTotal);
+      resolvedItems.push({ product, quantity: item.quantity, lineTotal });
+    }
+
+    const totalDue = itemsTotal.plus(input.deliveryFee);
+
+    const buyer = await tx.user.findUnique({ where: { id: buyerId } });
+    if (!buyer) {
+      throw new ApiError(404, 'Buyer not found');
+    }
+    if (new Prisma.Decimal(buyer.walletBalance).lessThan(totalDue)) {
+      throw new ApiError(402, 'Insufficient wallet balance. Please fund your wallet first.');
+    }
+
+    const updatedBuyer = await tx.user.update({
+      where: { id: buyerId },
+      data: { walletBalance: { decrement: totalDue } },
+      select: { walletBalance: true }
+    });
+
+    const createdOrders = [];
+
+    for (let i = 0; i < resolvedItems.length; i++) {
+      const { product, quantity, lineTotal } = resolvedItems[i];
+      const itemDeliveryFee = i === 0 ? input.deliveryFee : 0;
 
       const trade = await tx.trade.create({
         data: {
@@ -36,19 +71,30 @@ export const checkout = async (buyerId: string, input: CheckoutInput) => {
           category: 'PHYSICAL',
           condition: product.condition,
           specs: {
-            Quantity: String(item.quantity),
+            Quantity: String(quantity),
             'Order Ref': orderRef,
             Recipient: input.fullName,
             Address: `${input.address}, ${input.city}, ${input.state}`
           },
-          deliveryFee: input.deliveryFee,
+          deliveryFee: itemDeliveryFee,
           deliveryTime: '2-4 days',
           takeOffLocation: 'ShopFair Hub',
           deliveryLocation: `${input.city}, ${input.state}`,
           image: product.image,
-          description: `Order ${orderRef} — ${item.quantity}x ${product.title}`,
+          description: `Order ${orderRef} — ${quantity}x ${product.title}`,
           pickupCode: generatePickupCode(),
           pickupAttempts: 0
+        }
+      });
+
+      await tx.walletTransaction.create({
+        data: {
+          userId: buyerId,
+          type: 'ESCROW_LOCK',
+          provider: 'MANUAL',
+          amount: new Prisma.Decimal(lineTotal).plus(itemDeliveryFee),
+          status: 'SUCCESS',
+          tradeId: trade.id
         }
       });
 
@@ -57,11 +103,11 @@ export const checkout = async (buyerId: string, input: CheckoutInput) => {
           orderRef,
           productId: product.id,
           price: product.price,
-          quantity: item.quantity,
+          quantity,
           buyerId,
           sellerId: product.sellerId,
           status: 'PAID',
-          deliveryFee: input.deliveryFee,
+          deliveryFee: itemDeliveryFee,
           fullName: input.fullName,
           address: input.address,
           city: input.city,
@@ -78,7 +124,11 @@ export const checkout = async (buyerId: string, input: CheckoutInput) => {
       createdOrders.push(order);
     }
 
-    return { orderRef, orders: createdOrders };
+    return {
+      orderRef,
+      orders: createdOrders,
+      newWalletBalance: Number(updatedBuyer.walletBalance)
+    };
   });
 };
 

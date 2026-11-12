@@ -37,6 +37,7 @@ export interface CheckoutPayload {
 export interface CheckoutResult {
   orderRef: string;
   orders: RawOrder[];
+  newWalletBalance?: number;
 }
 
 // Converts the local cart into the { productId, quantity } shape the

@@ -354,13 +354,14 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   DRAFT: ['PENDING'],
-  PENDING: ['FUNDED', 'DISPUTED'],
-  FUNDED: ['COMPLETED', 'DISPUTED'],
+  PENDING: ['DISPUTED'],
+  FUNDED: ['DISPUTED'],
   COMPLETED: [],
   DISPUTED: [],
   REFUNDED: []
 };
 
+const MONEY_MOVING_STATUSES = new Set(['FUNDED', 'COMPLETED', 'REFUNDED']);
 const VALID_STATUSES = new Set(Object.keys(ALLOWED_TRANSITIONS));
 
 export const updateTradeStatus = async (
@@ -371,6 +372,13 @@ export const updateTradeStatus = async (
 ) => {
   if (!VALID_STATUSES.has(nextStatus)) {
     throw new ApiError(400, `Invalid status: ${nextStatus}`);
+  }
+
+  if (MONEY_MOVING_STATUSES.has(nextStatus)) {
+    throw new ApiError(
+      400,
+      `Cannot set trade status to ${nextStatus} directly; use the dedicated escrow flow.`
+    );
   }
 
   const trade = await prisma.trade.findUnique({ where: { id: tradeId } });

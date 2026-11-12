@@ -105,15 +105,7 @@ export default function TradeDetailView({
     }
   };
 
-  const handleReleaseFunds = async () => {
-    setActionError(null);
-    try {
-      await onUpdateStatus(trade.id, EscrowStatus.COMPLETED);
-    } catch (err) {
-      console.error(err);
-      setActionError('Could not release funds. Please try again.');
-    }
-  };
+  // Escrow release must go through the verified 6-digit pickup code or admin dispute resolution.
 
   const handleCopyLink = async () => {
     const url = window.location.href;
@@ -384,17 +376,15 @@ export default function TradeDetailView({
             <div className="space-y-2">
               <div className="p-3 bg-amber-50 text-amber-800 rounded-lg border border-amber-100">
                 <p className="text-[10px] font-sans font-bold leading-normal">
-                  The merchant has submitted proof of delivery. Please inspect the assets carefully before releasing locked multi-sig funds!
+                  Delivery is marked in progress. Share your 6-digit pickup code with the seller only after inspecting the item, or open a dispute if there is an issue.
                 </p>
               </div>
-              {isBuyer && (
-                <button
-                  onClick={handleReleaseFunds}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer text-center"
-                >
-                  Release Funds to Merchant (Complete)
-                </button>
-              )}
+              <button
+                onClick={handleTriggerDispute}
+                className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-sans font-bold text-xs rounded-lg border border-red-200 cursor-pointer text-center"
+              >
+                Open Dispute
+              </button>
             </div>
           )}
 

@@ -15,7 +15,17 @@ export let io: SocketIOServer;
 export const initSocket = (httpServer: HttpServer): SocketIOServer => {
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: ['http://localhost:3000',  'http://localhost:5174', 'https://shops-lake.vercel.app'],
+      origin: [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://shopaffair.shop',
+        'https://www.shopaffair.shop',
+        'https://shop-affair.vercel.app',
+        'https://shops-lake.vercel.app'
+      ],
       credentials: true
     }
   });

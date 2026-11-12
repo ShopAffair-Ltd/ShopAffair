@@ -109,15 +109,26 @@ export default function HomeView() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setRoleModalOpen(true)}
-            className={`text-[10px] font-sans font-extrabold px-2.5 py-1 rounded-full border cursor-pointer capitalize transition-all shadow-md hover:shadow-lg ${isSeller
-                ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
-                : 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100'
-              }`}
-          >
-            Role: {user.role}
-          </button>
+          {import.meta.env.PROD ? (
+            <span
+              className={`text-[10px] font-sans font-extrabold px-2.5 py-1 rounded-full border capitalize shadow-sm ${isSeller
+                  ? 'bg-green-50 text-green-600 border-green-200'
+                  : 'bg-purple-50 text-purple-600 border-purple-100'
+                }`}
+            >
+              Role: {user.role}
+            </span>
+          ) : (
+            <button
+              onClick={() => setRoleModalOpen(true)}
+              className={`text-[10px] font-sans font-extrabold px-2.5 py-1 rounded-full border cursor-pointer capitalize transition-all shadow-md hover:shadow-lg ${isSeller
+                  ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'
+                  : 'bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100'
+                }`}
+            >
+              Role: {user.role}
+            </button>
+          )}
         </div>
       </div>
 
@@ -510,7 +521,7 @@ export default function HomeView() {
       </div>
 
       <AnimatePresence>
-        {roleModalOpen && (
+        {!import.meta.env.PROD && roleModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}

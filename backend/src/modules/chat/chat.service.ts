@@ -260,7 +260,13 @@ export const createCommunity = async (userId: string, data: {
 
 export const getUserChats = async (userId: string) => {
   const participantRooms = await prisma.chatRoomParticipant.findMany({
-    where: { userId, leftAt: null },
+    where: {
+      userId,
+      leftAt: null,
+      chatRoom: {
+        approvalStatus: { not: 'REJECTED' }
+      }
+    },
     include: {
       chatRoom: {
         include: {
@@ -294,13 +300,32 @@ export const getUserChats = async (userId: string) => {
     }
   });
 
+  const roomIds = participantRooms.map((p) => p.chatRoomId);
+  const unreadCountsByRoom = new Map<string, number>();
+
+  if (roomIds.length > 0) {
+    const unreadGroups = await prisma.chatMessage.groupBy({
+      by: ['chatRoomId'],
+      where: {
+        chatRoomId: { in: roomIds },
+        isRead: false,
+        isDeleted: false,
+        senderId: { not: userId }
+      },
+      _count: { _all: true }
+    });
+    for (const g of unreadGroups) {
+      unreadCountsByRoom.set(g.chatRoomId, g._count._all);
+    }
+  }
+
   return participantRooms.map((p) => {
     const chatRoom = p.chatRoom;
     const messages = chatRoom.messages || [];
     return {
       ...chatRoom,
       isPinned: p.isPinned,
-      unreadCount: messages.filter((m) => !m.isRead && m.senderId !== userId).length,
+      unreadCount: unreadCountsByRoom.get(chatRoom.id) ?? 0,
       lastMessage: messages[0]?.content || null,
       lastMessageTime: messages[0]?.createdAt || null
     };
@@ -383,9 +408,13 @@ export const sendMessage = async (chatRoomId: string, senderId: string, content:
     throw new ApiError(403, 'You are not a participant of this chat');
   }
 
-  // Group/community chat permission: if the room's settings restrict
-  // chatting to admins only, non-admin members are blocked from sending.
+  // Group/community chat permission: block messaging until admin-approved,
+  // and if the room's settings restrict chatting to admins only, non-admin
+  // members are blocked from sending.
   if (chatRoom.type !== ChatRoomType.DIRECT) {
+    if (chatRoom.approvalStatus !== 'APPROVED') {
+      throw new ApiError(403, 'This group is pending admin approval and cannot receive messages yet');
+    }
     const settings = chatRoom.settings as Record<string, unknown> | null;
     if (settings?.whoCanChat === 'ADMINS' && participant.role !== ParticipantRole.ADMIN) {
       throw new ApiError(403, 'Only group admins can send messages in this group');

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { create, update, cancel, list, getOne, fund, verifyPickup, updateStatus, forceCancel, forceRelease } from './trades.controller';
-import { requireAuth } from '../../middleware/auth.middleware';
+import { requireAuth, optionalAuth } from '../../middleware/auth.middleware';
 import { requireRole } from '../../middleware/role.middleware';
 
 const router = Router();
@@ -22,8 +22,8 @@ const pickupLimiter = rateLimit({
   message: { message: 'Too many pickup verification attempts, please slow down' }
 });
 
-router.get('/', list);
-router.get('/:id', getOne);
+router.get('/', optionalAuth, list);
+router.get('/:id', optionalAuth, getOne);
 
 router.post('/', requireAuth, writeLimiter, create);
 router.patch('/:id', requireAuth, writeLimiter, update);
