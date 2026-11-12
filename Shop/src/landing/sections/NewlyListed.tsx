@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Package } from 'lucide-react';
+import { Package, Share2 } from 'lucide-react';
 import { fetchProducts } from '../../services/productService';
 import { fetchTrades, mapTradeToMarketProduct } from '../../services/TradeService';
 import { MarketProduct, TradeType } from '../../types';
+import QrShareModal from '../../components/modals/QrShareModal';
 
 interface NewlyListedProps {
   onSelectProduct: (productId: string) => void;
@@ -12,6 +13,7 @@ export function NewlyListed({ onSelectProduct }: NewlyListedProps) {
   const [products, setProducts] = useState<MarketProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [qrProduct, setQrProduct] = useState<MarketProduct | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,7 +119,7 @@ export function NewlyListed({ onSelectProduct }: NewlyListedProps) {
                 onClick={() => onSelectProduct(product.id)}
                 className="group text-left space-y-2.5 cursor-pointer focus:outline-none"
               >
-                <div className="aspect-square w-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 group-hover:border-purple-200 transition-colors">
+                <div className="aspect-square w-full rounded-xl overflow-hidden bg-slate-50 border border-slate-100 group-hover:border-purple-200 transition-colors relative">
                   {product.image ? (
                     <img
                       src={product.image}
@@ -130,6 +132,17 @@ export function NewlyListed({ onSelectProduct }: NewlyListedProps) {
                       <Package className="w-8 h-8" />
                     </div>
                   )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setQrProduct(product);
+                    }}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-purple-600 shadow-sm transition-all cursor-pointer"
+                    title="Share via QR & WhatsApp"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
                 <div className="space-y-0.5 px-0.5">
                   <h3 className="text-sm font-semibold text-slate-900 truncate group-hover:text-purple-600 transition-colors">
@@ -156,6 +169,18 @@ export function NewlyListed({ onSelectProduct }: NewlyListedProps) {
           </div>
         )}
       </div>
+
+      {qrProduct && (
+        <QrShareModal
+          isOpen={!!qrProduct}
+          onClose={() => setQrProduct(null)}
+          kind="product"
+          title={qrProduct.title}
+          subtitle={`₦${Number(qrProduct.price).toLocaleString()} • ${qrProduct.sellerName}`}
+          url={`${window.location.origin}/market?product=${encodeURIComponent(qrProduct.id)}`}
+          imageUrl={qrProduct.image}
+        />
+      )}
     </section>
   );
 }

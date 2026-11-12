@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, CheckCircle2, Share2, Copy } from 'lucide-react';
 import ShareToGroupModal from './community/ShareToGroupModal';
+import QrShareModal from './modals/QrShareModal';
 import { TradeItem, EscrowStatus } from '../types';
 import { BuyerPickupCodeDisplay, SellerPickupCodeEntry, MAX_ATTEMPTS } from './EscrowPickupCode';
 import { useAuth } from '../context/AuthContext';
@@ -49,6 +50,7 @@ export default function TradeDetailView({
   const [actionError, setActionError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showTradeQrModal, setShowTradeQrModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
@@ -141,25 +143,14 @@ export default function TradeDetailView({
           <ArrowLeft className="w-5 h-5" />
         </button>
         <span className="text-xs font-mono font-bold text-purple-600">TRADE {trade.id}</span>
-        <div className="flex items-center gap-1 relative">
-          {copyToast && (
-            <span className="absolute right-0 top-9 whitespace-nowrap bg-slate-900 text-white text-[10px] font-sans font-semibold px-2.5 py-1 rounded-lg shadow-lg">
-              Trade link copied!
-            </span>
-          )}
+        <div className="flex items-center gap-1.5 relative">
           <button
-            onClick={handleCopyLink}
-            className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
-            title="Copy / Share Trade Link"
+            onClick={() => setShowTradeQrModal(true)}
+            className="px-2.5 py-1 rounded-full text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200/60 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-sans font-bold"
+            title="Share Trade QR & WhatsApp"
           >
-            <Copy className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setShowShareModal(true)}
-            className="p-1.5 rounded-full text-slate-400 hover:text-purple-600 hover:bg-slate-50 transition-colors"
-            title="Share to Chat/Group"
-          >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="w-3.5 h-3.5" />
+            Share
           </button>
         </div>
       </div>
@@ -438,6 +429,17 @@ export default function TradeDetailView({
           )}
         </motion.div>
       </motion.div>
+
+      <QrShareModal
+        isOpen={showTradeQrModal}
+        onClose={() => setShowTradeQrModal(false)}
+        kind="trade"
+        title={trade.title}
+        subtitle={`₦${trade.amount.toLocaleString()} • ${trade.creatorUsername ? `@${trade.creatorUsername}` : 'Escrow Trade'}`}
+        url={`${window.location.origin}/trade/${trade.id}`}
+        imageUrl={trade.image}
+        badgeText="ESCROW TRADE"
+      />
     </div>
   );
 }

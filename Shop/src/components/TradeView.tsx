@@ -7,6 +7,7 @@ import { fetchTradeById } from '../services/TradeService';
 import TradeListView from './TradeListView';
 import TradeCreateView from './TradeCreateView';
 import TradeDetailView from './TradeDetailView';
+import QrShareModal from './modals/QrShareModal';
 
 type FilterOption = 'All' | 'Drafts' | 'Offers' | 'Pending';
 
@@ -43,6 +44,7 @@ export default function TradeView() {
   const tradeFromContext = selectedTradeId ? trades.find((t) => t.id === selectedTradeId) || null : null;
   const [fetchedTrade, setFetchedTrade] = React.useState<TradeItem | null>(null);
   const [loadingSharedTrade, setLoadingSharedTrade] = React.useState(false);
+  const [qrTrade, setQrTrade] = React.useState<TradeItem | null>(null);
 
   React.useEffect(() => {
     if (!selectedTradeId) {
@@ -84,21 +86,7 @@ export default function TradeView() {
   const isBuyer = (trade: TradeItem) => !!trade.buyerUsername && !!activeProfile && activeProfile.username === trade.buyerUsername;
 
   const handleShareTrade = (trade: TradeItem) => {
-    const ownerName = trade.creatorUsername || activeProfile?.username || 'user';
-    const url = `${window.location.origin}/trade/${trade.id}?owner=${encodeURIComponent(ownerName)}`;
-    const shareData = {
-      title: `${ownerName}'s Trade: ${trade.title}`,
-      text: `Check out ${ownerName}'s trade on ShopAffair: ${trade.title} - ₦${trade.amount.toLocaleString()}`,
-      url
-    };
-
-    if (navigator.share) {
-      navigator.share(shareData).catch(() => { });
-    } else {
-      navigator.clipboard.writeText(url).then(() => {
-        alert('Trade link copied to clipboard! Share it with your friends.');
-      });
-    }
+    setQrTrade(trade);
   };
 
   if (!activeProfile) return null;
@@ -190,6 +178,19 @@ export default function TradeView() {
             Back to Trades
           </button>
         </div>
+      )}
+
+      {qrTrade && (
+        <QrShareModal
+          isOpen={!!qrTrade}
+          onClose={() => setQrTrade(null)}
+          kind="trade"
+          title={qrTrade.title}
+          subtitle={`₦${qrTrade.amount.toLocaleString()} • ${qrTrade.creatorUsername ? `@${qrTrade.creatorUsername}` : 'Escrow Trade'}`}
+          url={`${window.location.origin}/trade/${qrTrade.id}`}
+          imageUrl={qrTrade.image}
+          badgeText="ESCROW TRADE"
+        />
       )}
     </div>
   );

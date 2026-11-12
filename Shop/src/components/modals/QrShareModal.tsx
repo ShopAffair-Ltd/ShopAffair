@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Download, Copy, Share2, Check, Store as StoreIcon, Package, User as UserIcon } from 'lucide-react';
+import {
+  X, Download, Copy, Share2, Check,
+  Store as StoreIcon, Package, User as UserIcon, Shield, MessageCircle
+} from 'lucide-react';
 import QRCode from 'qrcode';
 
-export type QrShareKind = 'trader' | 'store' | 'product';
+export type QrShareKind = 'trader' | 'store' | 'product' | 'trade';
 
 export interface QrShareModalProps {
   isOpen: boolean;
@@ -90,7 +93,19 @@ export default function QrShareModal({
       ? 'Scan to View Trader'
       : kind === 'store'
       ? 'Scan to Visit Store'
+      : kind === 'trade'
+      ? 'Scan to View Trade Escrow'
       : 'Scan to View Product';
+
+  const defaultBadge =
+    badgeText ||
+    (kind === 'trader'
+      ? 'TRADER'
+      : kind === 'store'
+      ? 'VERIFIED STORE'
+      : kind === 'trade'
+      ? 'ESCROW TRADE'
+      : 'PRODUCT');
 
   const handleCopy = async () => {
     try {
@@ -100,6 +115,12 @@ export default function QrShareModal({
     } catch {
       alert(url);
     }
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = `Check out "${title}"${subtitle ? ` (${subtitle})` : ''} on ShopAffair:\n${url}`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleNativeShare = async () => {
@@ -164,7 +185,7 @@ export default function QrShareModal({
       ctx.textAlign = 'right';
       ctx.fillStyle = '#7c3aed';
       ctx.font = 'bold 18px system-ui, -apple-system, sans-serif';
-      ctx.fillText((badgeText || kind).toUpperCase(), width - 44, 73);
+      ctx.fillText(defaultBadge.toUpperCase(), width - 44, 73);
 
       // Headline on purple background
       ctx.textAlign = 'center';
@@ -271,7 +292,7 @@ export default function QrShareModal({
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
-                  {badgeText || kind}
+                  {defaultBadge}
                 </span>
                 <button
                   type="button"
@@ -285,7 +306,7 @@ export default function QrShareModal({
             </div>
 
             {/* Purple body with white rounded QR card */}
-            <div className="bg-gradient-to-b from-purple-600 to-purple-800 px-5 pt-4 pb-5 text-center space-y-3.5">
+            <div className="bg-gradient-to-b from-purple-600 to-purple-800 px-5 pt-4 pb-5 text-center space-y-3">
               <h3 className="text-base font-display font-bold text-white tracking-tight">
                 {kindHeading}
               </h3>
@@ -314,6 +335,8 @@ export default function QrShareModal({
                                 <StoreIcon className="w-5 h-5" />
                               ) : kind === 'product' ? (
                                 <Package className="w-5 h-5" />
+                              ) : kind === 'trade' ? (
+                                <Shield className="w-5 h-5" />
                               ) : (
                                 <UserIcon className="w-5 h-5" />
                               )}
@@ -342,25 +365,31 @@ export default function QrShareModal({
                 </div>
               </div>
 
-              <p className="text-[11px] font-sans font-semibold text-purple-100">
-                Scan with Google Lens or any QR camera
-              </p>
+              {/* Share to WhatsApp Button */}
+              <button
+                type="button"
+                onClick={handleWhatsAppShare}
+                className="w-full py-2.5 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-sans font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors"
+              >
+                <MessageCircle className="w-4 h-4 fill-white" />
+                Share to WhatsApp
+              </button>
 
-              {/* Action buttons */}
+              {/* Additional Action buttons */}
               <div className="grid grid-cols-3 gap-2 pt-0.5">
                 <button
                   type="button"
                   onClick={handleDownloadCard}
                   disabled={!qrDataUrl || downloading}
-                  className="py-2.5 px-2 bg-white hover:bg-purple-50 disabled:opacity-50 text-purple-700 rounded-xl text-[11px] font-sans font-bold flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                  className="py-2 px-1.5 bg-white hover:bg-purple-50 disabled:opacity-50 text-purple-700 rounded-xl text-[10px] font-sans font-bold flex items-center justify-center gap-1 shadow-sm cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {downloading ? 'Saving...' : 'Save Image'}
+                  {downloading ? 'Saving...' : 'Save Card'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="py-2.5 px-2 bg-white/15 hover:bg-white/25 text-white rounded-xl text-[11px] font-sans font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-2 px-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl text-[10px] font-sans font-bold flex items-center justify-center gap-1 cursor-pointer"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
                   {copied ? 'Copied!' : 'Copy Link'}
@@ -368,10 +397,10 @@ export default function QrShareModal({
                 <button
                   type="button"
                   onClick={handleNativeShare}
-                  className="py-2.5 px-2 bg-white/15 hover:bg-white/25 text-white rounded-xl text-[11px] font-sans font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-2 px-1.5 bg-white/15 hover:bg-white/25 text-white rounded-xl text-[10px] font-sans font-bold flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <Share2 className="w-3.5 h-3.5" />
-                  Share
+                  More Apps
                 </button>
               </div>
             </div>
