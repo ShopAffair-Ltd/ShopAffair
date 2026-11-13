@@ -11,6 +11,7 @@ import { reviewService, Review, RatingDistribution } from '../services/reviewSer
 import { userService } from '../services/userService';
 import { getApiErrorMessage } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { WallPostComponent } from './storeComponents';
 import { WallPost, timeAgo } from './storeConstants';
 import * as wallPostService from '../services/wallPostService';
@@ -90,6 +91,7 @@ export default function StoreProfile({
   };
 
   const { user: viewer } = useAuth();
+  const { openRegister } = useAuthModal();
   const [activeTab, setActiveTab] = useState<'wall' | 'products' | 'reviews'>('wall');
   const [isFollowing, setIsFollowing] = useState(seller.followingByMe ?? false);
   const [followersCount, setFollowersCount] = useState(seller.followers || 0);
@@ -211,6 +213,10 @@ export default function StoreProfile({
   };
 
   const handleFollow = async () => {
+    if (!viewer) {
+      openRegister();
+      return;
+    }
     try {
       if (isFollowing) {
         const response = await userService.unfollowUser(seller.username);

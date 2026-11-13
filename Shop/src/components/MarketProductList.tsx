@@ -167,6 +167,7 @@ export default function MarketProductList({
 
   return (
     <>
+      <div className="flex-1 overflow-y-auto no-scrollbar">
       {/* Hot Deals Carousel - manually swipeable left/right, no visible
           scroll button, in addition to the existing auto-rotate timer */}
       <div className="mb-3">
@@ -336,7 +337,7 @@ export default function MarketProductList({
       </div>
 
       {/* Products / Demands List */}
-      <div className="flex-1 overflow-y-auto px-4 py-2 no-scrollbar">
+      <div className="px-4 py-2">
         {marketTab === 'supply' ? (
           <>
             <h3 className="text-[10px] font-sans font-black text-slate-900 mb-2 tracking-wide uppercase">
@@ -526,6 +527,7 @@ export default function MarketProductList({
             )}
           </>
         )}
+      </div>
       </div>
 
       {/* Cart Drawer */}
@@ -771,7 +773,7 @@ export default function MarketProductList({
                     <button
                       onClick={() => {
                         onStartChatWithSeller(selectedProduct.sellerUsername, selectedProduct.sellerName, selectedProduct);
-                        handleCloseProduct();
+                        setSelectedProduct(null);
                       }}
                       className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-sans font-bold text-xs rounded-xl border border-slate-200/70 cursor-pointer text-center transition-colors flex items-center justify-center gap-1.5"
                     >
@@ -781,7 +783,7 @@ export default function MarketProductList({
                     <button
                       onClick={() => {
                         onProceedToCheckout(selectedProduct.id);
-                        handleCloseProduct();
+                        setSelectedProduct(null);
                       }}
                       className="flex-1 py-3 bg-[#7C3AED] hover:bg-purple-700 active:scale-[0.98] text-white font-sans font-bold text-xs rounded-xl shadow-md hover:shadow-lg cursor-pointer text-center transition-all flex items-center justify-center gap-1.5"
                     >

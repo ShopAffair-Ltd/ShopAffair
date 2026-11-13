@@ -336,6 +336,8 @@ function MarketRoute() {
 function StoreProfileRoute() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { openRegister } = useAuthModal();
   const { products } = useMarket();
   const { startChatWithSeller } = useChat();
   const [sellerData, setSellerData] = useState<any>(null);
@@ -410,6 +412,10 @@ function StoreProfileRoute() {
           }
         }}
         onChat={(sellerUsername: string, sellerName: string) => {
+          if (!user) {
+            openRegister();
+            return;
+          }
           startChatWithSeller(sellerUsername, sellerName);
           navigate(`/chat/${sellerUsername}`);
         }}

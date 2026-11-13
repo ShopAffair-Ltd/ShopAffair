@@ -122,22 +122,20 @@ export default function ChatSidebar({
         onTouchStart={startLongPress}
         onTouchEnd={cancelLongPress}
         onTouchMove={cancelLongPress}
-        className={`p-3 rounded-xl shadow-sm hover:shadow-md cursor-pointer flex items-center justify-between transition-all mb-2 border ${
-          isHighlighted
-            ? 'bg-purple-100/80 border-purple-500 ring-2 ring-purple-300'
-            : isSelected
+        className={`p-3 rounded-xl shadow-sm hover:shadow-md cursor-pointer flex items-center justify-between transition-all mb-2 border ${isHighlighted
+          ? 'bg-purple-100/80 border-purple-500 ring-2 ring-purple-300'
+          : isSelected
             ? 'bg-purple-50 border-purple-300 ring-1 ring-purple-200'
             : isAI
-            ? 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'
-            : 'bg-white border-slate-100/50'
-        }`}
+              ? 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'
+              : 'bg-white border-slate-100/50'
+          }`}
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-2 relative ${
-            isAI
-              ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-purple-300'
-              : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 border-purple-200'
-          }`}>
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-2 relative ${isAI
+            ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-purple-300'
+            : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 border-purple-200'
+            }`}>
             {isAI ? (
               <Bot className="w-6 h-6" />
             ) : (
@@ -154,9 +152,8 @@ export default function ChatSidebar({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className={`font-sans font-bold text-sm truncate ${
-                isAI ? 'text-purple-700' : 'text-slate-800'
-              }`}>
+              <span className={`font-sans font-bold text-sm truncate ${isAI ? 'text-purple-700' : 'text-slate-800'
+                }`}>
                 {room.participantName}
               </span>
               {pinned && <Pin className="w-3 h-3 text-purple-400 rotate-45" />}
@@ -172,17 +169,15 @@ export default function ChatSidebar({
                 <Users className="w-3 h-3 text-slate-400 shrink-0" />
               ) : null}
             </div>
-            <p className={`text-xs truncate ${
-              isAI ? 'text-purple-600/70' : 'text-slate-400'
-            }`}>
+            <p className={`text-xs truncate ${isAI ? 'text-purple-600/70' : 'text-slate-400'
+              }`}>
               {room.lastMessage}
             </p>
           </div>
         </div>
         <div className="text-right shrink-0 ml-2">
-          <span className={`text-[10px] font-sans block ${
-            isAI ? 'text-purple-400' : 'text-slate-400'
-          }`}>
+          <span className={`text-[10px] font-sans block ${isAI ? 'text-purple-400' : 'text-slate-400'
+            }`}>
             {room.lastMessageTime}
           </span>
           {room.unreadCount > 0 && (
@@ -298,9 +293,8 @@ export default function ChatSidebar({
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-3 text-sm font-sans font-semibold transition-all relative shrink-0 ${
-                activeTab === tab ? 'text-purple-600' : 'text-slate-500 hover:text-slate-700'
-              }`}
+              className={`pb-3 text-sm font-sans font-semibold transition-all relative shrink-0 ${activeTab === tab ? 'text-purple-600' : 'text-slate-500 hover:text-slate-700'
+                }`}
             >
               {tab}
               {activeTab === tab && (
@@ -401,5 +395,5 @@ export default function ChatSidebar({
 }
 
 function Plus(props: any) {
-  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>;
 }

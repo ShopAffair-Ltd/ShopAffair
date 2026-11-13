@@ -19,11 +19,11 @@ export const Pricing: React.FC<PricingProps> = ({ onEnterPlatform, onRegister })
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto" style={{ perspective: 1200 }}>
-          <motion.div 
-            whileHover={{ 
-              y: -10, 
-              rotateX: 4, 
-              rotateY: -4, 
+          <motion.div
+            whileHover={{
+              y: -10,
+              rotateX: 4,
+              rotateY: -4,
               z: 20,
               borderColor: '#ddd6fe',
               boxShadow: '0 20px 40px -15px rgba(109,40,217,0.1)'
@@ -59,11 +59,11 @@ export const Pricing: React.FC<PricingProps> = ({ onEnterPlatform, onRegister })
             </motion.button>
           </motion.div>
 
-          <motion.div 
-            whileHover={{ 
-              y: -10, 
-              rotateX: 4, 
-              rotateY: -4, 
+          <motion.div
+            whileHover={{
+              y: -10,
+              rotateX: 4,
+              rotateY: -4,
               z: 20,
               borderColor: '#c084fc',
               boxShadow: '0 20px 40px -15px rgba(109,40,217,0.15)'

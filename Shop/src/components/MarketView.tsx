@@ -238,6 +238,10 @@ export default function MarketView() {
     sellerName: string,
     product?: MarketProduct
   ) => {
+    if (!activeProfile || activeProfile.verificationStatus === 'GUEST') {
+      openRegister();
+      return;
+    }
     const item = product || selectedProduct;
     startChatWithSeller(sellerUsername, sellerName);
     navigate(`/chat/${sellerUsername}`, {
