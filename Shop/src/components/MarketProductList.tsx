@@ -773,7 +773,9 @@ export default function MarketProductList({
                     <button
                       onClick={() => {
                         onStartChatWithSeller(selectedProduct.sellerUsername, selectedProduct.sellerName, selectedProduct);
-                        setSelectedProduct(null);
+                        if (isLoggedIn) {
+                          setSelectedProduct(null);
+                        }
                       }}
                       className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-sans font-bold text-xs rounded-xl border border-slate-200/70 cursor-pointer text-center transition-colors flex items-center justify-center gap-1.5"
                     >
@@ -783,7 +785,9 @@ export default function MarketProductList({
                     <button
                       onClick={() => {
                         onProceedToCheckout(selectedProduct.id);
-                        setSelectedProduct(null);
+                        if (isLoggedIn) {
+                          setSelectedProduct(null);
+                        }
                       }}
                       className="flex-1 py-3 bg-[#7C3AED] hover:bg-purple-700 active:scale-[0.98] text-white font-sans font-bold text-xs rounded-xl shadow-md hover:shadow-lg cursor-pointer text-center transition-all flex items-center justify-center gap-1.5"
                     >

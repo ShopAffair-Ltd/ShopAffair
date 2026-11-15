@@ -427,7 +427,16 @@ function StoreProfileRoute() {
 }
 
 export default function App() {
-  const [isPreloaderActive, setIsPreloaderActive] = useState(true);
+  const [isPreloaderActive, setIsPreloaderActive] = useState(() => {
+    const p = window.location.pathname;
+    return !(
+      p.startsWith('/trade') ||
+      p.startsWith('/store') ||
+      p.startsWith('/market') ||
+      p.startsWith('/favorites') ||
+      p.startsWith('/checkout')
+    );
+  });
   const [showLanding, setShowLanding] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
