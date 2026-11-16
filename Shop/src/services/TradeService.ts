@@ -223,6 +223,7 @@ const mapConditionToMarketLabel = (condition: string | undefined): 'New' | 'Like
 export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null => {
   if (!trade.image) return null;
   if (trade.type !== TradeType.SUPPLY) return null;
+  if (trade.status !== EscrowStatus.PENDING) return null;
 
   return {
     id: `trade:${trade.id}`,
@@ -238,6 +239,7 @@ export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null 
     condition: mapConditionToMarketLabel(trade.condition),
     location: trade.takeOffLocation,
     specs: trade.specs,
-    description: trade.description ?? `Trade listing for ${trade.title}`
+    description: trade.description ?? `Trade listing for ${trade.title}`,
+    visibility: trade.visibility
   };
 };

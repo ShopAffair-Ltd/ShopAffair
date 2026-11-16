@@ -114,6 +114,7 @@ export default function TradeView() {
           onCancel={() => navigate('/trade')}
           onSubmit={async (payload) => {
             await createTrade(payload);
+            await refreshMarket();
           }}
           onDone={() => navigate('/trade')}
         />
@@ -126,6 +127,7 @@ export default function TradeView() {
           onSubmit={async () => { }}
           onEditSubmit={async (id, updates) => {
             await editTrade(id, updates);
+            await refreshMarket();
           }}
           onDone={() => navigate(`/trade/${selectedTrade.id}`)}
         />

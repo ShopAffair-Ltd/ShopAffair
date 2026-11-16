@@ -36,7 +36,7 @@ interface RawProduct {
   specs?: Record<string, unknown> | null;
   description: string;
   seller: RawSeller;
-  visibility?: 'PRIVATE' | 'MARKET';
+  visibility?: 'PRIVATE' | 'STORE' | 'MARKET';
 }
 
 const mapToMarketProduct = (raw: RawProduct): MarketProduct => ({
@@ -116,7 +116,7 @@ export interface CreateProductPayload {
   location?: string;
   specs?: Record<string, unknown>;
   description: string;
-  visibility?: 'PRIVATE' | 'MARKET';
+  visibility?: 'PRIVATE' | 'STORE' | 'MARKET';
 }
 
 export const createProduct = async (payload: CreateProductPayload): Promise<MarketProduct> => {

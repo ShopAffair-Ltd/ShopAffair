@@ -520,8 +520,8 @@ export default function StoreProfile({
 
           {activeTab === 'products' && (
             <div className="grid grid-cols-2 gap-3">
-              {products && products.length > 0 ? (
-                products.map((product) => (
+              {products && products.filter((p) => p.visibility !== 'PRIVATE').length > 0 ? (
+                products.filter((p) => p.visibility !== 'PRIVATE').map((product) => (
                   <div
                     key={product.id}
                     onClick={() => onProductClick(product)}

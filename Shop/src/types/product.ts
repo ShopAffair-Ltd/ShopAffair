@@ -14,7 +14,7 @@ export interface MarketProduct {
   specs?: Record<string, string>;
   description: string;
   isFavorited?: boolean;
-  visibility?: 'PRIVATE' | 'MARKET';
+  visibility?: 'PRIVATE' | 'STORE' | 'MARKET';
 }
 
 export interface CartItem {
