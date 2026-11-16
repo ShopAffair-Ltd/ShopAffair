@@ -21,7 +21,7 @@ export default function TradeView() {
     loading: tradesLoading,
     createTrade,
     editTrade,
-    cancelTrade,
+    deleteTrade,
     fundTrade,
     verifyPickupCode,
     updateTradeStatus
@@ -161,7 +161,7 @@ export default function TradeView() {
           }}
           onEditTrade={(id) => navigate(`/trade/${id}/edit`)}
           onCancelTrade={async (id) => {
-            await cancelTrade(id);
+            await deleteTrade(id);
             navigate('/trade');
           }}
         />
