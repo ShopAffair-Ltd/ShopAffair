@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TradeItem } from '../types';
 import { useTrades } from '../context/TradeContext';
+import { useMarket } from '../context/MarketContext';
 import { useAuth } from '../context/AuthContext';
 import { fetchTradeById } from '../services/TradeService';
 import TradeListView from './TradeListView';
@@ -26,6 +27,7 @@ export default function TradeView() {
     verifyPickupCode,
     updateTradeStatus
   } = useTrades();
+  const { refresh: refreshMarket } = useMarket();
 
   const [activeFilter, setActiveFilter] = React.useState<FilterOption>('All');
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -162,6 +164,7 @@ export default function TradeView() {
           onEditTrade={(id) => navigate(`/trade/${id}/edit`)}
           onCancelTrade={async (id) => {
             await deleteTrade(id);
+            await refreshMarket();
             navigate('/trade');
           }}
         />

@@ -63,7 +63,7 @@ export default function MyStoreView() {
   const [searchParams] = useSearchParams();
   const { user: activeProfile, updateUser } = useAuth();
   const { deleteTrade } = useTrades();
-  const { products, addProduct, editProduct, deleteProduct } = useMarket();
+  const { products, addProduct, editProduct, deleteProduct, refresh: refreshMarket } = useMarket();
   const onBack = () => navigate('/');
 
   const tabParam = searchParams.get('tab');
@@ -333,6 +333,7 @@ export default function MyStoreView() {
       if (status === 404) {
         try {
           await deleteTrade(id);
+          await refreshMarket();
           setDeleteConfirmId(null);
           return;
         } catch (tradeErr: unknown) {
