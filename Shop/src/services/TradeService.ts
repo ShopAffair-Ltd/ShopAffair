@@ -80,6 +80,13 @@ const mapToTradeItem = (raw: RawTrade): TradeItem => ({
   buyerUsername: raw.buyer?.username
 });
 
+// Centralized so every function below strips consistently. A TradeItem's
+// `id` should never carry this prefix (only derived MarketProduct ids do,
+// via mapTradeToMarketProduct), but every outgoing call strips defensively
+// so a stray `trade:`-prefixed id passed in by a caller can never 404.
+export const stripTradeIdPrefix = (id: string): string => id.replace(/^trade:/, '');
+export const isTradeBasedProductId = (productId: string): boolean => productId.startsWith('trade:');
+
 export interface ListTradesParams {
   page?: number;
   limit?: number;
@@ -122,7 +129,7 @@ export const fetchTrades = async (params: ListTradesParams = {}): Promise<ListTr
 };
 
 export const fetchTradeById = async (id: string): Promise<TradeItem> => {
-  const { data } = await api.get<{ trade: RawTrade }>(`/trades/${id}`);
+  const { data } = await api.get<{ trade: RawTrade }>(`/trades/${stripTradeIdPrefix(id)}`);
   return mapToTradeItem(data.trade);
 };
 
@@ -148,7 +155,7 @@ export const createTrade = async (payload: CreateTradePayload): Promise<TradeIte
     ...payload,
     type: typeToApi[payload.type],
     category: categoryToApi[payload.category]
-  });  
+  });
 
   return mapToTradeItem(data.trade);
 };
@@ -161,41 +168,47 @@ export const editTrade = async (tradeId: string, payload: EditTradePayload): Pro
     body.category = categoryToApi[payload.category];
   }
 
-  const { data } = await api.patch<{ trade: RawTrade }>(`/trades/${tradeId}`, body);
+  const { data } = await api.patch<{ trade: RawTrade }>(`/trades/${stripTradeIdPrefix(tradeId)}`, body);
   return mapToTradeItem(data.trade);
 };
 
 export const cancelTrade = async (tradeId: string): Promise<TradeItem> => {
-  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/cancel`);
+  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${stripTradeIdPrefix(tradeId)}/cancel`);
   return mapToTradeItem(data.trade);
 };
 
 export const deleteTrade = async (tradeId: string): Promise<void> => {
-  await api.delete(`/trades/${tradeId}`);
+  await api.delete(`/trades/${stripTradeIdPrefix(tradeId)}`);
 };
 
 export const fundTrade = async (tradeId: string): Promise<TradeItem> => {
-  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/fund`);
+  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${stripTradeIdPrefix(tradeId)}/fund`);
   return mapToTradeItem(data.trade);
 };
 
 export const verifyPickupCode = async (tradeId: string, code: string): Promise<TradeItem> => {
-  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/verify-pickup`, { code });
+  const { data } = await api.post<{ trade: RawTrade }>(
+    `/trades/${stripTradeIdPrefix(tradeId)}/verify-pickup`,
+    { code }
+  );
   return mapToTradeItem(data.trade);
 };
 
 export const updateTradeStatus = async (tradeId: string, status: EscrowStatus): Promise<TradeItem> => {
-  const { data } = await api.patch<{ trade: RawTrade }>(`/trades/${tradeId}/status`, { status });
+  const { data } = await api.patch<{ trade: RawTrade }>(
+    `/trades/${stripTradeIdPrefix(tradeId)}/status`,
+    { status }
+  );
   return mapToTradeItem(data.trade);
 };
 
 export const forceCancelTrade = async (tradeId: string): Promise<TradeItem> => {
-  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/force-cancel`);
+  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${stripTradeIdPrefix(tradeId)}/force-cancel`);
   return mapToTradeItem(data.trade);
 };
 
 export const forceReleaseTrade = async (tradeId: string): Promise<TradeItem> => {
-  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${tradeId}/force-release`);
+  const { data } = await api.post<{ trade: RawTrade }>(`/trades/${stripTradeIdPrefix(tradeId)}/force-release`);
   return mapToTradeItem(data.trade);
 };
 
@@ -228,7 +241,3 @@ export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null 
     description: trade.description ?? `Trade listing for ${trade.title}`
   };
 };
-
-export const isTradeBasedProductId = (productId: string): boolean => productId.startsWith('trade:');
-
-export const stripTradeIdPrefix = (productId: string): string => productId.replace(/^trade:/, '');

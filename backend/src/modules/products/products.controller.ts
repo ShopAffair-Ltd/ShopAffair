@@ -15,6 +15,7 @@ import {
   updateProduct,
   deleteProduct
 } from './products.service';
+import { deleteOwnTrade } from '../trades/trades.service';
 
 const requireUser = (req: Request) => {
   if (!req.user) {
@@ -79,6 +80,43 @@ export const getOne = asyncHandler(async (req: Request, res: Response) => {
 export const update = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const { id } = productIdParamSchema.parse(req.params);
+  if (id.startsWith('trade:')) {
+    const rawTradeId = id.replace(/^trade:/, '');
+    const trade = await prisma.trade.findUnique({ where: { id: rawTradeId } });
+    if (!trade) {
+      throw new ApiError(404, 'Trade not found');
+    }
+    if (trade.creatorId !== user.id && user.role !== 'admin') {
+      throw new ApiError(403, 'You can only update your own trade listings');
+    }
+    const updated = await prisma.trade.update({
+      where: { id: rawTradeId },
+      data: req.body?.visibility ? { visibility: req.body.visibility } : {},
+      include: {
+        creator: { select: { id: true, username: true, name: true, avatarColor: true } }
+      }
+    });
+    res.status(200).json({
+      product: {
+        id: `trade:${updated.id}`,
+        title: updated.title,
+        price: Number(updated.amount),
+        category: updated.category,
+        condition: updated.condition || 'NEW',
+        visibility: updated.visibility,
+        description: updated.description || '',
+        image: updated.image || '',
+        images: updated.image ? [updated.image] : [],
+        stock: 1,
+        location: updated.takeOffLocation || null,
+        sellerId: updated.creatorId,
+        seller: updated.creator,
+        createdAt: updated.createdAt,
+        updatedAt: updated.updatedAt
+      }
+    });
+    return;
+  }
   const input = updateProductSchema.parse(req.body);
   const product = await updateProduct(id, user.id, user.role, input);
   res.status(200).json({ product });
@@ -87,6 +125,11 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 export const remove = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const { id } = productIdParamSchema.parse(req.params);
+  if (id.startsWith('trade:')) {
+    await deleteOwnTrade(id.replace(/^trade:/, ''), user.id);
+    res.status(204).send();
+    return;
+  }
   await deleteProduct(id, user.id, user.role);
   res.status(204).send();
 });

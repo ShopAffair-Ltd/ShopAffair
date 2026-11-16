@@ -304,6 +304,9 @@ export default function MyStoreView() {
 
   const [productActionError, setProductActionError] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  // Guards against duplicate in-flight delete/make-private requests from
+  // rapid repeat clicks on the confirmation modal's buttons.
+  const [isProductActionPending, setIsProductActionPending] = useState(false);
 
   const handleAddOrEditProduct = async (
     productInput: Omit<MarketProduct, 'id' | 'sellerUsername' | 'sellerName' | 'rating' | 'salesCount' | 'reviewsCount'>
@@ -324,6 +327,8 @@ export default function MyStoreView() {
   };
 
   const handleDeleteProduct = async (id: string) => {
+    if (isProductActionPending) return;
+    setIsProductActionPending(true);
     setProductActionError(null);
     const rawId = id.replace(/^trade:/, '');
     try {
@@ -348,12 +353,16 @@ export default function MyStoreView() {
             (tradeErr as { response?: { data?: { message?: string } } })?.response?.data?.message;
           setProductActionError(tradeMsg ?? 'Could not delete trade. Please try again.');
           return;
+        } finally {
+          setIsProductActionPending(false);
         }
       }
       console.error(err);
       const backendMessage =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       setProductActionError(backendMessage ?? 'Could not delete item. Please try again.');
+    } finally {
+      setIsProductActionPending(false);
     }
   };
 
@@ -361,6 +370,8 @@ export default function MyStoreView() {
   // product from the open market while keeping it in the seller's own
   // store/catalogue, instead of removing it permanently.
   const handleMakePrivate = async (id: string) => {
+    if (isProductActionPending) return;
+    setIsProductActionPending(true);
     setProductActionError(null);
     const rawId = id.replace(/^trade:/, '');
     try {
@@ -376,6 +387,8 @@ export default function MyStoreView() {
       const backendMessage =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       setProductActionError(backendMessage ?? 'Could not update item. Please try again.');
+    } finally {
+      setIsProductActionPending(false);
     }
   };
 
@@ -391,6 +404,12 @@ export default function MyStoreView() {
     }
     setEditingProduct(product);
     setProductSheetOpen(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (isProductActionPending) return;
+    setDeleteConfirmId(null);
+    setProductActionError(null);
   };
 
   if (!activeProfile) return null;
@@ -872,7 +891,7 @@ export default function MyStoreView() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
-              onClick={() => setDeleteConfirmId(null)}
+              onClick={closeDeleteConfirm}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 10 }}
@@ -890,19 +909,24 @@ export default function MyStoreView() {
                 <div className="space-y-2">
                   <button
                     onClick={() => handleMakePrivate(targetProd.id)}
-                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-bold text-xs rounded-xl cursor-pointer"
+                    disabled={isProductActionPending}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 font-sans font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5"
                   >
+                    {isProductActionPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     Make Private (only you can see)
                   </button>
                   <button
                     onClick={() => handleDeleteProduct(targetProd.id)}
-                    className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-sans font-bold text-xs rounded-xl cursor-pointer"
+                    disabled={isProductActionPending}
+                    className="w-full py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-sans font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5"
                   >
+                    {isProductActionPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     Delete Trade Permanently
                   </button>
                   <button
-                    onClick={() => setDeleteConfirmId(null)}
-                    className="w-full py-2 text-slate-400 font-sans text-xs cursor-pointer"
+                    onClick={closeDeleteConfirm}
+                    disabled={isProductActionPending}
+                    className="w-full py-2 text-slate-400 font-sans text-xs cursor-pointer disabled:opacity-50"
                   >
                     Cancel
                   </button>
