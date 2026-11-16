@@ -330,25 +330,25 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
 
           <div className="space-y-2">
             {specs.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2 w-full">
                 <input
                   type="text"
                   placeholder="Size, Color, etc."
                   value={item.key}
                   onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-                  className="flex-1 font-sans text-xs px-3 py-2 bg-white border border-slate-200 rounded-md focus:outline-none"
+                  className="flex-1 min-w-0 font-sans text-xs px-3 py-2 bg-white border border-slate-200 rounded-md focus:outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Value"
                   value={item.value}
                   onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                  className="flex-1 font-sans text-xs px-3 py-2 bg-white border border-slate-200 rounded-md focus:outline-none"
+                  className="flex-1 min-w-0 font-sans text-xs px-3 py-2 bg-white border border-slate-200 rounded-md focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveSpec(index)}
-                  className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+                  className="shrink-0 ml-auto p-2 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
