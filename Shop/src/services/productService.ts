@@ -135,10 +135,7 @@ export const updateProduct = async (
     ...payload,
     ...(payload.condition ? { condition: conditionToApi[payload.condition] } : {})
   };
-  // Defensive strip: a MarketProduct id can carry a `trade:` prefix when it
-  // originated from mapTradeToMarketProduct. This endpoint is for plain
-  // products only, but stripping here means a stray prefixed id never
-  // produces a malformed/incorrect URL.
+
   const { data } = await api.patch<{ product: RawProduct }>(
     `/products/${id.replace(/^trade:/, '')}`,
     body
@@ -147,8 +144,6 @@ export const updateProduct = async (
 };
 
 export const deleteProduct = async (id: string): Promise<void> => {
-  // Defensive strip: callers should only ever pass a plain product id here
-  // (MyStoreView routes `trade:` ids to deleteTrade instead), but stripping
-  // defensively means a stray prefixed id can never 404 against /products.
+
   await api.delete(`/products/${id.replace(/^trade:/, '')}`);
 };

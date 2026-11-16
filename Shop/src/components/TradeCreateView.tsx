@@ -165,7 +165,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
             className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${tradeType === TradeType.SUPPLY ? 'bg-green-50 text-slate-800 shadow-xs' : 'text-slate-500'
               }`}
           >
-            Purchase Order
+            Sales Offer
           </button>
           <button
             type="button"
@@ -174,7 +174,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
             className={`py-2 text-xs font-sans font-bold rounded-md transition-all ${isEditMode ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${tradeType === TradeType.REQUEST ? 'bg-green-50 text-slate-800 shadow-xs' : 'text-slate-500'
               }`}
           >
-            Sales Order
+            Purchase Offer
           </button>
         </motion.div>
 
