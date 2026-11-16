@@ -32,9 +32,15 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
         { key: 'Qty', value: '' }
       ]
   );
-  const [deliveryFee, setDeliveryFee] = useState(initialTrade ? String(initialTrade.deliveryFee) : '0');
-  const [deliveryTime, setDeliveryTime] = useState(initialTrade?.deliveryTime ?? 'e.g. 2-3 days');
-  const [takeOffLocation, setTakeOffLocation] = useState(initialTrade?.takeOffLocation ?? 'e.g. Ikeja, Lagos');
+  const [deliveryFee, setDeliveryFee] = useState(
+    initialTrade && initialTrade.deliveryFee !== undefined ? String(initialTrade.deliveryFee) : ''
+  );
+  const [deliveryTime, setDeliveryTime] = useState(
+    initialTrade?.deliveryTime && initialTrade.deliveryTime !== 'e.g. 2-3 days' ? initialTrade.deliveryTime : ''
+  );
+  const [takeOffLocation, setTakeOffLocation] = useState(
+    initialTrade?.takeOffLocation && initialTrade.takeOffLocation !== 'e.g. Ikeja, Lagos' ? initialTrade.takeOffLocation : ''
+  );
   const [deliveryLocation, setDeliveryLocation] = useState(initialTrade?.deliveryLocation ?? '');
 
   const [uploadedImages, setUploadedImages] = useState<string[]>(initialTrade?.image ? [initialTrade.image] : []);
@@ -78,7 +84,24 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !amount) return;
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !amount.trim() ||
+      deliveryFee.trim() === '' ||
+      !deliveryTime.trim() ||
+      !takeOffLocation.trim() ||
+      !deliveryLocation.trim()
+    ) {
+      setSubmitError('Please fill in all required fields before submitting.');
+      return;
+    }
+
+    const hasIncompleteSpec = specs.some((item) => !item.key.trim() || !item.value.trim());
+    if (hasIncompleteSpec) {
+      setSubmitError('Please fill in all spec fields or remove unused spec rows.');
+      return;
+    }
 
     const specRecord: Record<string, string> = {};
     specs.forEach((item) => {
@@ -279,6 +302,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           <div className="flex flex-col gap-2">
             <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Product Description</label>
             <textarea
+              required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add more details about the product here..."
@@ -333,6 +357,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               <div key={index} className="flex items-center gap-2 w-full">
                 <input
                   type="text"
+                  required
                   placeholder="Size, Color, etc."
                   value={item.key}
                   onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
@@ -340,6 +365,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
                 />
                 <input
                   type="text"
+                  required
                   placeholder="Value"
                   value={item.value}
                   onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
