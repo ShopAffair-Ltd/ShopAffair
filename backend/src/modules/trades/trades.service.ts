@@ -146,8 +146,8 @@ export const cancelOwnTrade = async (tradeId: string, userId: string) => {
     where: { id: tradeId },
     data: { status: 'REFUNDED' },
     include: {
-      creator: { select: { id: true, username: true, name: true, avatar: true, isVerified: true, rating: true } },
-      buyer: { select: { id: true, username: true, name: true, avatar: true, isVerified: true, rating: true } }
+      creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+      buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
     }
   });
 };
