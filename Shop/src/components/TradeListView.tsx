@@ -278,7 +278,7 @@ export default function TradeListView({
                       : 'bg-slate-50 text-slate-500 border border-slate-200/50'
                   }`}
                 >
-                  {trade.status}
+                  {trade.status === EscrowStatus.REFUNDED && !trade.buyerUsername ? 'CANCELLED' : trade.status}
                 </span>
               </div>
             </motion.div>

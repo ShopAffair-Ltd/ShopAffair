@@ -1538,7 +1538,7 @@ export default function ProfileView() {
                             t.status === 'COMPLETED' ? 'bg-green-50 text-green-700' :
                             t.status === 'REFUNDED' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
                           }`}>
-                            {t.status}
+                            {t.status === 'REFUNDED' && !t.buyerUsername ? 'CANCELLED' : t.status}
                           </span>
                         </div>
                       </div>
