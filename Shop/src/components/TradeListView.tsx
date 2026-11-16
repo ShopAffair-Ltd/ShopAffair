@@ -52,6 +52,7 @@ export default function TradeListView({
   };
 
   const filteredTrades = trades.filter((t) => {
+    if (t.status === EscrowStatus.REFUNDED && !t.buyerUsername) return false;
     const matchesSearch =
       t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.creatorUsername.toLowerCase().includes(searchQuery.toLowerCase());

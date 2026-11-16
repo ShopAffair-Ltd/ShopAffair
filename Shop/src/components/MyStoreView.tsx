@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, MarketProduct } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useTrades } from '../context/TradeContext';
 import { useMarket } from '../context/MarketContext';
 import QrShareModal from './modals/QrShareModal';
 import {
@@ -61,6 +62,7 @@ export default function MyStoreView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user: activeProfile, updateUser } = useAuth();
+  const { deleteTrade } = useTrades();
   const { products, addProduct, editProduct, deleteProduct } = useMarket();
   const onBack = () => navigate('/');
 
@@ -327,6 +329,20 @@ export default function MyStoreView() {
       await deleteProduct(id);
       setDeleteConfirmId(null);
     } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 404) {
+        try {
+          await deleteTrade(id);
+          setDeleteConfirmId(null);
+          return;
+        } catch (tradeErr: unknown) {
+          console.error(tradeErr);
+          const tradeMsg =
+            (tradeErr as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          setProductActionError(tradeMsg ?? 'Could not delete trade. Please try again.');
+          return;
+        }
+      }
       console.error(err);
       const backendMessage =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
