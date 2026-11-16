@@ -64,7 +64,7 @@ export const listTradesQuerySchema = z.object({
 });
 
 export const tradeIdParamSchema = z.object({
-  id: z.uuid()
+  id: z.string().min(1)
 });
 
 export const fundTradeSchema = z.object({
