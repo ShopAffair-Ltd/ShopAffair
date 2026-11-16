@@ -33,7 +33,7 @@ export const listProductsQuerySchema = z.object({
 });
 
 export const productIdParamSchema = z.object({
-  id: z.uuid()
+  id: z.string().min(1)
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
