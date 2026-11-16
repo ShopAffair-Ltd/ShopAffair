@@ -21,7 +21,7 @@ import {
   Check,
   Loader2
 } from 'lucide-react';
-import { UserProfile, MarketProduct } from '../types';
+import { UserProfile, MarketProduct, TradeVisibility } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useTrades } from '../context/TradeContext';
 import { useMarket } from '../context/MarketContext';
@@ -62,7 +62,7 @@ export default function MyStoreView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user: activeProfile, updateUser } = useAuth();
-  const { deleteTrade } = useTrades();
+  const { deleteTrade, editTrade } = useTrades();
   const { products, addProduct, editProduct, deleteProduct, refresh: refreshMarket } = useMarket();
   const onBack = () => navigate('/');
 
@@ -325,14 +325,20 @@ export default function MyStoreView() {
 
   const handleDeleteProduct = async (id: string) => {
     setProductActionError(null);
+    const rawId = id.replace(/^trade:/, '');
     try {
-      await deleteProduct(id);
+      if (id.startsWith('trade:')) {
+        await deleteTrade(rawId);
+        await refreshMarket();
+      } else {
+        await deleteProduct(id);
+      }
       setDeleteConfirmId(null);
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 404) {
+      if (status === 404 && !id.startsWith('trade:')) {
         try {
-          await deleteTrade(id);
+          await deleteTrade(rawId);
           await refreshMarket();
           setDeleteConfirmId(null);
           return;
@@ -347,7 +353,7 @@ export default function MyStoreView() {
       console.error(err);
       const backendMessage =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setProductActionError(backendMessage ?? 'Could not delete product. Please try again.');
+      setProductActionError(backendMessage ?? 'Could not delete item. Please try again.');
     }
   };
 
@@ -356,12 +362,20 @@ export default function MyStoreView() {
   // store/catalogue, instead of removing it permanently.
   const handleMakePrivate = async (id: string) => {
     setProductActionError(null);
+    const rawId = id.replace(/^trade:/, '');
     try {
-      await editProduct(id, { visibility: 'PRIVATE' });
+      if (id.startsWith('trade:')) {
+        await editTrade(rawId, { visibility: TradeVisibility.PRIVATE });
+        await refreshMarket();
+      } else {
+        await editProduct(id, { visibility: 'PRIVATE' });
+      }
       setDeleteConfirmId(null);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      setProductActionError('Could not update product. Please try again.');
+      const backendMessage =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setProductActionError(backendMessage ?? 'Could not update item. Please try again.');
     }
   };
 
@@ -371,6 +385,10 @@ export default function MyStoreView() {
   };
 
   const openEditProduct = (product: MarketProduct) => {
+    if (product.id.startsWith('trade:')) {
+      navigate(`/trade/${product.id.replace(/^trade:/, '')}/edit`);
+      return;
+    }
     setEditingProduct(product);
     setProductSheetOpen(true);
   };
