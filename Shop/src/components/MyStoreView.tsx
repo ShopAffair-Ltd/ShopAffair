@@ -845,6 +845,11 @@ export default function MyStoreView() {
               >
                 <h3 className="text-sm font-display font-bold text-slate-900 mb-1">What would you like to do?</h3>
                 <p className="text-[11px] font-sans text-slate-500 mb-4">"{targetProd.title}"</p>
+                {productActionError && (
+                  <p className="text-[11px] font-sans text-red-600 bg-red-50 border border-red-200 rounded-lg px-2.5 py-1.5 mb-3">
+                    {productActionError}
+                  </p>
+                )}
                 <div className="space-y-2">
                   <button
                     onClick={() => handleMakePrivate(targetProd.id)}

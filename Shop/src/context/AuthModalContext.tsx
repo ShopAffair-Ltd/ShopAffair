@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
 type AuthModalMode = 'login' | 'register' | 'verify-wizard';
 
@@ -16,23 +16,54 @@ const AuthModalContext = createContext<AuthModalContextType | undefined>(undefin
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<AuthModalMode>('login');
+  const hasPushedHistoryRef = useRef(false);
 
-  const openLogin = () => {
+  const pushHistoryIfNeeded = useCallback(() => {
+    if (!hasPushedHistoryRef.current) {
+      window.history.pushState({ authModal: true }, '');
+      hasPushedHistoryRef.current = true;
+    }
+  }, []);
+
+  const openLogin = useCallback(() => {
     setMode('login');
     setIsOpen(true);
-  };
+    pushHistoryIfNeeded();
+  }, [pushHistoryIfNeeded]);
 
-  const openRegister = () => {
+  const openRegister = useCallback(() => {
     setMode('register');
     setIsOpen(true);
-  };
+    pushHistoryIfNeeded();
+  }, [pushHistoryIfNeeded]);
 
-  const openVerifyWizard = () => {
+  const openVerifyWizard = useCallback(() => {
     setMode('verify-wizard');
     setIsOpen(true);
-  };
+    pushHistoryIfNeeded();
+  }, [pushHistoryIfNeeded]);
 
-  const close = () => setIsOpen(false);
+  const close = useCallback(() => {
+    setIsOpen(false);
+    if (hasPushedHistoryRef.current) {
+      hasPushedHistoryRef.current = false;
+      window.history.back();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePopState = () => {
+      if (hasPushedHistoryRef.current) {
+        hasPushedHistoryRef.current = false;
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isOpen]);
 
   return (
     <AuthModalContext.Provider value={{ isOpen, mode, openLogin, openRegister, openVerifyWizard, close }}>
