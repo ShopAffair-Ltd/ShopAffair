@@ -117,5 +117,15 @@ export const updateProduct = async (
 export const deleteProduct = async (productId: string, userId: string, userRole: string) => {
   await assertOwnership(productId, userId, userRole);
 
-  await prisma.product.delete({ where: { id: productId } });
+  try {
+    await prisma.product.delete({ where: { id: productId } });
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2003') {
+      throw new ApiError(
+        409,
+        'This product has existing orders and cannot be permanently deleted. Use "Make Private" to hide it instead.'
+      );
+    }
+    throw err;
+  }
 };

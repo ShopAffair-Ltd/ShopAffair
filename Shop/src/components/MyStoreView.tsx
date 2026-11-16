@@ -326,9 +326,11 @@ export default function MyStoreView() {
     try {
       await deleteProduct(id);
       setDeleteConfirmId(null);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      setProductActionError('Could not delete product. Please try again.');
+      const backendMessage =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setProductActionError(backendMessage ?? 'Could not delete product. Please try again.');
     }
   };
 
