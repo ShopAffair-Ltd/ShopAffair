@@ -15,6 +15,7 @@ export interface MarketProduct {
   description: string;
   isFavorited?: boolean;
   visibility?: 'PRIVATE' | 'STORE' | 'MARKET';
+  tradeType?: 'Supply' | 'Request';
 }
 
 export interface CartItem {

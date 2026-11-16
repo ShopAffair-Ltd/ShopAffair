@@ -14,17 +14,25 @@ export const createProduct = async (sellerId: string, input: CreateProductInput)
       location: input.location,
       specs: input.specs as Prisma.InputJsonValue | undefined,
       description: input.description,
+      ...(input.visibility ? { visibility: input.visibility } : {}),
       sellerId
+    },
+    include: {
+      seller: {
+        select: { id: true, username: true, name: true, avatarColor: true, verificationStatus: true }
+      }
     }
   });
 };
 
-export const listProducts = async (query: ListProductsQuery) => {
+export const listProducts = async (query: ListProductsQuery, userId: string | null = null) => {
   const { page, limit, category, condition, sellerId, search, location, minPrice, maxPrice } = query;
 
   const where: Prisma.ProductWhereInput = {
     isListed: true,
-    visibility: 'MARKET',
+    ...(userId
+      ? { OR: [{ visibility: 'MARKET' }, { sellerId: userId }] }
+      : { visibility: 'MARKET' }),
     ...(category ? { category } : {}),
     ...(condition ? { condition } : {}),
     ...(sellerId ? { sellerId } : {}),
@@ -110,6 +118,11 @@ export const updateProduct = async (
     data: {
       ...rest,
       ...(specs !== undefined ? { specs: specs as Prisma.InputJsonValue } : {})
+    },
+    include: {
+      seller: {
+        select: { id: true, username: true, name: true, avatarColor: true, verificationStatus: true }
+      }
     }
   });
 };
@@ -118,7 +131,7 @@ export const deleteProduct = async (productId: string, userId: string, userRole:
   await assertOwnership(productId, userId, userRole);
 
   await prisma.$transaction([
-    prisma.orderItem.deleteMany({ where: { productId } }),
+    prisma.order.deleteMany({ where: { productId } }),
     prisma.product.delete({ where: { id: productId } })
   ]);
 };

@@ -202,7 +202,13 @@ export const getTradeById = async (id: string, userId: string | null) => {
 
 export const fundTrade = async (tradeId: string, buyerId: string) => {
   const updatedTrade = await prisma.$transaction(async (tx) => {
-    const trade = await tx.trade.findUnique({ where: { id: tradeId } });
+    const trade = await tx.trade.findUnique({
+      where: { id: tradeId },
+      include: {
+        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
+      }
+    });
 
     if (!trade) {
       throw new ApiError(404, 'Trade not found');
@@ -210,10 +216,25 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
     if (trade.creatorId === buyerId) {
       throw new ApiError(400, 'You cannot fund your own trade listing');
     }
-    if (trade.buyerId) {
-      throw new ApiError(409, 'This trade has already been funded by another buyer');
+
+    // If the same buyer already funded this exact trade (e.g. retrying after a network hiccup),
+    // return it idempotently instead of throwing 409.
+    if (trade.buyerId === buyerId && trade.status === 'FUNDED') {
+      return trade;
     }
-    if (trade.status !== 'PENDING' && trade.status !== 'DRAFT') {
+
+    const specsObj =
+      trade.specs && typeof trade.specs === 'object' && !Array.isArray(trade.specs)
+        ? (trade.specs as Record<string, unknown>)
+        : {};
+    const qtyKey = Object.keys(specsObj).find((k) => ['qty', 'quantity', 'stock'].includes(k.toLowerCase()));
+    const rawQty = qtyKey ? Number(specsObj[qtyKey]) : 1;
+    const currentQty = Number.isFinite(rawQty) && rawQty >= 1 ? Math.floor(rawQty) : 1;
+
+    if (trade.buyerId && currentQty <= 1) {
+      throw new ApiError(409, 'This item is out of stock (already purchased by another buyer)');
+    }
+    if (trade.status !== 'PENDING' && trade.status !== 'DRAFT' && currentQty <= 1) {
       throw new ApiError(409, `Trade cannot be funded while in status ${trade.status}`);
     }
 
@@ -232,6 +253,60 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
       data: { walletBalance: { decrement: totalDue } }
     });
 
+    const pickupCode = generatePickupCode();
+
+    // If stock (Qty) > 1, decrement Qty on the original listing so other buyers can still purchase,
+    // and create a new FUNDED escrow trade for this buyer.
+    if (currentQty > 1 && !trade.buyerId && (trade.status === 'PENDING' || trade.status === 'DRAFT')) {
+      const updatedSpecs = { ...specsObj, [qtyKey || 'Qty']: String(currentQty - 1) };
+      await tx.trade.update({
+        where: { id: tradeId },
+        data: { specs: updatedSpecs as Prisma.InputJsonValue }
+      });
+
+      const childSpecs = { ...specsObj, [qtyKey || 'Qty']: '1' };
+      const childTrade = await tx.trade.create({
+        data: {
+          title: trade.title,
+          creatorId: trade.creatorId,
+          buyerId,
+          amount: trade.amount,
+          status: 'FUNDED',
+          type: trade.type,
+          category: trade.category,
+          visibility: 'PRIVATE',
+          condition: trade.condition,
+          specs: childSpecs as Prisma.InputJsonValue,
+          accountNumber: trade.accountNumber,
+          deliveryFee: trade.deliveryFee,
+          deliveryTime: trade.deliveryTime,
+          takeOffLocation: trade.takeOffLocation,
+          deliveryLocation: trade.deliveryLocation,
+          image: trade.image,
+          description: trade.description,
+          pickupCode,
+          pickupAttempts: 0
+        },
+        include: {
+          creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+          buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
+        }
+      });
+
+      await tx.walletTransaction.create({
+        data: {
+          userId: buyerId,
+          type: 'ESCROW_LOCK',
+          provider: 'MANUAL',
+          amount: totalDue,
+          status: 'SUCCESS',
+          tradeId: childTrade.id
+        }
+      });
+
+      return childTrade;
+    }
+
     await tx.walletTransaction.create({
       data: {
         userId: buyerId,
@@ -243,8 +318,6 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
       }
     });
 
-    const pickupCode = generatePickupCode();
-
     return tx.trade.update({
       where: { id: tradeId },
       data: {
@@ -252,23 +325,37 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
         status: 'FUNDED',
         pickupCode,
         pickupAttempts: 0
+      },
+      include: {
+        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
       }
     });
   });
 
-  await notify({
-    userId: updatedTrade.creatorId,
-    title: 'Trade funded',
-    message: `A buyer has funded escrow for "${updatedTrade.title}". Hand over the item and get their pickup code to release payment.`,
-    type: 'SUCCESS'
-  });
+  try {
+    await notify({
+      userId: updatedTrade.creatorId,
+      title: 'Trade funded',
+      message: `A buyer has funded escrow for "${updatedTrade.title}". Hand over the item and get their pickup code to release payment.`,
+      type: 'SUCCESS'
+    });
 
-  if (updatedTrade.buyerId) {
-    await getOrCreateTradeChat(updatedTrade.id, updatedTrade.creatorId, updatedTrade.buyerId);
-    await postTradeSystemMessage(
-      updatedTrade.id,
-      `Escrow funded. ₦${Number(updatedTrade.amount) + Number(updatedTrade.deliveryFee)} is now locked. The seller will release it once you share your pickup code.`
-    );
+    if (updatedTrade.buyerId) {
+      await notify({
+        userId: updatedTrade.buyerId,
+        title: 'Escrow payment locked',
+        message: `₦${(Number(updatedTrade.amount) + Number(updatedTrade.deliveryFee)).toLocaleString()} is locked in escrow for "${updatedTrade.title}". Your pickup code is ${updatedTrade.pickupCode}.`,
+        type: 'SUCCESS'
+      });
+      await getOrCreateTradeChat(updatedTrade.id, updatedTrade.creatorId, updatedTrade.buyerId);
+      await postTradeSystemMessage(
+        updatedTrade.id,
+        `Escrow funded. ₦${Number(updatedTrade.amount) + Number(updatedTrade.deliveryFee)} is now locked. The seller will release it once you share your pickup code.`
+      );
+    }
+  } catch (postErr) {
+    console.error('Non-fatal post-fund notification/chat error:', postErr);
   }
 
   return updatedTrade;
@@ -295,7 +382,7 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
     if (trade.creatorId !== sellerId) {
       throw new ApiError(403, 'Only the trade creator can verify pickup');
     }
-    if (trade.status !== 'FUNDED') {
+    if (trade.status !== 'FUNDED' && trade.status !== 'DISPUTED') {
       throw new ApiError(409, 'Trade is not awaiting pickup verification');
     }
     if (trade.pausedByFreeze) {

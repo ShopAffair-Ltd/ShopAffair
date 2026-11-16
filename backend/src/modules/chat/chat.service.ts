@@ -870,8 +870,32 @@ export const useInvite = async (code: string, userId: string) => {
  * trade, it's reused rather than duplicated.
  */
 export const getOrCreateTradeChat = async (tradeId: string, creatorId: string, buyerId: string) => {
-  const existing = await prisma.chatRoom.findUnique({ where: { associatedTradeId: tradeId } });
-  if (existing) return existing;
+  const existingByTrade = await prisma.chatRoom.findUnique({ where: { associatedTradeId: tradeId } });
+  if (existingByTrade) return existingByTrade;
+
+  const existingDirect = await prisma.chatRoom.findFirst({
+    where: {
+      type: ChatRoomType.DIRECT,
+      OR: [
+        { initiatorId: buyerId, participantId: creatorId },
+        { initiatorId: creatorId, participantId: buyerId }
+      ]
+    }
+  });
+
+  if (existingDirect) {
+    if (!existingDirect.associatedTradeId) {
+      try {
+        return await prisma.chatRoom.update({
+          where: { id: existingDirect.id },
+          data: { associatedTradeId: tradeId }
+        });
+      } catch {
+        return existingDirect;
+      }
+    }
+    return existingDirect;
+  }
 
   return prisma.chatRoom.create({
     data: {

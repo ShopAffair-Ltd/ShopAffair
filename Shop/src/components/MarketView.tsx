@@ -179,6 +179,7 @@ export default function MarketView() {
 
   const filteredProducts = products.filter((product) => {
     if (product.visibility && product.visibility !== 'MARKET') return false;
+    if (product.tradeType === TradeType.REQUEST) return false;
     const matchesSearch =
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase());

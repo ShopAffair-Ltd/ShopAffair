@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Search, Plus, Image as ImageIcon, AlertCircle, Store, Share, Users, Check } from 'lucide-react';
-import { TradeItem, EscrowStatus, TradeType } from '../types';
+import { Search, Plus, Image as ImageIcon, AlertCircle, Store, Share, Users, Check, EyeOff } from 'lucide-react';
+import { TradeItem, EscrowStatus, TradeType, TradeVisibility } from '../types';
 import { useCommunities } from '../context/CommunityContext';
 import CreateGroupModal from './community/CreateGroupModal';
 
@@ -233,7 +233,7 @@ export default function TradeListView({
               </div>
 
               <div className="flex-1 min-w-0 space-y-0.5">
-                <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <span
                     className={`text-[9px] font-sans font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
                       trade.type === TradeType.SUPPLY
@@ -241,8 +241,18 @@ export default function TradeListView({
                         : 'bg-sky-50 text-sky-600 border border-sky-100'
                     }`}
                   >
-                    {trade.type === TradeType.SUPPLY ? 'Supply Order' : 'Demand Order'}
+                    {trade.type === TradeType.SUPPLY ? 'Sales Offer' : 'Purchase Offer'}
                   </span>
+                  {trade.visibility === TradeVisibility.PRIVATE && (
+                    <span className="text-[9px] font-sans font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 flex items-center gap-0.5">
+                      <EyeOff className="w-2.5 h-2.5" /> Keep Private
+                    </span>
+                  )}
+                  {trade.visibility === TradeVisibility.STORE && (
+                    <span className="text-[9px] font-sans font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">
+                      My Store
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-sm font-sans font-extrabold text-slate-800 truncate">{trade.title}</h3>
                 <div className="flex items-center gap-1.5 text-[11px] font-sans text-slate-500">

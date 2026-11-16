@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import {
   ArrowLeft, MessageCircle, Share2, ThumbsUp,
   Star, MessageSquare, ShoppingBag,
-  MoreVertical, Users, Package, CheckCircle
+  MoreVertical, Users, Package, CheckCircle, EyeOff
 } from 'lucide-react';
 import { MarketProduct, UserProfile } from '../types';
 import { reviewService, Review, RatingDistribution } from '../services/reviewService';
@@ -12,6 +12,7 @@ import { userService } from '../services/userService';
 import { getApiErrorMessage } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
+import { useNotifications } from '../context/NotificationContext';
 import { WallPostComponent } from './storeComponents';
 import { WallPost, timeAgo } from './storeConstants';
 import * as wallPostService from '../services/wallPostService';
@@ -92,6 +93,9 @@ export default function StoreProfile({
 
   const { user: viewer } = useAuth();
   const { openRegister } = useAuthModal();
+  const { addNotification } = useNotifications();
+  const isStoreOwner = !!viewer && (viewer.id === seller.id || viewer.username === seller.username);
+  const [storeTrades, setStoreTrades] = useState<MarketProduct[]>([]);
   const [activeTab, setActiveTab] = useState<'wall' | 'products' | 'reviews'>('wall');
   const [isFollowing, setIsFollowing] = useState(seller.followingByMe ?? false);
   const [followersCount, setFollowersCount] = useState(seller.followers || 0);
@@ -134,7 +138,31 @@ export default function StoreProfile({
     fetchStats();
     fetchReviews();
     fetchWallPosts();
+    tradeService
+      .fetchTrades({ storeOf: seller.username, limit: 50 })
+      .then((res) => {
+        const mapped = res.items
+          .map(tradeService.mapTradeToMarketProduct)
+          .filter((item): item is MarketProduct => item !== null);
+        setStoreTrades(mapped);
+      })
+      .catch(() => setStoreTrades([]));
   }, [seller.username]);
+
+  const combinedProducts = React.useMemo(() => {
+    const map = new Map<string, MarketProduct>();
+    for (const p of products || []) {
+      map.set(p.id, p);
+    }
+    for (const t of storeTrades) {
+      map.set(t.id, t);
+    }
+    return Array.from(map.values());
+  }, [products, storeTrades]);
+
+  const visibleStoreProducts = combinedProducts.filter(
+    (p) => isStoreOwner || p.visibility !== 'PRIVATE'
+  );
 
   const fetchWallPosts = async () => {
     setWallLoading(true);
@@ -222,10 +250,12 @@ export default function StoreProfile({
         const response = await userService.unfollowUser(seller.username);
         setFollowersCount(response.data.followersCount);
         setIsFollowing(false);
+        addNotification('Unfollowed Store', `You unfollowed ${seller.storeName || seller.name}.`, 'info');
       } else {
         const response = await userService.followUser(seller.username);
         setFollowersCount(response.data.followersCount);
         setIsFollowing(true);
+        addNotification('Following Store', `You are now following ${seller.storeName || seller.name}.`, 'success');
       }
     } catch (error) {
       console.error('Failed to follow/unfollow:', error);
@@ -520,12 +550,16 @@ export default function StoreProfile({
 
           {activeTab === 'products' && (
             <div className="grid grid-cols-2 gap-3">
-              {products && products.filter((p) => p.visibility !== 'PRIVATE').length > 0 ? (
-                products.filter((p) => p.visibility !== 'PRIVATE').map((product) => (
+              {visibleStoreProducts.length > 0 ? (
+                visibleStoreProducts.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => onProductClick(product)}
-                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100 cursor-pointer hover:shadow-md transition-shadow"
+                    className={`bg-white rounded-xl overflow-hidden shadow-sm border cursor-pointer hover:shadow-md transition-shadow ${
+                      product.visibility === 'PRIVATE'
+                        ? 'border-amber-300 ring-1 ring-amber-200/70'
+                        : 'border-slate-100'
+                    }`}
                   >
                     <div className="aspect-square w-full bg-slate-50 relative overflow-hidden">
                       <img
@@ -534,14 +568,33 @@ export default function StoreProfile({
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      {product.condition && (
-                        <span className="absolute top-2 left-2 bg-emerald-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
-                          {product.condition}
-                        </span>
-                      )}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                        {product.visibility === 'PRIVATE' && (
+                          <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase shadow-sm">
+                            <EyeOff className="w-2.5 h-2.5" />
+                            Keep Private
+                          </span>
+                        )}
+                        {product.tradeType === 'Request' ? (
+                          <span className="bg-purple-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase shadow-sm">
+                            Purchase Offer
+                          </span>
+                        ) : product.tradeType === 'Supply' ? (
+                          <span className="bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase shadow-sm">
+                            Sales Offer
+                          </span>
+                        ) : product.condition ? (
+                          <span className="bg-emerald-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">
+                            {product.condition}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                     <div className="p-2.5">
                       <h4 className="text-[10px] font-sans font-bold text-slate-800 line-clamp-1">{product.title}</h4>
+                      {product.visibility === 'PRIVATE' && (
+                        <p className="text-[9px] font-sans font-semibold text-amber-600 mt-0.5">Only visible to you</p>
+                      )}
                       <p className="text-[10px] font-sans font-extrabold text-purple-600 mt-0.5">₦{Number(product.price).toLocaleString()}</p>
                     </div>
                   </div>

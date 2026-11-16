@@ -119,7 +119,7 @@ export function SellerPickupCodeEntry({ onAttempt, attempts, locked, tradeAmount
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-slate-50 border border-slate-100 rounded-lg space-y-3">
+    <form onSubmit={handleSubmit} autoComplete="off" className="p-4 bg-slate-50 border border-slate-100 rounded-lg space-y-3">
       <div className="flex items-start gap-2.5">
         <KeyRound className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
         <div>
@@ -133,6 +133,9 @@ export function SellerPickupCodeEntry({ onAttempt, attempts, locked, tradeAmount
       <input
         type="text"
         inputMode="numeric"
+        autoComplete="off"
+        data-1p-ignore
+        data-lpignore="true"
         maxLength={6}
         value={input}
         onChange={(e) => setInput(e.target.value.replace(/\D/g, ''))}

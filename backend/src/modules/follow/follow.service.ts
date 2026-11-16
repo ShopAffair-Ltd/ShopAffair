@@ -1,12 +1,16 @@
 import { prisma } from '../../config/db';
 import { ApiError } from '../../utils/ApiError';
+import { notify } from '../notifications/notifications.service';
 
 export const followUser = async (followerId: string, followingId: string) => {
   if (followerId === followingId) {
     throw new ApiError(400, 'You cannot follow yourself');
   }
 
-  const target = await prisma.user.findUnique({ where: { id: followingId }, select: { id: true } });
+  const [target, follower] = await Promise.all([
+    prisma.user.findUnique({ where: { id: followingId }, select: { id: true, username: true } }),
+    prisma.user.findUnique({ where: { id: followerId }, select: { id: true, username: true, name: true } })
+  ]);
   if (!target) {
     throw new ApiError(404, 'User not found');
   }
@@ -18,7 +22,20 @@ export const followUser = async (followerId: string, followingId: string) => {
     return existing;
   }
 
-  return prisma.follow.create({ data: { followerId, followingId } });
+  const created = await prisma.follow.create({ data: { followerId, followingId } });
+
+  try {
+    await notify({
+      userId: followingId,
+      title: 'New Store Follower',
+      message: `${follower?.name || `@${follower?.username || 'Someone'}`} (@${follower?.username || 'user'}) started following your store.`,
+      type: 'INFO'
+    });
+  } catch {
+    // Non-fatal
+  }
+
+  return created;
 };
 
 export const unfollowUser = async (followerId: string, followingId: string) => {

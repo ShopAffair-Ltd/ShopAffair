@@ -221,8 +221,6 @@ const mapConditionToMarketLabel = (condition: string | undefined): 'New' | 'Like
 };
 
 export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null => {
-  if (!trade.image) return null;
-  if (trade.type !== TradeType.SUPPLY) return null;
   if (trade.status !== EscrowStatus.PENDING) return null;
 
   return {
@@ -234,12 +232,13 @@ export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null 
     rating: trade.creatorRating,
     salesCount: 0,
     reviewsCount: trade.reviewsCount,
-    image: trade.image,
+    image: trade.image || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=400',
     category: trade.category,
     condition: mapConditionToMarketLabel(trade.condition),
     location: trade.takeOffLocation,
     specs: trade.specs,
     description: trade.description ?? `Trade listing for ${trade.title}`,
-    visibility: trade.visibility
+    visibility: trade.visibility,
+    tradeType: trade.type
   };
 };

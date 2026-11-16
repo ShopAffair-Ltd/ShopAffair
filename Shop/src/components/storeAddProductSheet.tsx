@@ -38,8 +38,8 @@ export default function AddProductSheet({
   const [qty, setQty] = useState(editingProduct?.specs?.Qty || '1');
   const [deliveryFee, setDeliveryFee] = useState('');
   const [takeOffLocation, setTakeOffLocation] = useState('');
-  const [publishOpenMarket, setPublishOpenMarket] = useState(true);
-  const [publishMyStore, setPublishMyStore] = useState(true);
+  const [publishOpenMarket, setPublishOpenMarket] = useState(editingProduct ? editingProduct.visibility !== 'PRIVATE' : !keepPrivate);
+  const [publishMyStore, setPublishMyStore] = useState(editingProduct ? editingProduct.visibility !== 'PRIVATE' : !keepPrivate);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [conditionOpen, setConditionOpen] = useState(false);
 
@@ -48,12 +48,14 @@ export default function AddProductSheet({
 
   const handlePublish = () => {
     if (!canPublish) return;
+    const isPrivate = keepPrivate || (!publishOpenMarket && !publishMyStore);
     onSubmit({
       title: title.trim(),
       price: parseFloat(price) || 0,
       image: image || 'https://images.unsplash.com/photo-1587302912306-cf1ed9c33146?auto=format&fit=crop&q=80&w=400',
       category,
       condition,
+      visibility: isPrivate ? 'PRIVATE' : 'MARKET',
       specs: {
         ...(size ? { Size: size } : {}),
         ...(color ? { Color: color } : {}),
@@ -234,7 +236,12 @@ export default function AddProductSheet({
                 <input
                   type="checkbox"
                   checked={publishOpenMarket}
-                  onChange={(e) => setPublishOpenMarket(e.target.checked)}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setPublishOpenMarket(next);
+                    if (next) setKeepPrivate(false);
+                    else if (!publishMyStore) setKeepPrivate(true);
+                  }}
                   className="accent-purple-600 w-3.5 h-3.5"
                 />
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
@@ -244,7 +251,12 @@ export default function AddProductSheet({
                 <input
                   type="checkbox"
                   checked={publishMyStore}
-                  onChange={(e) => setPublishMyStore(e.target.checked)}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setPublishMyStore(next);
+                    if (next) setKeepPrivate(false);
+                    else if (!publishOpenMarket) setKeepPrivate(true);
+                  }}
                   className="accent-purple-600 w-3.5 h-3.5"
                 />
                 <Store className="w-3.5 h-3.5 text-slate-400" />
@@ -254,7 +266,17 @@ export default function AddProductSheet({
                 <input
                   type="checkbox"
                   checked={keepPrivate}
-                  onChange={(e) => setKeepPrivate(e.target.checked)}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setKeepPrivate(next);
+                    if (next) {
+                      setPublishOpenMarket(false);
+                      setPublishMyStore(false);
+                    } else {
+                      setPublishOpenMarket(true);
+                      setPublishMyStore(true);
+                    }
+                  }}
                   className="accent-purple-600 w-3.5 h-3.5"
                 />
                 <EyeOff className="w-3.5 h-3.5 text-slate-400" />

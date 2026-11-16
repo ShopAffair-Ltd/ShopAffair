@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth, optionalAuth } from '../../middleware/auth.middleware.js';
 import { prisma } from '../../config/db.js';
+import { notify } from '../notifications/notifications.service.js';
 
 const router = Router();
 
@@ -332,6 +333,21 @@ router.post('/:username/follow', requireAuth, async (req, res) => {
       followingId: userToFollow.id
     }
   });
+
+  try {
+    const followerUser = await prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: { username: true, name: true }
+    });
+    await notify({
+      userId: userToFollow.id,
+      title: 'New Store Follower',
+      message: `${followerUser?.name || `@${followerUser?.username || 'Someone'}`} (@${followerUser?.username || 'user'}) started following your store.`,
+      type: 'INFO'
+    });
+  } catch {
+    // Non-fatal
+  }
 
   const followersCount = await prisma.follow.count({
     where: { followingId: userToFollow.id }

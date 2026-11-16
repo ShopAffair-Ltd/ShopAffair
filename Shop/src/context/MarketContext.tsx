@@ -35,22 +35,37 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [productResult, tradeResult] = await Promise.all([
+      const [productResult, tradeResult, myTradesResult, myProductsResult] = await Promise.all([
         fetchProducts({ limit: 50 }),
-        fetchTrades({ type: TradeType.SUPPLY, limit: 50 })
+        fetchTrades({ limit: 50 }),
+        user?.id ? fetchTrades({ mine: true, limit: 50 }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
+        user?.id ? fetchProducts({ sellerId: user.id, limit: 50 }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
       ]);
 
-      const tradesAsProducts = tradeResult.items
-        .map(mapTradeToMarketProduct)
-        .filter((item): item is MarketProduct => item !== null);
+      const productMap = new Map<string, MarketProduct>();
+      for (const p of [...myProductsResult.items, ...productResult.items]) {
+        productMap.set(p.id, p);
+      }
 
-      setProducts([...productResult.items, ...tradesAsProducts]);
+      const allTrades = [...myTradesResult.items, ...tradeResult.items];
+      const seenTradeIds = new Set<string>();
+      const tradesAsProducts: MarketProduct[] = [];
+      for (const t of allTrades) {
+        if (seenTradeIds.has(t.id)) continue;
+        seenTradeIds.add(t.id);
+        const mapped = mapTradeToMarketProduct(t);
+        if (mapped) {
+          tradesAsProducts.push(mapped);
+        }
+      }
+
+      setProducts([...Array.from(productMap.values()), ...tradesAsProducts]);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     refresh();

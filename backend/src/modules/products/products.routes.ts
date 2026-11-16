@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { create, list, getOne, update, remove, landingSummary } from './products.controller';
-import { requireAuth } from '../../middleware/auth.middleware';
+import { requireAuth, optionalAuth } from '../../middleware/auth.middleware';
 
 const router = Router();
 
@@ -15,7 +15,7 @@ const writeLimiter = rateLimit({
 
 // Public reads
 router.get('/landing-summary', landingSummary);
-router.get('/', list);
+router.get('/', optionalAuth, list);
 router.get('/:id', getOne);
 
 // Authenticated writes 

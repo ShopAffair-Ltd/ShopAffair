@@ -88,6 +88,9 @@ export default function TradeDetailView({
   };
 
   const handleTriggerDispute = async () => {
+    if (!window.confirm('Are you sure you want to raise a dispute and freeze this trade for compliance review?')) {
+      return;
+    }
     setActionError(null);
     try {
       await onUpdateStatus(trade.id, EscrowStatus.DISPUTED);
@@ -414,11 +417,23 @@ export default function TradeDetailView({
           )}
 
           {trade.status === EscrowStatus.DISPUTED && (
-            <div className="p-4 bg-red-50 text-red-800 rounded-lg border border-red-100 space-y-1">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-red-600">Dispute Under Arbitration</span>
-              <p className="text-xs font-sans leading-normal">
-                This trade has been temporarily frozen. Our assigned compliance auditor is investigating chat logs, tracking tickets, and specifications.
-              </p>
+            <div className="space-y-3">
+              <div className="p-4 bg-red-50 text-red-800 rounded-lg border border-red-100 space-y-1">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-red-600">Dispute Under Arbitration</span>
+                <p className="text-xs font-sans leading-normal">
+                  This trade has been temporarily frozen. Our assigned compliance auditor is investigating chat logs, tracking tickets, and specifications.
+                </p>
+              </div>
+              {isSeller && (
+                <SellerPickupCodeEntry
+                  attempts={trade.pickupAttempts || 0}
+                  locked={(trade.pickupAttempts || 0) >= MAX_ATTEMPTS}
+                  onAttempt={handlePickupAttempt}
+                  tradeAmount={trade.amount}
+                  deliveryFee={trade.deliveryFee}
+                />
+              )}
+              {isBuyer && <BuyerPickupCodeDisplay code={trade.pickupCode || ''} />}
             </div>
           )}
 

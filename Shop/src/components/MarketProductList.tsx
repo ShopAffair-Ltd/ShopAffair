@@ -142,6 +142,19 @@ export default function MarketProductList({
     });
   };
 
+  const PRODUCTS_PER_PAGE = 12;
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedProducts = filteredProducts.slice(
+    (safePage - 1) * PRODUCTS_PER_PAGE,
+    safePage * PRODUCTS_PER_PAGE
+  );
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, filteredProducts.length]);
+
   const handleCloseProduct = () => {
     setSelectedProduct(null);
     setSearchParams((prev) => {
@@ -355,8 +368,9 @@ export default function MarketProductList({
                 <p className="text-[10px] font-sans text-red-500 font-bold">{productsError}</p>
               </div>
             ) : filteredProducts.length > 0 ? (
+              <>
               <div className="grid grid-cols-2 gap-3">
-                {filteredProducts.map((prod) => {
+                {paginatedProducts.map((prod) => {
                   const ownListing = isOwnListing(prod);
                   return (
                     <div
@@ -460,6 +474,28 @@ export default function MarketProductList({
                   );
                 })}
               </div>
+              <div className="mt-4 flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                <button
+                  type="button"
+                  disabled={safePage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-sans font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                >
+                  Prev
+                </button>
+                <span className="text-[11px] font-sans font-semibold text-slate-500">
+                  Page {safePage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={safePage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-sans font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+              </>
             ) : (
               <div className="text-center py-12 px-4 bg-slate-50/50 rounded-lg border border-dashed border-slate-150">
                 <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-1" />

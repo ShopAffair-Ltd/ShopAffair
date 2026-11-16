@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Bell, CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
 import { EscrowNotification } from '../types/notification';
 import { useAuth } from './AuthContext';
 import { chatSocket } from '../sockets/chat.socket';
@@ -33,16 +34,44 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [notifications, setNotifications] = useState<EscrowNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [activeToasts, setActiveToasts] = useState<EscrowNotification[]>([]);
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const initialLoadDoneRef = useRef(false);
+
+  const enqueueToast = useCallback((notif: EscrowNotification) => {
+    setActiveToasts((prev) => {
+      if (prev.some((t) => t.id === notif.id)) return prev;
+      return [notif, ...prev].slice(0, 3);
+    });
+    setTimeout(() => {
+      setActiveToasts((prev) => prev.filter((t) => t.id !== notif.id));
+    }, 4500);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setActiveToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   const refresh = useCallback(async () => {
     if (!user) {
       setNotifications([]);
       setUnreadCount(0);
+      seenIdsRef.current.clear();
+      initialLoadDoneRef.current = false;
       return;
     }
     setLoading(true);
     try {
       const result = await fetchNotifications();
+      if (initialLoadDoneRef.current) {
+        result.items.forEach((item) => {
+          if (!seenIdsRef.current.has(item.id) && !item.read) {
+            enqueueToast(item);
+          }
+        });
+      }
+      result.items.forEach((item) => seenIdsRef.current.add(item.id));
+      initialLoadDoneRef.current = true;
       setNotifications(result.items);
       setUnreadCount(result.unreadCount);
     } catch {
@@ -50,7 +79,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, enqueueToast]);
 
   useEffect(() => {
     refresh();
@@ -70,8 +99,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         read: false,
         createdAt: raw.createdAt
       };
-      setNotifications((prev) => [notif, ...prev]);
+      seenIdsRef.current.add(notif.id);
+      setNotifications((prev) => (prev.some((n) => n.id === notif.id) ? prev : [notif, ...prev]));
       setUnreadCount((prev) => prev + 1);
+      enqueueToast(notif);
     };
 
     chatSocket.on('onNewNotification', handleNewNotification);
@@ -80,11 +111,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       clearInterval(interval);
       chatSocket.off('onNewNotification', handleNewNotification);
     };
-  }, [user, refresh]);
+  }, [user, refresh, enqueueToast]);
 
   const addNotification = (title: string, message: string, type: 'info' | 'success' | 'warning' | 'alert') => {
     const newNotif: EscrowNotification = {
-      id: `local_${Date.now()}`,
+      id: `local_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       userId: user?.username ?? 'current_user',
       title,
       message,
@@ -92,8 +123,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       read: false,
       createdAt: new Date().toISOString()
     };
+    seenIdsRef.current.add(newNotif.id);
     setNotifications((prev) => [newNotif, ...prev]);
     setUnreadCount((prev) => prev + 1);
+    enqueueToast(newNotif);
   };
 
   const markAsRead = (id: string) => {
@@ -126,6 +159,53 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       value={{ notifications, unreadCount, loading, addNotification, markAsRead, markAllAsRead, clearAll, refresh }}
     >
       {children}
+      {activeToasts.length > 0 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-full max-w-sm px-4 space-y-2 pointer-events-none">
+          {activeToasts.map((toast) => {
+            const isSuccess = toast.type === 'success';
+            const isWarning = toast.type === 'warning' || toast.type === 'alert';
+            return (
+              <div
+                key={toast.id}
+                className="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-xl rounded-2xl p-3.5 flex items-start gap-3 transition-all animate-in fade-in slide-in-from-top-2 duration-200"
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    isSuccess
+                      ? 'bg-emerald-50 text-emerald-600'
+                      : isWarning
+                        ? 'bg-amber-50 text-amber-600'
+                        : 'bg-purple-50 text-purple-600'
+                  }`}
+                >
+                  {isSuccess ? (
+                    <CheckCircle2 className="w-4 h-4" />
+                  ) : isWarning ? (
+                    <AlertTriangle className="w-4 h-4" />
+                  ) : toast.title.toLowerCase().includes('follow') ? (
+                    <Bell className="w-4 h-4" />
+                  ) : (
+                    <Info className="w-4 h-4" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-sans font-bold text-slate-900 truncate">{toast.title}</p>
+                  <p className="text-[11px] font-sans text-slate-600 line-clamp-2 mt-0.5 leading-snug">
+                    {toast.message}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => dismissToast(toast.id)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-full cursor-pointer shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </NotificationContext.Provider>
   );
 }

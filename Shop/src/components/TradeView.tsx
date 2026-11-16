@@ -146,7 +146,12 @@ export default function TradeView() {
             }
           }}
           onFundTrade={async (id) => {
-            await fundTrade(id);
+            const funded = await fundTrade(id);
+            await refreshMarket();
+            if (funded && funded.id !== id) {
+              navigate(`/trade/${funded.id}`);
+              return;
+            }
             if (!tradeFromContext) {
               setFetchedTrade(await fetchTradeById(id));
             }

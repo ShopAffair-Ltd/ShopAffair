@@ -19,7 +19,8 @@ import {
   Store,
   Camera,
   Check,
-  Loader2
+  Loader2,
+  EyeOff
 } from 'lucide-react';
 import { UserProfile, MarketProduct, TradeVisibility } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -218,8 +219,13 @@ export default function MyStoreView() {
 
   // Own inventory: real products from this seller
   const storeProducts = activeProfile ? products.filter((p) => p.sellerUsername === activeProfile.username) : [];
-  const filteredProducts =
-    activeCategoryChip === 'All' ? storeProducts : storeProducts.filter((p) => p.category === activeCategoryChip);
+  const filteredProducts = storeProducts.filter((p) => {
+    if (activeCategoryChip === 'All') return true;
+    if (activeCategoryChip === 'Sales Offers') return p.tradeType === 'Supply' || !p.tradeType;
+    if (activeCategoryChip === 'Purchase Offers') return p.tradeType === 'Request';
+    if (activeCategoryChip === 'Keep Private') return p.visibility === 'PRIVATE';
+    return p.category.toLowerCase() === activeCategoryChip.toLowerCase();
+  });
 
   const totalSales = storeProducts.reduce((sum, p) => sum + p.salesCount, 0);
   const totalReviews = storeProducts.reduce((sum, p) => sum + p.reviewsCount, 0);
@@ -369,17 +375,19 @@ export default function MyStoreView() {
   // Alternative to deleting from the catalogue delete popup: hides the
   // product from the open market while keeping it in the seller's own
   // store/catalogue, instead of removing it permanently.
-  const handleMakePrivate = async (id: string) => {
+  const handleMakePrivate = async (id: string, nextVisibility: 'PRIVATE' | 'MARKET' = 'PRIVATE') => {
     if (isProductActionPending) return;
     setIsProductActionPending(true);
     setProductActionError(null);
     const rawId = id.replace(/^trade:/, '');
     try {
       if (id.startsWith('trade:')) {
-        await editTrade(rawId, { visibility: TradeVisibility.PRIVATE });
+        await editTrade(rawId, {
+          visibility: nextVisibility === 'PRIVATE' ? TradeVisibility.PRIVATE : TradeVisibility.MARKET
+        });
         await refreshMarket();
       } else {
-        await editProduct(id, { visibility: 'PRIVATE' });
+        await editProduct(id, { visibility: nextVisibility });
       }
       setDeleteConfirmId(null);
     } catch (err: unknown) {
@@ -394,6 +402,7 @@ export default function MyStoreView() {
 
   const openAddProduct = () => {
     setEditingProduct(null);
+    setKeepPrivate(false);
     setProductSheetOpen(true);
   };
 
@@ -403,6 +412,7 @@ export default function MyStoreView() {
       return;
     }
     setEditingProduct(product);
+    setKeepPrivate(product.visibility === 'PRIVATE');
     setProductSheetOpen(true);
   };
 
@@ -567,7 +577,7 @@ export default function MyStoreView() {
           {activeTab === 'catalogue' && (
             <motion.div key="catalogue" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-3">
               <div className="px-4 flex items-center gap-2 overflow-x-auto no-scrollbar pb-3">
-                {CATEGORY_CHIPS.map((chip) => (
+                {['All', 'Sales Offers', 'Purchase Offers', 'Keep Private', ...CATEGORY_CHIPS.filter((c) => c !== 'All')].map((chip) => (
                   <button
                     key={chip}
                     onClick={() => setActiveCategoryChip(chip)}
@@ -591,9 +601,38 @@ export default function MyStoreView() {
                 </button>
 
                 {filteredProducts.map((prod) => (
-                  <div key={prod.id} className="bg-white border border-slate-100 rounded-xl overflow-hidden group relative">
+                  <div
+                    key={prod.id}
+                    className={`bg-white border rounded-xl overflow-hidden group relative ${
+                      prod.visibility === 'PRIVATE'
+                        ? 'border-amber-300 ring-1 ring-amber-200/70'
+                        : 'border-slate-100'
+                    }`}
+                  >
                     <div className="aspect-square w-full bg-slate-50 relative overflow-hidden">
                       <img src={prod.image} alt={prod.title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 items-start">
+                        {prod.visibility === 'PRIVATE' && (
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[8px] font-sans font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                            <EyeOff className="w-2.5 h-2.5" />
+                            Keep Private
+                          </span>
+                        )}
+                        {prod.visibility === 'STORE' && (
+                          <span className="px-1.5 py-0.5 rounded bg-indigo-600/90 text-white text-[8px] font-sans font-bold uppercase tracking-wider shadow-sm">
+                            My Store Only
+                          </span>
+                        )}
+                        {prod.tradeType === 'Request' ? (
+                          <span className="px-1.5 py-0.5 rounded bg-purple-600/90 text-white text-[8px] font-sans font-bold uppercase tracking-wider shadow-sm">
+                            Purchase Offer
+                          </span>
+                        ) : prod.tradeType === 'Supply' ? (
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-600/90 text-white text-[8px] font-sans font-bold uppercase tracking-wider shadow-sm">
+                            Sales Offer
+                          </span>
+                        ) : null}
+                      </div>
                       <div className="absolute top-1.5 right-1.5 flex gap-1">
                         <button
                           onClick={() => openEditProduct(prod)}
@@ -614,7 +653,7 @@ export default function MyStoreView() {
                       <h4 className="text-[10px] font-sans font-bold text-slate-800 line-clamp-1">{prod.title}</h4>
                       <div className="flex items-center gap-1 text-[9px] font-sans text-slate-400 mt-0.5">
                         <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
-                        {prod.rating} · Your listing
+                        {prod.rating} · {prod.visibility === 'PRIVATE' ? 'Private (only you)' : 'Your listing'}
                       </div>
                       <p className="text-[10px] font-sans font-extrabold text-slate-800 mt-0.5">₦{prod.price.toLocaleString()}</p>
                     </div>
@@ -779,7 +818,28 @@ export default function MyStoreView() {
                         <img src={prod.image} alt={prod.title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <span className="block text-[11px] font-sans font-bold text-slate-800 truncate">{prod.title}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[11px] font-sans font-bold text-slate-800 truncate">{prod.title}</span>
+                          {prod.visibility === 'PRIVATE' && (
+                            <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 text-[8px] font-sans font-extrabold uppercase flex items-center gap-0.5 shrink-0">
+                              <EyeOff className="w-2.5 h-2.5" /> Keep Private
+                            </span>
+                          )}
+                          {prod.visibility === 'STORE' && (
+                            <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100 text-[8px] font-sans font-bold uppercase shrink-0">
+                              My Store
+                            </span>
+                          )}
+                          {prod.tradeType === 'Request' ? (
+                            <span className="px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 border border-purple-100 text-[8px] font-sans font-bold uppercase shrink-0">
+                              Purchase Offer
+                            </span>
+                          ) : prod.tradeType === 'Supply' ? (
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-100 text-[8px] font-sans font-bold uppercase shrink-0">
+                              Sales Offer
+                            </span>
+                          ) : null}
+                        </div>
                         <span className="block text-[9px] font-sans text-slate-400">₦{prod.price.toLocaleString()} · {prod.condition}</span>
                       </div>
                       <button
@@ -908,12 +968,19 @@ export default function MyStoreView() {
                 )}
                 <div className="space-y-2">
                   <button
-                    onClick={() => handleMakePrivate(targetProd.id)}
+                    onClick={() =>
+                      handleMakePrivate(
+                        targetProd.id,
+                        targetProd.visibility === 'PRIVATE' ? 'MARKET' : 'PRIVATE'
+                      )
+                    }
                     disabled={isProductActionPending}
                     className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 font-sans font-bold text-xs rounded-xl cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     {isProductActionPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    Make Private (only you can see)
+                    {targetProd.visibility === 'PRIVATE'
+                      ? 'Make Public (show on Open Market)'
+                      : 'Make Private (only you can see)'}
                   </button>
                   <button
                     onClick={() => handleDeleteProduct(targetProd.id)}

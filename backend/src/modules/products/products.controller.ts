@@ -67,7 +67,7 @@ export const landingSummary = asyncHandler(async (_req: Request, res: Response) 
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
   const query = listProductsQuerySchema.parse(req.query);
-  const result = await listProducts(query);
+  const result = await listProducts(query, req.user?.id ?? null);
   res.status(200).json(result);
 });
 

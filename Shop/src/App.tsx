@@ -420,7 +420,13 @@ function StoreProfileRoute() {
           navigate(`/chat/${sellerUsername}`);
         }}
         onFollow={() => alert(`You are now following ${username}`)}
-        onProductClick={() => navigate('/market')}
+        onProductClick={(product) => {
+          if (product.id.startsWith('trade:')) {
+            navigate(`/trade/${product.id.replace(/^trade:/, '')}`);
+          } else {
+            navigate(`/market?product=${encodeURIComponent(product.id)}`);
+          }
+        }}
       />
     </Shell>
   );
