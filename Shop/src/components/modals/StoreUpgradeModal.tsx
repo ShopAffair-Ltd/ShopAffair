@@ -15,7 +15,7 @@ interface StoreUpgradeModalProps {
   onNavigateToMyStore: () => void;
   activeUsername: string;
   isSeller?: boolean;
-  storePlan?: StorePlanId | null;
+  storePlan?: StorePlanId | string | null;
   isPro?: boolean;
 }
 
