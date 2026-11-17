@@ -40,7 +40,9 @@ const requireUser = (req: Request) => {
 export const fundWallet = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
   const { amount } = fundWalletSchema.parse(req.body);
-  const result = await initiateWalletFunding(user.id, amount);
+  const originHeader = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : '');
+  const callbackUrl = originHeader ? `${originHeader}/wallet/callback` : undefined;
+  const result = await initiateWalletFunding(user.id, amount, callbackUrl);
   res.status(200).json(result);
 });
 

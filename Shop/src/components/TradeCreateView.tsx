@@ -84,6 +84,9 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const resolvedDeliveryLocation =
+      deliveryLocation.trim() || (tradeType === TradeType.SUPPLY ? 'To be specified by buyer' : '');
+
     if (
       !title.trim() ||
       !description.trim() ||
@@ -91,7 +94,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
       deliveryFee.trim() === '' ||
       !deliveryTime.trim() ||
       !takeOffLocation.trim() ||
-      !deliveryLocation.trim()
+      !resolvedDeliveryLocation
     ) {
       setSubmitError('Please fill in all required fields before submitting.');
       return;
@@ -124,7 +127,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           deliveryFee: parseFloat(deliveryFee) || 0,
           deliveryTime,
           takeOffLocation,
-          deliveryLocation,
+          deliveryLocation: resolvedDeliveryLocation,
           image: uploadedImages.length > 0 ? uploadedImages[0] : undefined
         });
         setIsSubmitting(false);
@@ -144,7 +147,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
         deliveryFee: parseFloat(deliveryFee) || 0,
         deliveryTime,
         takeOffLocation,
-        deliveryLocation,
+        deliveryLocation: resolvedDeliveryLocation,
         image: uploadedImages.length > 0 ? uploadedImages[0] : undefined
       });
       setIsSubmitting(false);
@@ -366,10 +369,18 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
                 <input
                   type="text"
                   required
-                  placeholder="Value"
+                  placeholder={
+                    item.key.toLowerCase().includes('size')
+                      ? 'e.g. XL, 42, Medium'
+                      : item.key.toLowerCase().includes('color')
+                      ? 'e.g. Black, Navy Blue'
+                      : item.key.toLowerCase().includes('qty') || item.key.toLowerCase().includes('quantity')
+                      ? 'e.g. 1, 5'
+                      : 'e.g. Specification value'
+                  }
                   value={item.value}
                   onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                  className="flex-1 min-w-0 font-sans text-xs px-3 py-2 bg-white border border-slate-200 rounded-md focus:outline-none"
+                  className="flex-1 min-w-0 font-sans text-xs px-3 py-2 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                 />
                 <button
                   type="button"
@@ -430,14 +441,23 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">Delivery Destination</label>
+              <label className="block text-xs font-sans font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                Delivery Destination
+                {tradeType === TradeType.SUPPLY && (
+                  <span className="ml-1 text-[10px] font-normal text-slate-400 lowercase">(buyer can specify)</span>
+                )}
+              </label>
               <div className="relative">
                 <input
                   type="text"
-                  required
+                  required={tradeType !== TradeType.SUPPLY}
                   value={deliveryLocation}
                   onChange={(e) => setDeliveryLocation(e.target.value)}
-                  placeholder="e.g. Lekki, Lagos"
+                  placeholder={
+                    tradeType === TradeType.SUPPLY
+                      ? 'e.g. Lekki (or set by buyer)'
+                      : 'e.g. Lekki, Lagos'
+                  }
                   className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600/15 focus:border-purple-600 transition-all shadow-xs"
                 />
                 <MapPin className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
@@ -451,43 +471,51 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           className="space-y-2"
         >
           <label className="block text-[10px] font-bold text-slate-400 uppercase">Who can see this trade</label>
-          <div className="space-y-1.5">
-            <label className="flex items-center gap-2.5 p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                checked={visibility === TradeVisibility.MARKET}
-                onChange={() => setVisibility(TradeVisibility.MARKET)}
-                className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-600/30"
-              />
-              <div>
-                <p className="text-xs font-sans font-bold text-slate-800">Open Market</p>
-                <p className="text-[10px] font-sans text-slate-400">Anyone browsing the market can see and trade this</p>
-              </div>
-            </label>
-            <label className="flex items-center gap-2.5 p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                checked={visibility === TradeVisibility.STORE}
-                onChange={() => setVisibility(TradeVisibility.STORE)}
-                className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-600/30"
-              />
-              <div>
-                <p className="text-xs font-sans font-bold text-slate-800">My Store</p>
-                <p className="text-[10px] font-sans text-slate-400">Only visible to visitors on your store page</p>
-              </div>
-            </label>
-            <label className="flex items-center gap-2.5 p-2.5 bg-white border border-slate-200 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                checked={visibility === TradeVisibility.PRIVATE}
-                onChange={() => setVisibility(TradeVisibility.PRIVATE)}
-                className="w-4 h-4 rounded border-slate-300 text-purple-600 focus:ring-purple-600/30"
-              />
-              <div>
-                <p className="text-xs font-sans font-bold text-slate-800">Keep Private</p>
-                <p className="text-[10px] font-sans text-slate-400">Only visible to you</p>
-              </div>
-            </label>
+          <div className="space-y-2">
+            {[
+              {
+                id: TradeVisibility.MARKET,
+                title: 'Open Market',
+                desc: 'Anyone browsing the market can see and trade this'
+              },
+              {
+                id: TradeVisibility.STORE,
+                title: 'My Store',
+                desc: 'Only visible to visitors on your store page'
+              },
+              {
+                id: TradeVisibility.PRIVATE,
+                title: 'Keep Private',
+                desc: 'Only visible to you'
+              }
+            ].map((option) => {
+              const isSelected = visibility === option.id;
+              return (
+                <div
+                  key={option.id}
+                  onClick={() => setVisibility(option.id)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-purple-600 bg-purple-50/40 shadow-xs'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                      isSelected ? 'border-purple-600 bg-purple-600' : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-xs font-sans font-bold ${isSelected ? 'text-purple-900' : 'text-slate-800'}`}>
+                      {option.title}
+                    </p>
+                    <p className="text-[10px] font-sans text-slate-400">{option.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </motion.div>
 

@@ -69,7 +69,7 @@ export default function MyStoreView() {
 
   const tabParam = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState<StoreTab>(
-    tabParam === 'catalogue' || tabParam === 'settings' ? tabParam : 'wall'
+    tabParam === 'wall' || tabParam === 'settings' ? tabParam : 'catalogue'
   );
 
   useEffect(() => {
@@ -217,8 +217,14 @@ export default function MyStoreView() {
     };
   }, [activeProfile?.username]);
 
-  // Own inventory: real products from this seller
-  const storeProducts = activeProfile ? products.filter((p) => p.sellerUsername === activeProfile.username) : [];
+  // Own inventory: real products from this seller (case-insensitive + by sellerId)
+  const storeProducts = activeProfile
+    ? products.filter(
+        (p) =>
+          (p.sellerUsername && activeProfile.username && p.sellerUsername.toLowerCase() === activeProfile.username.toLowerCase()) ||
+          (p.sellerId && activeProfile.id && p.sellerId === activeProfile.id)
+      )
+    : [];
   const filteredProducts = storeProducts.filter((p) => {
     if (activeCategoryChip === 'All') return true;
     if (activeCategoryChip === 'Sales Offers') return p.tradeType === 'Supply' || !p.tradeType;

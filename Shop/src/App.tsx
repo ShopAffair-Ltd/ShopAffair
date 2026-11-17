@@ -401,7 +401,11 @@ function StoreProfileRoute() {
           followingByMe: sellerData.followingByMe || false,
           joinedDate: sellerData.createdAt || undefined
         }}
-        products={products.filter((p) => p.sellerUsername === username)}
+        products={products.filter(
+          (p) =>
+            (p.sellerUsername && username && p.sellerUsername.toLowerCase() === username.toLowerCase()) ||
+            (p.sellerId && sellerData?.id && p.sellerId === sellerData.id)
+        )}
         onBack={() => {
           const sp = new URLSearchParams(window.location.search);
           const fromProd = sp.get('fromProduct');

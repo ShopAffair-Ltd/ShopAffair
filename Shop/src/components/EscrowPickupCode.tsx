@@ -132,10 +132,17 @@ export function SellerPickupCodeEntry({ onAttempt, attempts, locked, tradeAmount
 
       <input
         type="text"
+        id="pickup_verification_code"
+        name="pickup_verification_code"
         inputMode="numeric"
-        autoComplete="off"
-        data-1p-ignore
+        autoComplete="one-time-code"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        data-1p-ignore="true"
         data-lpignore="true"
+        data-bwignore="true"
+        data-form-type="other"
         maxLength={6}
         value={input}
         onChange={(e) => setInput(e.target.value.replace(/\D/g, ''))}

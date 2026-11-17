@@ -9,7 +9,7 @@ import * as paystack from './providers/paystack.provider';
 
 const generateReference = () => `SF-FUND-${crypto.randomBytes(8).toString('hex')}`;
 
-export const initiateWalletFunding = async (userId: string, amountNaira: number) => {
+export const initiateWalletFunding = async (userId: string, amountNaira: number, customCallbackUrl?: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     throw new ApiError(404, 'User not found');
@@ -29,11 +29,13 @@ export const initiateWalletFunding = async (userId: string, amountNaira: number)
     }
   });
 
+  const callbackUrl = customCallbackUrl || 'https://shopaffair.shop/wallet/callback';
+
   const { authorization_url, access_code } = await paystack.initializeTransaction({
     email: user.email,
     amountKobo,
     reference,
-    callbackUrl: 'https://shops-lake.vercel.app/wallet/callback',
+    callbackUrl,
     metadata: { userId, purpose: 'wallet_funding' }
   });
 
