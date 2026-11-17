@@ -265,9 +265,15 @@ export default function MyStoreView() {
     setShowStoreQrModal(true);
   };
 
+  const isStoreActive = Boolean(activeProfile?.isPro && !subStatus?.isExpired);
+
   // ---- Wall handlers ------------------------------------------------------
 
   const handleSendPost = async () => {
+    if (!isStoreActive) {
+      openStoreUpgrade();
+      return;
+    }
     if (!postDraft.trim() || !activeProfile) return;
     const content = postDraft.trim();
     setPostDraft('');
@@ -310,6 +316,10 @@ export default function MyStoreView() {
   };
 
   const handleSendComment = async (postId: string) => {
+    if (!isStoreActive) {
+      openStoreUpgrade();
+      return;
+    }
     if (!activeProfile) return;
     const draft = (commentDrafts[postId] || '').trim();
     if (!draft) return;
@@ -434,12 +444,20 @@ export default function MyStoreView() {
   };
 
   const openAddProduct = () => {
+    if (!isStoreActive) {
+      openStoreUpgrade();
+      return;
+    }
     setEditingProduct(null);
     setKeepPrivate(false);
     setProductSheetOpen(true);
   };
 
   const openEditProduct = (product: MarketProduct) => {
+    if (!isStoreActive) {
+      openStoreUpgrade();
+      return;
+    }
     if (product.id.startsWith('trade:')) {
       navigate(`/trade/${product.id.replace(/^trade:/, '')}/edit`);
       return;
@@ -519,9 +537,22 @@ export default function MyStoreView() {
                   activeProfile.name.charAt(0).toUpperCase()
                 )}
               </div>
-              <span className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
-                • Available
-              </span>
+              {isStoreActive ? (
+                <span className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-green-50 text-green-600 border border-green-200 flex items-center gap-1 shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  Available
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={openStoreUpgrade}
+                  className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 flex items-center gap-1 cursor-pointer transition-colors shadow-xs active:scale-95"
+                  title="Store plan expired - click to renew"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  Closed • Payment Due
+                </button>
+              )}
             </div>
 
             <div className="mt-2">
@@ -541,7 +572,7 @@ export default function MyStoreView() {
                   className="px-2.5 py-0.5 rounded-full bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 font-bold flex items-center gap-1 text-[10px] cursor-pointer transition-colors active:scale-95"
                 >
                   <Sparkles className="w-2.5 h-2.5 text-orange-500" />
-                  {activeProfile.isPro ? 'Pro Plan' : 'Free Plan'} • Upgrade
+                  {isStoreActive ? `${activeProfile.storePlan || 'Pro Plan'} • Upgrade` : 'Payment Due • Renew'}
                 </button>
               </div>
 
@@ -586,24 +617,43 @@ export default function MyStoreView() {
                 <textarea
                   rows={1}
                   value={postDraft}
+                  onFocus={() => {
+                    if (!isStoreActive) {
+                      openStoreUpgrade();
+                    }
+                  }}
+                  onClick={() => {
+                    if (!isStoreActive) {
+                      openStoreUpgrade();
+                    }
+                  }}
                   onChange={(e) => {
+                    if (!isStoreActive) {
+                      openStoreUpgrade();
+                      return;
+                    }
                     setPostDraft(e.target.value);
                     e.target.style.height = 'auto';
                     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
                   }}
                   onKeyDown={(e) => {
+                    if (!isStoreActive) {
+                      e.preventDefault();
+                      openStoreUpgrade();
+                      return;
+                    }
                     // Enter inserts newline by default! Ctrl+Enter or Cmd+Enter submits
                     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                       e.preventDefault();
                       handleSendPost();
                     }
                   }}
-                  placeholder="Share an update with your customers…"
-                  className="flex-1 text-[12px] font-sans px-3.5 py-2.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400 resize-none max-h-28 overflow-y-auto leading-relaxed"
+                  placeholder={isStoreActive ? "Share an update with your customers…" : "Renew store plan to post updates…"}
+                  className="flex-1 text-[12px] font-sans px-3.5 py-2 min-h-[40px] bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400 resize-none max-h-28 overflow-y-auto leading-normal [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                 />
                 <button
-                  onClick={handleSendPost}
-                  disabled={!postDraft.trim()}
+                  onClick={isStoreActive ? handleSendPost : openStoreUpgrade}
+                  disabled={isStoreActive && !postDraft.trim()}
                   className="w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white flex items-center justify-center shrink-0 cursor-pointer transition-colors outline-none shadow-sm shadow-orange-200 disabled:shadow-none mb-0.5"
                 >
                   <Send className="w-4 h-4 -ml-0.5" />
@@ -630,6 +680,9 @@ export default function MyStoreView() {
                       onToggleComments={(postId) => setOpenCommentsFor(openCommentsFor === postId ? null : postId)}
                       onSendComment={handleSendComment}
                       onDeleteComment={handleDeleteComment}
+                      onCommentInputFocus={() => {
+                        if (!isStoreActive) openStoreUpgrade();
+                      }}
                       currentUserId={activeProfile.id}
                       openCommentsFor={openCommentsFor}
                       commentDrafts={commentDrafts}

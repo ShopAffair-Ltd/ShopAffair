@@ -57,6 +57,7 @@ interface WallPostComponentProps {
   commentDrafts: Record<string, string>;
   setCommentDrafts: (drafts: Record<string, string>) => void;
   canManage?: boolean;
+  onCommentInputFocus?: () => void;
 }
 
 export function WallPostComponent({
@@ -71,7 +72,8 @@ export function WallPostComponent({
   openCommentsFor,
   commentDrafts,
   setCommentDrafts,
-  canManage = true
+  canManage = true,
+  onCommentInputFocus
 }: WallPostComponentProps) {
   const isOpen = openCommentsFor === post.id;
 
@@ -212,6 +214,8 @@ export function WallPostComponent({
                 <textarea
                   rows={1}
                   value={commentDrafts[post.id] || ''}
+                  onFocus={() => onCommentInputFocus?.()}
+                  onClick={() => onCommentInputFocus?.()}
                   onChange={(e) => {
                     setCommentDrafts({ ...commentDrafts, [post.id]: e.target.value });
                     e.target.style.height = 'auto';
@@ -225,7 +229,7 @@ export function WallPostComponent({
                     }
                   }}
                   placeholder={canManage ? "Reply as seller…" : "Write a comment…"}
-                  className="flex-1 text-[11px] font-sans px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400 resize-none max-h-24 overflow-y-auto leading-relaxed"
+                  className="flex-1 text-[11px] font-sans px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400 resize-none max-h-24 overflow-y-auto leading-relaxed [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                 />
                 <button
                   onClick={() => onSendComment(post.id)}
