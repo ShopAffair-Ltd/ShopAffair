@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth, optionalAuth } from '../../middleware/auth.middleware.js';
 import { prisma } from '../../config/db.js';
 import { notify } from '../notifications/notifications.service.js';
+import { syncStoreLockState } from '../subscriptions/subscription.service.js';
 
 const router = Router();
 
@@ -210,8 +211,24 @@ router.get('/', requireAuth, async (req, res) => {
 // Get user by username or seller ID (publicly accessible so store links work before login)
 router.get('/username/:username', optionalAuth, async (req, res) => {
   const identifier = req.params.username as string;
-  const user = await prisma.user.findFirst({
+  const initialUser = await prisma.user.findFirst({
     where: { OR: [{ id: identifier }, { username: identifier }] },
+    select: { id: true }
+  });
+  if (!initialUser) {
+    res.status(404).json({ message: 'User not found' });
+    return;
+  }
+
+  // Ensure subscription lock/expiry state is up-to-date in real time
+  try {
+    await syncStoreLockState(initialUser.id);
+  } catch (err) {
+    console.error('syncStoreLockState failed in /username/:username', err);
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: initialUser.id },
     select: {
       id: true,
       tempId: true,

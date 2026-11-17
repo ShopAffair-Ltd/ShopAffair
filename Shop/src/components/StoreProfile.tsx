@@ -50,6 +50,7 @@ interface StoreProfileProps {
     location: string;
     category: string;
     plan: string;
+    isPro?: boolean;
     bio: string;
     rating: number;
     reviewsCount: number;
@@ -162,9 +163,16 @@ export default function StoreProfile({
     return Array.from(map.values());
   }, [products, storeTrades]);
 
-  const visibleStoreProducts = combinedProducts.filter(
-    (p) => isStoreOwner || p.visibility !== 'PRIVATE'
+  const isStoreActive = Boolean(
+    seller.isPro ?? (seller.plan === 'Pro Plan' || seller.plan === 'Trial Plan')
   );
+
+  const visibleStoreProducts = combinedProducts.filter((p) => {
+    if (isStoreOwner) return true;
+    // When the store subscription expires, the catalog becomes completely private to visitors
+    if (!isStoreActive) return false;
+    return p.visibility !== 'PRIVATE';
+  });
 
   const fetchWallPosts = async () => {
     setWallLoading(true);
@@ -421,9 +429,16 @@ export default function StoreProfile({
                   </span>
                 )}
               </div>
-              <span className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
-                • Available
-              </span>
+              {isStoreActive ? (
+                <span className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
+                  • Available
+                </span>
+              ) : (
+                <span className="mb-1 text-[10px] font-sans font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                  <EyeOff className="w-3 h-3 text-amber-600" />
+                  Private Store
+                </span>
+              )}
             </div>
 
             <div className="mt-2 pb-3">
@@ -564,13 +579,25 @@ export default function StoreProfile({
 
           {activeTab === 'products' && (
             <div className="grid grid-cols-2 gap-3">
+              {isStoreOwner && !isStoreActive && (
+                <div className="col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-left">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                    <EyeOff className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Your Catalog is Currently Private to the Public</span>
+                  </div>
+                  <p className="text-[11px] font-sans text-amber-800/80 mt-0.5">
+                    Your store subscription has expired. These items are only visible to you. Once you resubscribe, your open market items will automatically return to the open market.
+                  </p>
+                </div>
+              )}
+
               {visibleStoreProducts.length > 0 ? (
                 visibleStoreProducts.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => onProductClick(product)}
                     className={`bg-white rounded-xl overflow-hidden shadow-sm border cursor-pointer hover:shadow-md transition-shadow ${
-                      product.visibility === 'PRIVATE'
+                      product.visibility === 'PRIVATE' || !isStoreActive
                         ? 'border-amber-300 ring-1 ring-amber-200/70'
                         : 'border-slate-100'
                     }`}
@@ -583,12 +610,17 @@ export default function StoreProfile({
                         loading="lazy"
                       />
                       <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
-                        {product.visibility === 'PRIVATE' && (
+                        {product.visibility === 'PRIVATE' ? (
                           <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase shadow-sm">
                             <EyeOff className="w-2.5 h-2.5" />
                             Private
                           </span>
-                        )}
+                        ) : !isStoreActive ? (
+                          <span className="bg-amber-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase shadow-sm">
+                            <EyeOff className="w-2.5 h-2.5" />
+                            Private (Expired)
+                          </span>
+                        ) : null}
                         {product.tradeType === 'Request' ? (
                           <span className="bg-purple-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase shadow-sm">
                             Purchase Offer
@@ -609,10 +641,21 @@ export default function StoreProfile({
                       {product.visibility === 'PRIVATE' && (
                         <p className="text-[9px] font-sans font-semibold text-amber-600 mt-0.5">Only visible to you</p>
                       )}
+                      {!isStoreActive && isStoreOwner && product.visibility !== 'PRIVATE' && (
+                        <p className="text-[9px] font-sans font-semibold text-amber-700 mt-0.5">Private (renew to show on market)</p>
+                      )}
                       <p className="text-[10px] font-sans font-extrabold text-purple-600 mt-0.5">₦{Number(product.price).toLocaleString()}</p>
                     </div>
                   </div>
                 ))
+              ) : !isStoreActive ? (
+                <div className="col-span-2 text-center py-12 bg-white rounded-xl border border-amber-200/60 p-4">
+                  <EyeOff className="w-10 h-10 text-amber-400 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-slate-800">Catalog is Private</p>
+                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs mx-auto">
+                    This store's catalog is currently private and not accessible to the public.
+                  </p>
+                </div>
               ) : (
                 <div className="col-span-2 text-center py-12 bg-white rounded-xl border border-slate-100">
                   <Package className="w-12 h-12 text-slate-300 mx-auto mb-2" />

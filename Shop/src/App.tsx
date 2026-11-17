@@ -415,6 +415,7 @@ function StoreProfileRoute() {
           location: sellerData.location || 'Nigeria',
           category: sellerData.storeCategory || 'General',
           plan: sellerData.storePlan === 'TRIAL' ? 'Trial Plan' : sellerData.isPro ? 'Pro Plan' : 'Free Plan',
+          isPro: Boolean(sellerData.isPro),
           bio: sellerData.bio || 'No bio available',
           rating: sellerData.rating || 0,
           reviewsCount: sellerData.reviewsCount || 0,
