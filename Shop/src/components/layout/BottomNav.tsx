@@ -7,6 +7,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Home, RefreshCw, MessageSquare, ShoppingBag } from 'lucide-react';
 import { UserProfile } from '../../types';
+import { useAuthModal } from '../../context/AuthModalContext';
 
 interface BottomNavProps {
   activeTab: '' | 'home' | 'trade' | 'chat' | 'market' | 'profile' | 'checkout';
@@ -16,12 +17,23 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ activeTab, onTabChange, unreadChatsCount, activeProfile }: BottomNavProps) {
+  const { openLogin } = useAuthModal();
+  const isGuest = activeProfile?.verificationStatus === 'GUEST';
+
   const tabs = [
     { id: 'home' as const, label: 'Home', icon: Home },
     { id: 'trade' as const, label: 'Trade', icon: RefreshCw },
     { id: 'chat' as const, label: 'Chat', icon: MessageSquare, badge: unreadChatsCount },
     { id: 'market' as const, label: 'Market', icon: ShoppingBag },
   ];
+
+  const handleTabClick = (tabId: 'home' | 'trade' | 'chat' | 'market') => {
+    if (isGuest && tabId === 'chat') {
+      openLogin();
+      return;
+    }
+    onTabChange(tabId);
+  };
 
   return (
     <motion.div
@@ -49,7 +61,7 @@ export default function BottomNav({ activeTab, onTabChange, unreadChatsCount, ac
           return (
             <motion.button
               key={tab.id}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => handleTabClick(tab.id)}
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.92 }}
               className="flex flex-col items-center justify-center relative py-1 px-1 cursor-pointer select-none outline-none group text-purple-200 focus:outline-none"

@@ -3,6 +3,8 @@ import { motion } from 'motion/react';
 import { Search, Plus, Image as ImageIcon, AlertCircle, Store, Share, Users, Check, EyeOff } from 'lucide-react';
 import { TradeItem, EscrowStatus, TradeType, TradeVisibility } from '../types';
 import { useCommunities } from '../context/CommunityContext';
+import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import CreateGroupModal from './community/CreateGroupModal';
 
 type FilterOption = 'All' | 'Drafts' | 'Offers' | 'Pending';
@@ -30,6 +32,8 @@ export default function TradeListView({
   onCreateNew,
   onShareTrade
 }: TradeListViewProps) {
+  const { user } = useAuth();
+  const { openLogin } = useAuthModal();
   const { communities, isLoading: communitiesLoading, discover, join } = useCommunities();
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -39,7 +43,19 @@ export default function TradeListView({
     discover();
   }, [discover]);
 
+  const handleCreateNewClick = () => {
+    if (!user) {
+      openLogin();
+      return;
+    }
+    onCreateNew();
+  };
+
   const handleJoin = async (communityId: string) => {
+    if (!user) {
+      openLogin();
+      return;
+    }
     setJoiningId(communityId);
     try {
       await join(communityId);
@@ -49,6 +65,14 @@ export default function TradeListView({
     } finally {
       setJoiningId(null);
     }
+  };
+
+  const handleCreateGroupClick = () => {
+    if (!user) {
+      openLogin();
+      return;
+    }
+    setShowCreateGroup(true);
   };
 
   const filteredTrades = trades.filter((t) => {
@@ -74,7 +98,7 @@ export default function TradeListView({
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={onCreateNew}
+            onClick={handleCreateNewClick}
             className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center shadow-lg shadow-purple-100 cursor-pointer"
           >
             <Plus className="w-5.5 h-5.5 stroke-[2.5]" />
@@ -193,7 +217,7 @@ export default function TradeListView({
                 Trade Groups
               </h3>
               <button
-                onClick={() => setShowCreateGroup(true)}
+                onClick={handleCreateGroupClick}
                 className="text-[10px] font-sans font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3 h-3" /> Create Group

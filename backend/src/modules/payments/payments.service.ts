@@ -462,6 +462,7 @@ export const STORE_PLANS = {
     originalPrice: 1000,
     price: 499.9,
     minMonths: 3,
+    memberCapacity: 5,
     storeCapacity: 5,
     listingLimit: 5,
     durationDays: 90
@@ -472,6 +473,7 @@ export const STORE_PLANS = {
     originalPrice: 5000,
     price: 3500,
     minMonths: 1,
+    memberCapacity: 1000,
     storeCapacity: 1000,
     listingLimit: 250,
     durationDays: 30
@@ -482,6 +484,7 @@ export const STORE_PLANS = {
     originalPrice: 18000,
     price: 12000,
     minMonths: 1,
+    memberCapacity: 5000,
     storeCapacity: 5000,
     listingLimit: 1000,
     durationDays: 30
@@ -492,6 +495,7 @@ export const STORE_PLANS = {
     originalPrice: 35000,
     price: 25000,
     minMonths: 1,
+    memberCapacity: 50000,
     storeCapacity: 50000,
     listingLimit: 10000,
     durationDays: 30
@@ -625,7 +629,7 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
   await notify({
     userId,
     title: `${plan.name} activated`,
-    message: `You're now on the ${plan.name} for ${validMonths} month${validMonths > 1 ? 's' : ''}. You can list up to ${plan.listingLimit.toLocaleString()} products (capacity: ${plan.storeCapacity.toLocaleString()}).`,
+    message: `You're now on the ${plan.name} for ${validMonths} month${validMonths > 1 ? 's' : ''}. Member capacity: ${plan.storeCapacity.toLocaleString()} members • Product listing limit: ${plan.listingLimit.toLocaleString()} products.`,
     type: 'SUCCESS'
   });
 

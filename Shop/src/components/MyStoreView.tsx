@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { UserProfile, MarketProduct, TradeVisibility } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { useTrades } from '../context/TradeContext';
 import { useMarket } from '../context/MarketContext';
 import { useStore } from '../context/StoreContext';
@@ -66,6 +67,7 @@ export default function MyStoreView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user: activeProfile, updateUser } = useAuth();
+  const { openLogin } = useAuthModal();
   const { openStoreUpgrade } = useStore();
   const { deleteTrade, editTrade } = useTrades();
   const { products, addProduct, editProduct, deleteProduct, refresh: refreshMarket } = useMarket();
@@ -442,7 +444,25 @@ export default function MyStoreView() {
     setProductActionError(null);
   };
 
-  if (!activeProfile) return null;
+  if (!activeProfile || activeProfile.verificationStatus === 'GUEST') {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-white space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-purple-50 text-purple-600 flex items-center justify-center text-3xl shadow-sm">
+          🏪
+        </div>
+        <h2 className="text-lg font-display font-bold text-slate-900">Manage Your Store</h2>
+        <p className="text-xs font-sans text-slate-500 max-w-xs leading-relaxed">
+          Log in with your seller account to manage your catalogue, wall posts, and merchant profile.
+        </p>
+        <button
+          onClick={openLogin}
+          className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+        >
+          Sign In
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col bg-white h-full overflow-hidden">
@@ -726,8 +746,8 @@ export default function MyStoreView() {
                       </div>
                       <p className="text-[11px] font-sans text-purple-900/80 mt-0.5 font-medium truncate">
                         {activeProfile.isPro && activeProfile.storePlan !== 'TRIAL'
-                          ? 'Capacity: 1,000–50,000 items • Open Market enabled'
-                          : 'Store Capacity: 5 items (Trial) • Upgrade for 1,000–50,000 items'}
+                          ? 'Capacity: 1,000–50,000 members • Open Market enabled'
+                          : 'Member Capacity: 5 members (Trial) • Upgrade for 1,000–50,000 members'}
                       </p>
                     </div>
                   </div>

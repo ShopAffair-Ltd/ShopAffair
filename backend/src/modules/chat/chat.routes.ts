@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth } from '../../middleware/auth.middleware.js';
 import {
   getOrCreateDirectChat,
   createGroup,
@@ -23,11 +23,13 @@ import { discover, join, leave, promote, updateSettings, myAdminGroups } from '.
 
 const router = Router();
 
+// Public / optional-auth discovery so guests can view communities on Trade screen
+router.get('/communities/discover', optionalAuth, discover);
+
 router.use(requireAuth);
 
 router.get('/', getUserChats);
 router.get('/blocked', getBlockedUsers);
-router.get('/communities/discover', discover);
 router.get('/communities/my-admin-groups', myAdminGroups);
 router.get('/:chatRoomId', getChatRoom);
 

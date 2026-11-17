@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Bell, User, Settings, LogOut, ArrowLeft, CheckCheck } from 'lucide-react';
 import { UserProfile } from '../../types';
 import { useNotifications } from '../../context/NotificationContext';
+import { useAuthModal } from '../../context/AuthModalContext';
 
 type ActiveTab = 'home' | 'trade' | 'chat' | 'market' | 'profile' | 'checkout' | 'myStore' | 'storeProfile';
 
@@ -35,9 +36,12 @@ export default function AppHeader({
   chatPartnerName
 }: AppHeaderProps) {
   const navigate = useNavigate();
+  const { openLogin } = useAuthModal();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+
+  const isGuest = activeProfile.verificationStatus === 'GUEST';
 
   return (
     <div className="bg-white px-4 py-3 border-b border-slate-100 flex items-center justify-between shadow-xs sticky top-0 z-30">
@@ -58,7 +62,17 @@ export default function AppHeader({
       </div>
 
       <div className="flex items-center gap-2.5 relative">
-        <div className="relative">
+        {isGuest ? (
+          <button
+            type="button"
+            onClick={openLogin}
+            className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+          >
+            Sign In
+          </button>
+        ) : (
+          <>
+            <div className="relative">
           <button
             onClick={() => {
               setNotifOpen((v) => !v);
@@ -196,6 +210,8 @@ export default function AppHeader({
             )}
           </AnimatePresence>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

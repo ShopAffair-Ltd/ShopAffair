@@ -93,7 +93,7 @@ export default function StoreProfile({
   };
 
   const { user: viewer } = useAuth();
-  const { openRegister } = useAuthModal();
+  const { openLogin, openRegister } = useAuthModal();
   const { addNotification } = useNotifications();
   const isStoreOwner = !!viewer && (viewer.id === seller.id || viewer.username === seller.username);
   const [storeTrades, setStoreTrades] = useState<MarketProduct[]>([]);
@@ -181,7 +181,7 @@ export default function StoreProfile({
 
   const handleToggleWallLike = async (postId: string) => {
     if (!viewer) {
-      alert('Please log in to like posts.');
+      openLogin();
       return;
     }
     try {
@@ -198,7 +198,7 @@ export default function StoreProfile({
 
   const handleSendComment = async (postId: string) => {
     if (!viewer) {
-      alert('Please log in to comment.');
+      openLogin();
       return;
     }
     const content = commentDrafts[postId]?.trim();
@@ -253,7 +253,7 @@ export default function StoreProfile({
 
   const handleFollow = async () => {
     if (!viewer) {
-      openRegister();
+      openLogin();
       return;
     }
     try {

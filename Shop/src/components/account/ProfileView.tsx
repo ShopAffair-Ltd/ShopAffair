@@ -967,7 +967,7 @@ export default function ProfileView() {
                         <h4 className="text-xs font-bold text-slate-800">Trial Store Plan</h4>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 bg-green-100 text-green-700 rounded-md">Discount</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Store capacity: 5 items • 5 products</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Member capacity: 5 members • 5 products</p>
                       <div className="flex items-center gap-1.5 mt-1">
                         <span className="text-[10px] text-slate-400 line-through">~₦1,000/month~</span>
                         <span className="text-xs font-bold text-purple-700">₦499.9/month</span>
@@ -998,7 +998,7 @@ export default function ProfileView() {
                         <h4 className="text-xs font-bold text-slate-800">Starter Store Plan</h4>
                         <span className="text-[9px] font-bold px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-md">Popular</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Store capacity: 1,000 items • 250 products</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Member capacity: 1,000 members • 250 products</p>
                       <div className="flex items-center gap-1.5 mt-1">
                         <span className="text-[10px] text-slate-400 line-through">~₦5,000/month~</span>
                         <span className="text-xs font-bold text-purple-700">₦3,500/month</span>

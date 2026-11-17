@@ -131,7 +131,7 @@ function Shell({
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center text-slate-800 antialiased selection:bg-purple-100 font-sans">
       <div className="w-full max-w-md min-h-screen h-[100dvh] bg-white flex flex-col relative overflow-hidden shadow-2xl shadow-purple-950/5 border-x border-slate-100">
-        {showChrome && !isGuest && (
+        {showChrome && (
           <AppHeader
             activeTab={currentTab as never}
             activeProfile={activeProfile}
@@ -255,6 +255,7 @@ function TradeHistoryRoute() {
 
 function TradeRoute() {
   const { user } = useAuth();
+  const { openLogin } = useAuthModal();
   const params = useParams<{ tradeId?: string; mode?: string }>();
   const [searchParams] = useSearchParams();
   const openId = searchParams.get('open');
@@ -262,13 +263,35 @@ function TradeRoute() {
 
   const isSpecificTrade = (!!params.tradeId && params.tradeId !== 'new') || !!openId;
 
-  // Unauthenticated guests can view public trade cards (shared links/QR codes),
-  // but creating a new trade or editing requires an authenticated account.
-  if (!user && (params.tradeId === 'new' || params.mode === 'edit' || !isSpecificTrade)) {
+  // If a guest tries to create or edit a trade, prompt login while allowing
+  // them to browse the public trades list and specific trades freely.
+  if (!user && (params.tradeId === 'new' || params.mode === 'edit')) {
     return (
-      <ProtectedRoute>
-        <TradeView />
-      </ProtectedRoute>
+      <Shell showChrome>
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-white space-y-4">
+          <div className="w-16 h-16 rounded-3xl bg-purple-50 text-purple-600 flex items-center justify-center text-3xl shadow-sm">
+            🔄
+          </div>
+          <h2 className="text-lg font-display font-bold text-slate-900">Sign in to Create Trades</h2>
+          <p className="text-xs font-sans text-slate-500 max-w-xs leading-relaxed">
+            You can browse public trades as a guest, but creating or editing an escrow trade requires an account.
+          </p>
+          <div className="flex gap-2.5 w-full max-w-xs">
+            <button
+              onClick={() => navigate('/trade')}
+              className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-bold text-xs rounded-xl transition-all cursor-pointer"
+            >
+              Browse Trades
+            </button>
+            <button
+              onClick={openLogin}
+              className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
+      </Shell>
     );
   }
 
@@ -559,9 +582,13 @@ export default function App() {
             <Route
               path="/"
               element={
-                <ProtectedRoute>
-                  <HomeView />
-                </ProtectedRoute>
+                user ? (
+                  <ProtectedRoute>
+                    <HomeView />
+                  </ProtectedRoute>
+                ) : (
+                  <MarketRoute />
+                )
               }
             />
             <Route

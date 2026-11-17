@@ -37,11 +37,11 @@ const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
     originalMonthlyPrice: 1000,
     monthlyPrice: 499.9,
     minMonths: 3,
-    capacityLabel: '5 items',
-    listingLimitLabel: '5 items',
+    capacityLabel: '5 members',
+    listingLimitLabel: '5 products',
     icon: Store,
     color: 'from-slate-600 to-slate-800',
-    bullets: ['Trial plan badge', 'Store capacity: 5 items', 'Product listing limit: 5 items', 'Basic store wall & catalogue'],
+    bullets: ['Trial plan badge', 'Member capacity: 5 members', 'Product listing limit: 5 products', 'Basic store wall & catalogue'],
     discountLabel: 'Discount ₦499.9/month',
     subLabel: '(₦1,499.7 for full 3 months)'
   },
@@ -50,12 +50,12 @@ const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
     originalMonthlyPrice: 5000,
     monthlyPrice: 3500,
     minMonths: 1,
-    capacityLabel: '1,000 items',
-    listingLimitLabel: '250 items',
+    capacityLabel: '1,000 members',
+    listingLimitLabel: '250 products',
     badge: 'Recommended',
     icon: Sparkles,
     color: 'from-purple-600 to-indigo-600',
-    bullets: ['Merchant badge', 'Open Market publishing', 'Store capacity: 1,000 items', 'Product listing limit: 250 items', 'Full store wall & comments'],
+    bullets: ['Merchant badge', 'Open Market publishing', 'Member capacity: 1,000 members', 'Product listing limit: 250 products', 'Full store wall & comments'],
     discountLabel: 'Discount ₦3,500/month',
     subLabel: '(People can still pay per month or for 3 months)'
   },
@@ -64,12 +64,12 @@ const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
     originalMonthlyPrice: 18000,
     monthlyPrice: 12000,
     minMonths: 1,
-    capacityLabel: '5,000 items',
-    listingLimitLabel: '1,000 items',
+    capacityLabel: '5,000 members',
+    listingLimitLabel: '1,000 products',
     badge: 'High Capacity',
     icon: Zap,
     color: 'from-blue-600 to-cyan-600',
-    bullets: ['Verified Gold badge', 'Open Market priority', 'Store capacity: 5,000 items', 'Product listing limit: 1,000 items', 'Fast-track customer support'],
+    bullets: ['Verified Gold badge', 'Open Market priority', 'Member capacity: 5,000 members', 'Product listing limit: 1,000 products', 'Fast-track customer support'],
     discountLabel: 'Discount ₦12,000/month',
     subLabel: '(Ideal for expanding wholesale merchants)'
   },
@@ -78,12 +78,12 @@ const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
     originalMonthlyPrice: 35000,
     monthlyPrice: 25000,
     minMonths: 1,
-    capacityLabel: '50,000+ items (Unlimited)',
-    listingLimitLabel: '10,000 items',
+    capacityLabel: '50,000+ members (Unlimited)',
+    listingLimitLabel: '10,000 products',
     badge: 'Max Capacity',
     icon: Crown,
     color: 'from-amber-500 to-orange-600',
-    bullets: ['VIP Merchant status', 'Featured on Open Market', 'Store capacity: 50,000+ items (Unlimited)', 'Product listing limit: 10,000 items', 'Dedicated account manager'],
+    bullets: ['VIP Merchant status', 'Featured on Open Market', 'Member capacity: 50,000+ members (Unlimited)', 'Product listing limit: 10,000 products', 'Dedicated account manager'],
     discountLabel: 'Discount ₦25,000/month',
     subLabel: '(Full high-volume catalog & store power)'
   }
@@ -280,7 +280,7 @@ export default function StoreUpgradeModal({
                               </div>
 
                               <p className="text-[10px] text-purple-700 font-semibold mt-1">
-                                Capacity: {plan.capacityLabel} • {plan.listingLimitLabel}
+                                Member Capacity: {plan.capacityLabel} • Products Limit: {plan.listingLimitLabel}
                               </p>
                             </div>
                           </div>
@@ -375,7 +375,7 @@ export default function StoreUpgradeModal({
                           </div>
                         </div>
                         <div className="flex justify-between text-slate-600">
-                          <span>Store Capacity</span>
+                          <span>Member Capacity</span>
                           <span className="font-bold text-slate-800">{plan.capacityLabel}</span>
                         </div>
                         <div className="flex justify-between text-slate-600">

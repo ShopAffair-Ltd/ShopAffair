@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext';
+import { useAuthModal } from './AuthModalContext';
 import { toggleFavorite as toggleFavoriteApi, fetchFavoriteIds } from '../services/favoriteService';
 import { isTradeBasedProductId, stripTradeIdPrefix } from '../services/TradeService';
 
@@ -14,6 +15,7 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { openLogin } = useAuthModal();
   const [favoriteMarketIds, setFavoriteMarketIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +42,10 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const isFavorited = (marketProductId: string) => favoriteMarketIds.has(marketProductId);
 
   const toggleFavorite = async (marketProductId: string) => {
-    if (!user) return;
+    if (!user) {
+      openLogin();
+      return;
+    }
 
     const wasFavorited = favoriteMarketIds.has(marketProductId);
 

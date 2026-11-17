@@ -86,7 +86,7 @@ const hotDeals = [
 
 export default function MarketView() {
   const { user } = useAuth();
-  const { openRegister } = useAuthModal();
+  const { openLogin, openRegister } = useAuthModal();
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
   const { products, isLoading: productsLoading, error: productsError } = useMarket();
   const { trades } = useTrades();
@@ -241,7 +241,7 @@ export default function MarketView() {
     product?: MarketProduct
   ) => {
     if (!activeProfile || activeProfile.verificationStatus === 'GUEST') {
-      openRegister();
+      openLogin();
       return;
     }
     const item = product || selectedProduct;
@@ -266,7 +266,7 @@ export default function MarketView() {
 
   const handleProceedToCheckout = (productId?: string) => {
     if (!activeProfile || activeProfile.verificationStatus === 'GUEST') {
-      openRegister();
+      openLogin();
       return;
     }
     if (productId) {

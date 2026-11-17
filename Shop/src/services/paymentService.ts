@@ -166,7 +166,8 @@ export interface StorePlan {
   id: StorePlanId;
   name: string;
   price: number;
-  storeCapacity: number;
+  memberCapacity: number;
+  storeCapacity?: number;
   listingLimit: number;
 }
 

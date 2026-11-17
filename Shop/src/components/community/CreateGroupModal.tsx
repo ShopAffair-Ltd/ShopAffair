@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Users, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCommunities } from '../../context/CommunityContext';
+import { useStore } from '../../context/StoreContext';
 import { fetchSubscriptionStatus, subscribeToStorePlan } from '../../services/paymentService';
 import SellerProRequiredModal from './SellerProRequiredModal';
 
@@ -46,6 +47,7 @@ function PermissionToggle({
 export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalProps) {
   const { user, updateUser } = useAuth();
   const { create } = useCommunities();
+  const { openStoreUpgrade } = useStore();
 
   const [checkingStatus, setCheckingStatus] = useState(true);
   // Fail-safe: any uncertainty (still checking, or the status check itself
@@ -159,7 +161,10 @@ export default function CreateGroupModal({ isOpen, onClose }: CreateGroupModalPr
         isOpen={isOpen}
         onClose={onClose}
         reason="not-pro"
-        onSubscribe={handleSubscribe}
+        onSubscribe={() => {
+          onClose();
+          openStoreUpgrade();
+        }}
         subscribing={subscribing}
         subscribeError={subscribeError}
       />

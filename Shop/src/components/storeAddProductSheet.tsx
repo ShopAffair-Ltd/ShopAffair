@@ -12,6 +12,7 @@ import {
 import { MarketProduct } from '../types';
 import { CATEGORIES, CONDITIONS } from './storeConstants';
 import { useAuth } from '../context/AuthContext';
+import { useStore } from '../context/StoreContext';
 
 interface AddProductSheetProps {
   onClose: () => void;
@@ -39,6 +40,7 @@ export default function AddProductSheet({
   const [color, setColor] = useState(editingProduct?.specs?.Color || '');
   const [qty, setQty] = useState(editingProduct?.specs?.Qty || '1');
   const { user } = useAuth();
+  const { openStoreUpgrade } = useStore();
   const isPro = Boolean(user?.isPro);
 
   const [deliveryFee, setDeliveryFee] = useState('');
@@ -239,31 +241,48 @@ export default function AddProductSheet({
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Publish to</label>
             <div className="space-y-2">
-              <label className={`flex items-center gap-2 p-2.5 border rounded-xl transition-all ${
-                isPro ? 'border-slate-200 cursor-pointer' : 'border-slate-200 bg-slate-50 opacity-70 cursor-not-allowed'
-              }`}>
+              <div
+                onClick={() => {
+                  if (!isPro) {
+                    openStoreUpgrade();
+                  }
+                }}
+                className={`flex items-center gap-2 p-2.5 border rounded-xl transition-all cursor-pointer ${
+                  isPro ? 'border-slate-200' : 'border-amber-200 bg-amber-50/40 hover:bg-amber-50'
+                }`}
+              >
                 <input
                   type="checkbox"
                   disabled={!isPro}
                   checked={publishOpenMarket}
                   onChange={(e) => {
-                    if (!isPro) return;
+                    if (!isPro) {
+                      openStoreUpgrade();
+                      return;
+                    }
                     const next = e.target.checked;
                     setPublishOpenMarket(next);
                     if (next) setKeepPrivate(false);
                     else if (!publishMyStore) setKeepPrivate(true);
                   }}
-                  className="accent-purple-600 w-3.5 h-3.5"
+                  className="accent-purple-600 w-3.5 h-3.5 cursor-pointer"
                 />
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
                 <span className="text-xs text-slate-700">Open Market</span>
                 {!isPro && (
-                  <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase ml-auto">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openStoreUpgrade();
+                    }}
+                    className="flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white uppercase ml-auto transition-colors cursor-pointer shadow-xs"
+                  >
                     <Lock className="w-2.5 h-2.5" />
-                    Store Plan Required
-                  </span>
+                    Upgrade Store Plan
+                  </button>
                 )}
-              </label>
+              </div>
               <label className="flex items-center gap-2 p-2.5 border border-slate-200 rounded-xl cursor-pointer">
                 <input
                   type="checkbox"

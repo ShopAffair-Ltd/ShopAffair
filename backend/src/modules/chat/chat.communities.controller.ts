@@ -12,10 +12,10 @@ const requireUser = (req: Request) => {
 };
 
 export const discover = asyncHandler(async (req: Request, res: Response) => {
-  const user = requireUser(req);
+  const userId = req.user?.id;
   const search = typeof req.query.search === 'string' ? req.query.search : undefined;
 
-  const communities = await communitiesService.discoverCommunities(user.id, search);
+  const communities = await communitiesService.discoverCommunities(userId, search);
   res.status(200).json({ communities });
 });
 

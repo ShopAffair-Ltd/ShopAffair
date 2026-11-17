@@ -2,18 +2,19 @@ import { ChatRoomType, ParticipantRole } from '../../generated/prisma/enums.js';
 import { Prisma } from '../../generated/prisma/client.js';
 import { prisma } from '../../config/db';
 import { ApiError } from '../../utils/ApiError';
+import { STORE_PLANS } from '../payments/payments.service.js';
 
-// Lists COMMUNITY chat rooms the user has NOT already joined, for a
-// "discover communities" browse screen. Only communities with
-// settings.visibility !== false are shown (mirrors the visibility toggle
-// already present in createCommunity's default settings).
-export const discoverCommunities = async (userId: string, search?: string) => {
-  const joinedRoomIds = (
-    await prisma.chatRoomParticipant.findMany({
-      where: { userId, leftAt: null },
-      select: { chatRoomId: true }
-    })
-  ).map((p) => p.chatRoomId);
+// Lists COMMUNITY chat rooms for browse/discover screen.
+// Optional userId so unauthenticated guests can discover communities.
+export const discoverCommunities = async (userId?: string, search?: string) => {
+  const joinedRoomIds = userId
+    ? (
+        await prisma.chatRoomParticipant.findMany({
+          where: { userId, leftAt: null },
+          select: { chatRoomId: true }
+        })
+      ).map((p) => p.chatRoomId)
+    : [];
 
   const communities = await prisma.chatRoom.findMany({
     where: {
@@ -41,10 +42,14 @@ export const discoverCommunities = async (userId: string, search?: string) => {
 // approveMembers the same way addParticipant does for groups — a community
 // with approveMembers on cannot be joined instantly and requires an invite
 // or (future) an approval flow instead.
+// Enforces member capacity (counting active members against the community/store plan capacity).
 export const joinCommunity = async (chatRoomId: string, userId: string) => {
   const chatRoom = await prisma.chatRoom.findUnique({
     where: { id: chatRoomId },
-    include: { participants: true }
+    include: {
+      participants: { where: { leftAt: null } },
+      creator: { select: { id: true, isPro: true, storePlan: true } }
+    }
   });
 
   if (!chatRoom) {
@@ -62,6 +67,17 @@ export const joinCommunity = async (chatRoomId: string, userId: string) => {
   const settings = chatRoom.settings as Record<string, unknown> | null;
   if (settings?.approveMembers === true) {
     throw new ApiError(403, 'This community requires an invite to join');
+  }
+
+  // Count active members and check against member capacity
+  // e.g. a University community on Starter Plan has a capacity of 1,000 members.
+  const activeMembersCount = chatRoom.participants.length;
+  const creatorPlan = chatRoom.creator?.storePlan || (chatRoom.creator?.isPro ? 'STARTER' : 'TRIAL');
+  const planInfo = STORE_PLANS[creatorPlan as keyof typeof STORE_PLANS] || STORE_PLANS.STARTER;
+  const maxMemberCapacity = planInfo.storeCapacity; // Starter: 1,000 members
+
+  if (activeMembersCount >= maxMemberCapacity) {
+    throw new ApiError(403, `This community has reached its maximum capacity of ${maxMemberCapacity.toLocaleString()} members.`);
   }
 
   return prisma.chatRoomParticipant.create({
