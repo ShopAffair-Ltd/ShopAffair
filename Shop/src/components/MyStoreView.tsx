@@ -51,6 +51,7 @@ function mapApiPost(apiPost: ApiWallPost, currentUserId: string): WallPost {
     likedByMe: apiPost.likedByMe,
     comments: apiPost.comments.map((c) => ({
       id: c.id,
+      authorId: c.author.id,
       authorName: c.author.name,
       isSeller: c.author.id === currentUserId,
       content: c.content,
@@ -303,6 +304,16 @@ export default function MyStoreView() {
     } catch {
       setWallError('Could not send comment. Please try again.');
       setCommentDrafts((prev) => ({ ...prev, [postId]: draft }));
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!activeProfile) return;
+    try {
+      const updated = await wallPostService.deleteComment(commentId);
+      setWallPosts((prev) => prev.map((p) => (p.id === updated.id ? mapApiPost(updated, activeProfile.id) : p)));
+    } catch {
+      setWallError('Could not delete comment. Please try again.');
     }
   };
 
@@ -566,6 +577,8 @@ export default function MyStoreView() {
                       onTogglePin={togglePin}
                       onToggleComments={(postId) => setOpenCommentsFor(openCommentsFor === postId ? null : postId)}
                       onSendComment={handleSendComment}
+                      onDeleteComment={handleDeleteComment}
+                      currentUserId={activeProfile.id}
                       openCommentsFor={openCommentsFor}
                       commentDrafts={commentDrafts}
                       setCommentDrafts={setCommentDrafts}

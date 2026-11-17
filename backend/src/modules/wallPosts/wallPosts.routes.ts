@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import * as wallPostsController from './wallPosts.controller';
 import { requireAuth, optionalAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/role.middleware';
 
 const router = Router();
 
@@ -11,6 +10,6 @@ router.delete('/wall/:postId', requireAuth, wallPostsController.deleteWallPost);
 router.patch('/wall/:postId/pin', requireAuth, wallPostsController.togglePin);
 router.post('/wall/:postId/like', requireAuth, wallPostsController.toggleLike);
 router.post('/wall/:postId/comments', requireAuth, wallPostsController.addComment);
-router.delete('/wall/comments/:commentId', requireAuth, requireRole('admin'), wallPostsController.deleteComment);
+router.delete('/wall/comments/:commentId', requireAuth, wallPostsController.deleteComment);
 
 export default router;

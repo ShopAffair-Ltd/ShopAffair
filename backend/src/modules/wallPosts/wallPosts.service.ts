@@ -130,22 +130,30 @@ export const addComment = async (userId: string, postId: string, input: CreateCo
   return shapePost(updated, userId);
 };
 
-// Admin-only: a seller can block a buyer from commenting further, but
-// cannot remove a comment that's already there - only the app owner can.
-export const deleteComment = async (commentId: string, adminUserId: string) => {
+// Only the sender of the comment alone (or admin) can delete their comment
+export const deleteComment = async (commentId: string, currentUserId: string) => {
   const comment = await prisma.wallPostComment.findUnique({
     where: { id: commentId },
-    select: { postId: true }
+    select: { postId: true, authorId: true }
   });
   if (!comment) {
     throw new ApiError(404, 'Comment not found');
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: { role: true }
+  });
+
+  if (comment.authorId !== currentUserId && currentUser?.role !== 'admin') {
+    throw new ApiError(403, 'You can only delete your own comments');
   }
 
   await prisma.wallPostComment.delete({ where: { id: commentId } });
 
   const updated = await prisma.wallPost.findUnique({
     where: { id: comment.postId },
-    ...postWithRelations(adminUserId)
+    ...postWithRelations(currentUserId)
   });
-  return shapePost(updated, adminUserId);
+  return shapePost(updated, currentUserId);
 };

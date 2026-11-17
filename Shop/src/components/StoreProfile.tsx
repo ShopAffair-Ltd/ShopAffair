@@ -31,6 +31,7 @@ function mapApiPost(apiPost: ApiWallPost, sellerId: string): WallPost {
     likedByMe: apiPost.likedByMe,
     comments: apiPost.comments.map((c) => ({
       id: c.id,
+      authorId: c.author.id,
       authorName: c.author.name,
       isSeller: c.author.id === sellerId,
       content: c.content,
@@ -208,6 +209,16 @@ export default function StoreProfile({
       setCommentDrafts((prev) => ({ ...prev, [postId]: '' }));
     } catch (error) {
       console.error('Failed to send comment:', error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!viewer) return;
+    try {
+      const updated = await wallPostService.deleteComment(commentId);
+      setWallPosts((prev) => prev.map((p) => (p.id === updated.id ? mapApiPost(updated, seller.id) : p)));
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
     }
   };
 
@@ -533,6 +544,8 @@ export default function StoreProfile({
                     onTogglePin={() => { }}
                     onToggleComments={handleToggleComments}
                     onSendComment={handleSendComment}
+                    onDeleteComment={handleDeleteComment}
+                    currentUserId={viewer?.id}
                     openCommentsFor={openCommentsFor}
                     commentDrafts={commentDrafts}
                     setCommentDrafts={setCommentDrafts}

@@ -4,6 +4,7 @@ export type StoreTab = 'wall' | 'catalogue' | 'settings';
 
 export interface WallComment {
   id: string;
+  authorId?: string;
   authorName: string;
   isSeller: boolean;
   content: string;

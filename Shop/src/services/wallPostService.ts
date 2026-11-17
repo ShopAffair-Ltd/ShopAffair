@@ -53,3 +53,8 @@ export const addComment = async (postId: string, content: string) => {
   const { data } = await api.post<{ post: WallPost }>(`/users/wall/${postId}/comments`, { content });
   return data.post;
 };
+
+export const deleteComment = async (commentId: string) => {
+  const { data } = await api.delete<{ post: WallPost }>(`/users/wall/comments/${commentId}`);
+  return data.post;
+};

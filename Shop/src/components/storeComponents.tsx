@@ -51,6 +51,8 @@ interface WallPostComponentProps {
   onTogglePin: (postId: string) => void;
   onToggleComments: (postId: string) => void;
   onSendComment: (postId: string) => void;
+  onDeleteComment?: (commentId: string) => void;
+  currentUserId?: string;
   openCommentsFor: string | null;
   commentDrafts: Record<string, string>;
   setCommentDrafts: (drafts: Record<string, string>) => void;
@@ -64,6 +66,8 @@ export function WallPostComponent({
   onTogglePin,
   onToggleComments,
   onSendComment,
+  onDeleteComment,
+  currentUserId,
   openCommentsFor,
   commentDrafts,
   setCommentDrafts,
@@ -158,29 +162,52 @@ export function WallPostComponent({
             className="overflow-hidden"
           >
             <div className="px-3.5 pb-3.5 pt-2 border-t border-slate-100 space-y-3">
-              {post.comments.map((c) => (
-                <div key={c.id} className="flex items-start gap-2">
-                  <div
-                    className={`w-6 h-6 rounded-full text-[9px] font-sans font-bold flex items-center justify-center shrink-0 ${
-                      c.isSeller ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-600'
-                    }`}
-                  >
-                    {c.authorName.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0 bg-slate-50 rounded-xl rounded-tl-sm px-3 py-2 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10.5px] font-sans font-bold text-slate-800">{c.authorName}</span>
-                      {c.isSeller && (
-                        <span className="text-[8px] font-sans font-bold text-orange-600 bg-orange-100 rounded-full px-1.5 py-px">
-                          Seller
-                        </span>
-                      )}
-                      <span className="text-[9px] font-sans text-slate-400 ml-auto">{timeAgo(c.timestamp)}</span>
+              {post.comments.map((c) => {
+                const canDeleteComment = Boolean(
+                  onDeleteComment &&
+                  currentUserId &&
+                  c.authorId &&
+                  c.authorId === currentUserId
+                );
+
+                return (
+                  <div key={c.id} className="flex items-start gap-2 group/comment">
+                    <div
+                      className={`w-6 h-6 rounded-full text-[9px] font-sans font-bold flex items-center justify-center shrink-0 ${
+                        c.isSeller ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {c.authorName.charAt(0).toUpperCase()}
                     </div>
-                    <p className="text-[11px] font-sans text-slate-600 mt-0.5 leading-snug break-words">{c.content}</p>
+                    <div className="min-w-0 bg-slate-50 rounded-xl rounded-tl-sm px-3 py-2 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10.5px] font-sans font-bold text-slate-800">{c.authorName}</span>
+                        {c.isSeller && (
+                          <span className="text-[8px] font-sans font-bold text-orange-600 bg-orange-100 rounded-full px-1.5 py-px">
+                            Seller
+                          </span>
+                        )}
+                        <span className="text-[9px] font-sans text-slate-400 ml-auto">{timeAgo(c.timestamp)}</span>
+                        {canDeleteComment && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm('Delete this comment?')) {
+                                onDeleteComment?.(c.id);
+                              }
+                            }}
+                            className="p-1 -mr-1 text-slate-400 hover:text-red-500 rounded hover:bg-red-50/50 transition-colors cursor-pointer"
+                            title="Delete your comment"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-sans text-slate-600 mt-0.5 leading-snug break-words">{c.content}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="flex items-center gap-2 pt-0.5">
                 <input
