@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowLeft, CheckCircle2, Share2, Copy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowLeft, CheckCircle2, Share2, Copy, Image as ImageIcon, ZoomIn, X, RefreshCw } from 'lucide-react';
 import ShareToGroupModal from './community/ShareToGroupModal';
 import QrShareModal from './modals/QrShareModal';
 import { TradeItem, EscrowStatus } from '../types';
@@ -46,6 +47,7 @@ export default function TradeDetailView({
   onEditTrade,
   onCancelTrade
 }: TradeDetailViewProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { openDeposit } = useWallet();
   const { openLogin } = useAuthModal();
@@ -56,6 +58,23 @@ export default function TradeDetailView({
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showFullImage, setShowFullImage] = useState(false);
+
+  const productImages: string[] = trade.image
+    ? (() => {
+        if (trade.image.startsWith('[')) {
+          try {
+            const parsed = JSON.parse(trade.image);
+            if (Array.isArray(parsed)) return parsed.filter(Boolean);
+          } catch {}
+        }
+        if (trade.image.includes(',')) {
+          return trade.image.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+        return [trade.image];
+      })()
+    : [];
 
   const escrowTotal = trade.amount + trade.deliveryFee;
   const hasInsufficientBalance = !!user && user.walletBalance < escrowTotal;
@@ -249,6 +268,62 @@ export default function TradeDetailView({
           </div>
         </motion.div>
 
+        {/* Product Images Gallery */}
+        {productImages.length > 0 ? (
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
+            className="space-y-2.5"
+          >
+            <div
+              onClick={() => setShowFullImage(true)}
+              className="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs relative cursor-pointer group"
+            >
+              <img
+                src={productImages[activeImageIndex] || productImages[0]}
+                alt={trade.title}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white backdrop-blur-sm opacity-80 group-hover:opacity-100 transition-opacity">
+                <ZoomIn className="w-4 h-4" />
+              </div>
+              {productImages.length > 1 && (
+                <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full bg-black/60 text-white text-[10px] font-sans font-bold backdrop-blur-sm">
+                  {activeImageIndex + 1} / {productImages.length}
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnail Strip if multiple images */}
+            {productImages.length > 1 && (
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                {productImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                      activeImageIndex === idx
+                        ? 'border-purple-600 ring-2 ring-purple-600/20'
+                        : 'border-slate-200 opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
+            className="w-full h-36 rounded-2xl bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 gap-1.5"
+          >
+            <ImageIcon className="w-7 h-7 text-slate-300" />
+            <span className="text-[11px] font-sans font-medium text-slate-400">No product photo uploaded</span>
+          </motion.div>
+        )}
+
         <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }} className="space-y-3">
           <h2 className="text-lg font-sans font-extrabold text-slate-900 leading-snug">{trade.title}</h2>
 
@@ -349,6 +424,20 @@ export default function TradeDetailView({
                   </button>
                 </div>
               </div>
+            ) : isBuyer ? (
+              <div className="space-y-2">
+                <div className="p-4 bg-purple-50 border border-purple-100 rounded-lg text-center">
+                  <p className="text-xs font-sans text-purple-700 font-bold">You have placed an order on this trade.</p>
+                  <p className="text-[10px] font-sans text-purple-600 mt-0.5">Funds are awaiting seller processing or pickup code generation.</p>
+                </div>
+                <button
+                  onClick={() => navigate(`/trade/new?reorder=${trade.id}`)}
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Buy Again (New Order)
+                </button>
+              </div>
             ) : (
               <div className="space-y-2">
                 {hasInsufficientBalance && (
@@ -380,7 +469,16 @@ export default function TradeDetailView({
                   deliveryFee={trade.deliveryFee}
                 />
               ) : isBuyer ? (
-                <BuyerPickupCodeDisplay code={trade.pickupCode || ''} />
+                <div className="space-y-3">
+                  <BuyerPickupCodeDisplay code={trade.pickupCode || ''} />
+                  <button
+                    onClick={() => navigate(`/trade/new?reorder=${trade.id}`)}
+                    className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 font-sans font-bold text-xs rounded-lg border border-purple-200 cursor-pointer flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Buy Another One (New Order)
+                  </button>
+                </div>
               ) : (
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg text-center">
                   <p className="text-xs font-sans text-slate-500">
@@ -438,14 +536,26 @@ export default function TradeDetailView({
           )}
 
           {trade.status === EscrowStatus.COMPLETED && (
-            <div className="p-4 bg-green-50 text-green-800 rounded-lg border border-green-100 flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
-              <div>
-                <span className="block text-xs font-bold text-green-800">Trade Resolved & Released</span>
-                <p className="text-[10px] font-sans leading-relaxed text-green-700 mt-0.5">
-                  Secure escrow finalized. Funds disbursed to merchant's settlement account.
-                </p>
+            <div className="space-y-3">
+              <div className="p-4 bg-green-50 text-green-800 rounded-lg border border-green-100 flex items-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
+                <div>
+                  <span className="block text-xs font-bold text-green-800">Trade Resolved & Released</span>
+                  <p className="text-[10px] font-sans leading-relaxed text-green-700 mt-0.5">
+                    Secure escrow finalized. Funds disbursed to merchant's settlement account.
+                  </p>
+                </div>
               </div>
+
+              {!isSeller && (
+                <button
+                  onClick={() => navigate(`/trade/new?reorder=${trade.id}`)}
+                  className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Buy Again (Place New Order)
+                </button>
+              )}
             </div>
           )}
         </motion.div>
@@ -458,9 +568,51 @@ export default function TradeDetailView({
         title={trade.title}
         subtitle={`₦${trade.amount.toLocaleString()} • ${trade.creatorUsername ? `@${trade.creatorUsername}` : 'Escrow Trade'}`}
         url={`${window.location.origin}/trade/${trade.id}`}
-        imageUrl={trade.image}
+        imageUrl={productImages[0] || trade.image}
         badgeText="ESCROW TRADE"
       />
+
+      {/* Full-Screen Image Lightbox Modal */}
+      <AnimatePresence>
+        {showFullImage && productImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm"
+            onClick={() => setShowFullImage(false)}
+          >
+            <button
+              onClick={() => setShowFullImage(false)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="max-w-3xl max-h-[85vh] w-full flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={productImages[activeImageIndex] || productImages[0]}
+                alt={trade.title}
+                className="max-h-[75vh] max-w-full object-contain rounded-xl shadow-2xl"
+              />
+              {productImages.length > 1 && (
+                <div className="flex items-center gap-2 mt-4 overflow-x-auto no-scrollbar">
+                  {productImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
+                        activeImageIndex === idx ? 'border-purple-500 scale-105' : 'border-white/30 opacity-60'
+                      }`}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

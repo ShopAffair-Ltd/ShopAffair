@@ -383,6 +383,16 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
       throw new ApiError(403, 'Only the trade creator can verify pickup');
     }
     if (trade.status !== 'FUNDED' && trade.status !== 'DISPUTED') {
+      if (trade.status === 'COMPLETED') {
+        const fullCompletedTrade = await tx.trade.findUnique({
+          where: { id: tradeId },
+          include: {
+            creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+            buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
+          }
+        });
+        return { completedTrade: fullCompletedTrade ?? trade, feeRate: 0.013 };
+      }
       throw new ApiError(409, 'Trade is not awaiting pickup verification');
     }
     if (trade.pausedByFreeze) {
@@ -438,7 +448,11 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
 
     const updated = await tx.trade.update({
       where: { id: tradeId },
-      data: { status: 'COMPLETED' }
+      data: { status: 'COMPLETED' },
+      include: {
+        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
+      }
     });
 
     return { completedTrade: updated, feeRate: effectiveRate };
@@ -455,11 +469,11 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
     }),
     completedTrade.buyerId
       ? notify({
-          userId: completedTrade.buyerId,
-          title: 'Trade completed',
-          message: `Your pickup for "${completedTrade.title}" was confirmed. This trade is now complete.`,
-          type: 'SUCCESS'
-        })
+        userId: completedTrade.buyerId,
+        title: 'Trade completed',
+        message: `Your pickup for "${completedTrade.title}" was confirmed. This trade is now complete.`,
+        type: 'SUCCESS'
+      })
       : Promise.resolve(null)
   ]);
 
@@ -536,8 +550,8 @@ export const forceCancelTrade = async (tradeId: string) => {
 
     const escrowLock = trade.buyerId
       ? await tx.walletTransaction.findFirst({
-          where: { tradeId, userId: trade.buyerId, type: 'ESCROW_LOCK', status: 'SUCCESS' }
-        })
+        where: { tradeId, userId: trade.buyerId, type: 'ESCROW_LOCK', status: 'SUCCESS' }
+      })
       : null;
 
     if ((trade.status === 'FUNDED' || trade.status === 'DISPUTED') && trade.buyerId && escrowLock) {

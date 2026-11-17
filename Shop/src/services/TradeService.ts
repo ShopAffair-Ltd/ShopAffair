@@ -55,8 +55,8 @@ interface RawTrade {
 const mapToTradeItem = (raw: RawTrade): TradeItem => ({
   id: raw.id,
   title: raw.title,
-  creatorUsername: raw.creator.username,
-  creatorName: raw.creator.name,
+  creatorUsername: raw.creator?.username ?? '',
+  creatorName: raw.creator?.name ?? 'Seller',
   creatorRating: 4.8, // no rating system on the backend yet
   reviewsCount: 0,
   amount: Number(raw.amount),
@@ -232,7 +232,16 @@ export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null 
     rating: trade.creatorRating,
     salesCount: 0,
     reviewsCount: trade.reviewsCount,
-    image: trade.image || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=400',
+    image: (() => {
+      if (!trade.image) return 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=400';
+      if (trade.image.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(trade.image);
+          if (Array.isArray(parsed) && parsed[0]) return parsed[0];
+        } catch {}
+      }
+      return trade.image;
+    })(),
     category: trade.category,
     condition: mapConditionToMarketLabel(trade.condition),
     location: trade.takeOffLocation,

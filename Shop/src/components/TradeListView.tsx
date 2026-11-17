@@ -223,13 +223,22 @@ export default function TradeListView({
               className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-all flex items-start gap-3.5 relative overflow-hidden"
             >
               <div className="w-16 h-16 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden shrink-0">
-                {trade.image ? (
-                  <img src={trade.image} alt={trade.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-300">
-                    <ImageIcon className="w-6 h-6" />
-                  </div>
-                )}
+                {(() => {
+                  let thumbSrc = trade.image;
+                  if (thumbSrc?.startsWith('[')) {
+                    try {
+                      const arr = JSON.parse(thumbSrc);
+                      if (Array.isArray(arr) && arr[0]) thumbSrc = arr[0];
+                    } catch {}
+                  }
+                  return thumbSrc ? (
+                    <img src={thumbSrc} alt={trade.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-300">
+                      <ImageIcon className="w-6 h-6" />
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="flex-1 min-w-0 space-y-0.5">

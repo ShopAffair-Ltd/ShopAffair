@@ -43,7 +43,19 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
   );
   const [deliveryLocation, setDeliveryLocation] = useState(initialTrade?.deliveryLocation ?? '');
 
-  const [uploadedImages, setUploadedImages] = useState<string[]>(initialTrade?.image ? [initialTrade.image] : []);
+  const [uploadedImages, setUploadedImages] = useState<string[]>(() => {
+    if (!initialTrade?.image) return [];
+    if (initialTrade.image.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(initialTrade.image);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      } catch {}
+    }
+    if (initialTrade.image.includes(',')) {
+      return initialTrade.image.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [initialTrade.image];
+  });
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -114,6 +126,13 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
     setSubmitError(null);
     setIsSubmitting(true);
 
+    const imagePayload =
+      uploadedImages.length > 1
+        ? JSON.stringify(uploadedImages)
+        : uploadedImages.length === 1
+        ? uploadedImages[0]
+        : undefined;
+
     try {
       if (isEditMode && initialTrade && onEditSubmit) {
         await onEditSubmit(initialTrade.id, {
@@ -128,7 +147,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           deliveryTime,
           takeOffLocation,
           deliveryLocation: resolvedDeliveryLocation,
-          image: uploadedImages.length > 0 ? uploadedImages[0] : undefined
+          image: imagePayload
         });
         setIsSubmitting(false);
         onDone();
@@ -148,7 +167,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
         deliveryTime,
         takeOffLocation,
         deliveryLocation: resolvedDeliveryLocation,
-        image: uploadedImages.length > 0 ? uploadedImages[0] : undefined
+        image: imagePayload
       });
       setIsSubmitting(false);
       setShowSuccessModal(true);

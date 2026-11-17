@@ -109,16 +109,21 @@ export default function TradeView() {
         />
       )}
 
-      {isNew && (
-        <TradeCreateView
-          onCancel={() => navigate('/trade')}
-          onSubmit={async (payload) => {
-            await createTrade(payload);
-            await refreshMarket();
-          }}
-          onDone={() => navigate('/trade')}
-        />
-      )}
+      {isNew && (() => {
+        const reorderId = searchParams.get('reorder');
+        const reorderTrade = reorderId ? trades.find((t) => t.id === reorderId) || fetchedTrade : undefined;
+        return (
+          <TradeCreateView
+            initialTrade={reorderTrade ?? undefined}
+            onCancel={() => navigate('/trade')}
+            onSubmit={async (payload) => {
+              await createTrade(payload);
+              await refreshMarket();
+            }}
+            onDone={() => navigate('/trade')}
+          />
+        );
+      })()}
 
       {selectedTrade && isEdit && (
         <TradeCreateView
@@ -157,9 +162,9 @@ export default function TradeView() {
             }
           }}
           onVerifyPickupCode={async (id, code) => {
-            await verifyPickupCode(id, code);
-            if (!tradeFromContext) {
-              setFetchedTrade(await fetchTradeById(id));
+            const updated = await verifyPickupCode(id, code);
+            if (updated) {
+              setFetchedTrade(updated);
             }
           }}
           onUpdateStatus={async (id, status) => {

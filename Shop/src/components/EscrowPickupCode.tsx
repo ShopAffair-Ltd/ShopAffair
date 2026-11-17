@@ -96,8 +96,14 @@ export function SellerPickupCodeEntry({ onAttempt, attempts, locked, tradeAmount
 
     try {
       await onAttempt(input);
-    } catch (e) {
-      setError('Incorrect code. Ask the buyer to confirm and re-enter.');
+    } catch (err: unknown) {
+      const resp = (err as { response?: { status?: number; data?: { message?: string } } })?.response;
+      const msg = resp?.data?.message;
+      if (resp?.status === 409 || msg?.toLowerCase()?.includes('already')) {
+        window.location.reload();
+        return;
+      }
+      setError(msg || 'Incorrect code. Ask the buyer to confirm and re-enter.');
       setInput('');
     } finally {
       setChecking(false);
