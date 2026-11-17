@@ -475,7 +475,7 @@ export default function TradeDetailView({
                   <p className="text-[10px] font-sans text-purple-600 mt-0.5">Funds are awaiting seller processing or pickup code generation.</p>
                 </div>
                 <button
-                  onClick={() => navigate(`/trade/new?reorder=${trade.id}`)}
+                  onClick={handleOpenBuyAgain}
                   className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -516,7 +516,7 @@ export default function TradeDetailView({
                 <div className="space-y-3">
                   <BuyerPickupCodeDisplay code={trade.pickupCode || ''} />
                   <button
-                    onClick={() => navigate(`/trade/new?reorder=${trade.id}`)}
+                    onClick={handleOpenBuyAgain}
                     className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 font-sans font-bold text-xs rounded-lg border border-purple-200 cursor-pointer flex items-center justify-center gap-2 transition-colors"
                   >
                     <RefreshCw className="w-4 h-4" />

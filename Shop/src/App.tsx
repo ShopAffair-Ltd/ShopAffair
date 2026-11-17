@@ -78,6 +78,9 @@ function GlobalOverlays() {
         onAddAuditLog={addAuditLog}
         onNavigateToMyStore={() => navigate('/my-store')}
         activeUsername={activeProfile.username}
+        isSeller={activeProfile.role === 'seller'}
+        storePlan={activeProfile.storePlan}
+        isPro={activeProfile.isPro}
       />
       <DepositModal
         isOpen={depositOpen}

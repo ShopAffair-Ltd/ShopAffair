@@ -79,7 +79,7 @@ export default function HomeView() {
     .reduce((sum, t) => sum + t.amount + t.deliveryFee, 0);
 
   const handleOpenStoreUpgrade = () => {
-    if (user.isPro) {
+    if (user.role === 'seller' || user.isPro) {
       navigate('/my-store');
     } else {
       openStoreUpgrade();

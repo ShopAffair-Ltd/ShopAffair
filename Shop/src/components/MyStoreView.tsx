@@ -21,7 +21,9 @@ import {
   Check,
   Loader2,
   EyeOff,
-  Sparkles
+  Sparkles,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import { UserProfile, MarketProduct, TradeVisibility } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -43,6 +45,7 @@ import { fetchMyFollowers, StoreFollower } from '../services/followService';
 import { chatService } from '../services/chatService';
 import { userService } from '../services/userService';
 import { uploadImage } from '../services/UploadService';
+import { fetchSubscriptionStatus, SubscriptionStatus } from '../services/paymentService';
 
 function mapApiPost(apiPost: ApiWallPost, currentUserId: string): WallPost {
   return {
@@ -115,6 +118,14 @@ export default function MyStoreView() {
   const [storeProfileError, setStoreProfileError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null);
+
+  useEffect(() => {
+    if (!activeProfile) return;
+    fetchSubscriptionStatus()
+      .then(setSubStatus)
+      .catch(() => {});
+  }, [activeProfile?.id, activeProfile?.isPro, activeProfile?.storePlan]);
 
   useEffect(() => {
     if (!activeProfile) return;
@@ -731,39 +742,84 @@ export default function MyStoreView() {
           {activeTab === 'settings' && (
             <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 mt-3 space-y-3">
               {/* STORE PLAN & CAPACITY CARD (Prominently placed at top of Settings) */}
-              <div className="p-4 bg-gradient-to-br from-purple-50 via-indigo-50/50 to-purple-100/40 border border-purple-200/90 rounded-2xl shadow-xs space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-300">
-                      <Sparkles className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-slate-900">Store Capacity & Plan</span>
-                        <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white font-extrabold text-[9px] uppercase tracking-wider shrink-0">
-                          {activeProfile.isPro ? (activeProfile.storePlan || 'Pro Plan') : 'Free Plan'}
-                        </span>
+              {(() => {
+                const isPlanExpired = Boolean(
+                  subStatus?.isExpired ||
+                  (!activeProfile.isPro && (subStatus?.hasPaidBefore || Boolean(activeProfile.storePlan) || activeProfile.role === 'seller'))
+                );
+
+                if (isPlanExpired) {
+                  return (
+                    <div className="p-4 bg-gradient-to-br from-amber-50 via-orange-50/40 to-amber-100/30 border border-amber-300 rounded-2xl shadow-xs space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-amber-200">
+                            <AlertCircle className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-slate-900">Store Plan Expired</span>
+                              <span className="px-2 py-0.5 rounded-full bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shrink-0">
+                                Renewal Due
+                              </span>
+                            </div>
+                            <p className="text-[11px] font-sans text-amber-900 mt-0.5 font-medium">
+                              Your merchant subscription has expired. Renew your plan (₦3,500/mo) to restore member capacity and keep your items active on the Open Market.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={openStoreUpgrade}
+                          className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer flex items-center gap-1.5"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          Renew Plan
+                        </button>
                       </div>
-                      <p className="text-[11px] font-sans text-purple-900/80 mt-0.5 font-medium truncate">
-                        {activeProfile.isPro && activeProfile.storePlan !== 'TRIAL'
-                          ? 'Capacity: 1,000–50,000 members • Open Market enabled'
-                          : 'Member Capacity: 5 members (Trial) • Upgrade for 1,000–50,000 members'}
-                      </p>
+                      <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between text-[10px] text-amber-800/80 font-sans">
+                        <span>Starter Plan: ₦3,500/mo (or ₦10,500 for 3 months) • 1,000 member capacity</span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="p-4 bg-gradient-to-br from-purple-50 via-indigo-50/50 to-purple-100/40 border border-purple-200/90 rounded-2xl shadow-xs space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-300">
+                          <Sparkles className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-slate-900">Store Capacity & Plan</span>
+                            <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white font-extrabold text-[9px] uppercase tracking-wider shrink-0">
+                              {activeProfile.isPro ? (activeProfile.storePlan || 'Pro Plan') : 'Free Plan'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] font-sans text-purple-900/80 mt-0.5 font-medium truncate">
+                            {activeProfile.isPro && activeProfile.storePlan !== 'TRIAL'
+                              ? 'Capacity: 1,000–50,000 members • Open Market enabled'
+                              : 'Member Capacity: 5 members (Trial) • Upgrade for 1,000–50,000 members'}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={openStoreUpgrade}
+                        className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer flex items-center gap-1.5"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Upgrade / Renew
+                      </button>
+                    </div>
+                    <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-[10px] text-slate-500 font-sans">
+                      <span>Starter (₦3,500/mo), Trial (₦499.9/mo • 3 mos min), Growth, or Enterprise.</span>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={openStoreUpgrade}
-                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer flex items-center gap-1.5"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Upgrade Plan
-                  </button>
-                </div>
-                <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-[10px] text-slate-500 font-sans">
-                  <span>Starter (₦3,500/mo), Trial (₦499.9/mo • 3 mos min), Growth, or Enterprise.</span>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Store Profile & Branding */}
               <form onSubmit={handleSaveStoreProfile} className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 space-y-3">

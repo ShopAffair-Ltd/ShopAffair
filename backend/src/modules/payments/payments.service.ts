@@ -533,6 +533,16 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
     throw new ApiError(403, `Only sellers can subscribe to the ${plan.name}`);
   }
 
+  // Trial Plan is for initial store activation; returning stores renew on Starter or above
+  if (planId === 'TRIAL') {
+    const priorSub = await prisma.subscription.findFirst({
+      where: { userId }
+    });
+    if (priorSub) {
+      throw new ApiError(400, 'Trial plan is only for first-time store activation. Please renew with the Starter Plan.');
+    }
+  }
+
   // Enforce 3-month minimum for Trial Plan
   const targetMonths = planId === 'TRIAL' ? Math.max(3, months) : Math.max(1, months);
   const { finalPrice, durationDays, months: validMonths } = calculatePlanPriceAndDuration(planId, targetMonths);
@@ -643,18 +653,30 @@ export const subscribeToSellerPro = async (userId: string) => subscribeToStorePl
 export const getSubscriptionStatus = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { isPro: true, storePlan: true }
+    select: { isPro: true, storePlan: true, role: true }
   });
   if (!user) {
     throw new ApiError(404, 'User not found');
   }
 
   const latest = await prisma.subscription.findFirst({
-    where: { userId, active: true },
+    where: { userId },
     orderBy: { createdAt: 'desc' }
   });
 
-  return { isPro: user.isPro, storePlan: user.storePlan, subscription: latest };
+  const hasPaidBefore = Boolean(latest) || user.role === 'seller' || Boolean(user.storePlan);
+  const isExpired = Boolean(
+    (latest && latest.expiresAt && latest.expiresAt.getTime() <= Date.now()) ||
+    (!user.isPro && (hasPaidBefore || user.role === 'seller'))
+  );
+
+  return {
+    isPro: user.isPro,
+    storePlan: user.storePlan || (latest ? (latest.plan.split('_')[0] as StorePlanId) : null),
+    hasPaidBefore,
+    isExpired,
+    subscription: latest
+  };
 };
 
 export const listAllWithdrawals = async (page: number, limit: number) => {

@@ -179,6 +179,8 @@ export const fetchStorePlans = async (): Promise<StorePlan[]> => {
 export interface SubscriptionStatus {
   isPro: boolean;
   storePlan: StorePlanId | null;
+  hasPaidBefore?: boolean;
+  isExpired?: boolean;
   subscription: {
     id: string;
     plan: string;

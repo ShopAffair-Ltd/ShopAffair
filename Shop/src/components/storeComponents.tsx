@@ -166,8 +166,7 @@ export function WallPostComponent({
                 const canDeleteComment = Boolean(
                   onDeleteComment &&
                   currentUserId &&
-                  c.authorId &&
-                  c.authorId === currentUserId
+                  ((c.authorId && c.authorId === currentUserId) || (c.isSeller && canManage))
                 );
 
                 return (

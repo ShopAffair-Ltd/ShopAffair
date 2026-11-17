@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShieldCheck, Loader2, Sparkles, Check, Crown, Zap, Store } from 'lucide-react';
-import { StorePlanId } from '../../services/paymentService';
+import { X, ShieldCheck, Loader2, Sparkles, Check, Crown, Zap, Store, RefreshCw, AlertCircle } from 'lucide-react';
+import { StorePlanId, fetchSubscriptionStatus, SubscriptionStatus } from '../../services/paymentService';
 
 interface StoreUpgradeModalProps {
   isOpen: boolean;
@@ -14,6 +14,9 @@ interface StoreUpgradeModalProps {
   onAddAuditLog: (type: string, message: string, actor: string) => void;
   onNavigateToMyStore: () => void;
   activeUsername: string;
+  isSeller?: boolean;
+  storePlan?: StorePlanId | null;
+  isPro?: boolean;
 }
 
 interface PlanInfo {
@@ -113,9 +116,32 @@ export default function StoreUpgradeModal({
   onActivatePlan,
   onAddAuditLog,
   onNavigateToMyStore,
-  activeUsername
+  activeUsername,
+  isSeller,
+  storePlan,
+  isPro
 }: StoreUpgradeModalProps) {
   const [selectedMonths, setSelectedMonths] = useState<number>(1);
+  const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null);
+  const [trialNotice, setTrialNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !activeUsername || activeUsername === 'guest') return;
+    setTrialNotice(null);
+    fetchSubscriptionStatus()
+      .then((status) => {
+        setSubStatus(status);
+      })
+      .catch(() => {});
+  }, [isOpen, activeUsername]);
+
+  const isExistingMerchant = Boolean(
+    isSeller ||
+    isPro ||
+    storePlan ||
+    subStatus?.hasPaidBefore ||
+    subStatus?.isExpired
+  );
 
   const calculateTotalPrice = (planId: StorePlanId, months: number): { total: number; validMonths: number } => {
     const plan = PLAN_DETAILS[planId];
@@ -126,6 +152,11 @@ export default function StoreUpgradeModal({
   };
 
   const handleChoosePlan = (planId: StorePlanId) => {
+    if (planId === 'TRIAL' && isExistingMerchant) {
+      setTrialNotice('The Trial Plan is strictly for first-time store activations. Returning merchants renew on Starter Plan or above.');
+      return;
+    }
+    setTrialNotice(null);
     const plan = PLAN_DETAILS[planId];
     if (selectedMonths < plan.minMonths) {
       setSelectedMonths(plan.minMonths);
@@ -141,7 +172,7 @@ export default function StoreUpgradeModal({
     if (success) {
       onAddAuditLog(
         `SUBSCRIBE_${selectedStorePlan}`,
-        `Activated ${plan.name} for ${validMonths} month(s).`,
+        `${isExistingMerchant ? 'Renewed' : 'Activated'} ${plan.name} for ${validMonths} month(s).`,
         activeUsername
       );
       onNavigateToMyStore();
@@ -177,15 +208,26 @@ export default function StoreUpgradeModal({
                 >
                   <div className="text-center space-y-1 pt-1">
                     <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 text-2xl flex items-center justify-center mx-auto shadow-sm">
-                      🏪
+                      {isExistingMerchant ? '🔄' : '🏪'}
                     </div>
                     <h3 className="text-base sm:text-lg font-display font-bold text-slate-900">
-                      Open a Merchant Store
+                      {isExistingMerchant
+                        ? (subStatus?.isExpired ? 'Renew Store Plan' : 'Renew / Upgrade Store Plan')
+                        : 'Open a Merchant Store'}
                     </h3>
                     <p className="text-[11px] font-sans text-slate-500">
-                      Choose a plan to activate your store dashboard, catalogue, and store wall.
+                      {isExistingMerchant
+                        ? 'Renew your subscription to maintain your catalogue, member capacity, and Open Market visibility.'
+                        : 'Choose a plan to activate your store dashboard, catalogue, and store wall.'}
                     </p>
                   </div>
+
+                  {trialNotice && (
+                    <div className="p-3 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-[11px] font-sans flex items-start gap-2 text-left">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <span>{trialNotice}</span>
+                    </div>
+                  )}
 
                   {/* Billing Duration Selector */}
                   <div>
@@ -218,8 +260,14 @@ export default function StoreUpgradeModal({
                     {(['TRIAL', 'STARTER', 'GROWTH', 'ENTERPRISE'] as StorePlanId[]).map((planId) => {
                       const plan = PLAN_DETAILS[planId];
                       const { total, validMonths } = calculateTotalPrice(planId, selectedMonths);
-                      const isPopular = plan.badge === 'Recommended' || plan.badge === 'Popular';
                       const isTrial = planId === 'TRIAL';
+                      const isStarter = planId === 'STARTER';
+                      const badgeText = isTrial && isExistingMerchant
+                        ? 'First-Time Stores Only'
+                        : isStarter && isExistingMerchant
+                        ? 'Renew Your Store (Recommended)'
+                        : plan.badge;
+                      const isPopular = (isStarter && isExistingMerchant) || plan.badge === 'Recommended';
 
                       return (
                         <button
@@ -227,18 +275,24 @@ export default function StoreUpgradeModal({
                           type="button"
                           onClick={() => handleChoosePlan(planId)}
                           className={`w-full p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
-                            isPopular
+                            isTrial && isExistingMerchant
+                              ? 'border-slate-200 bg-slate-50/60 opacity-80 hover:border-amber-300'
+                              : isPopular
                               ? 'border-purple-300 bg-purple-50/40 hover:bg-purple-50 hover:border-purple-400 shadow-xs ring-1 ring-purple-200'
                               : 'border-slate-200 bg-white hover:border-purple-200 hover:bg-slate-50/70'
                           }`}
                         >
-                          {plan.badge && (
+                          {badgeText && (
                             <span
                               className={`absolute top-2.5 right-3 text-[9px] font-sans font-bold px-2 py-0.5 rounded-full ${
-                                isPopular ? 'bg-purple-600 text-white' : 'bg-slate-800 text-white'
+                                isTrial && isExistingMerchant
+                                  ? 'bg-slate-200 text-slate-700'
+                                  : isPopular
+                                  ? 'bg-purple-600 text-white'
+                                  : 'bg-slate-800 text-white'
                               }`}
                             >
-                              {plan.badge}
+                              {badgeText}
                             </span>
                           )}
 
@@ -312,10 +366,14 @@ export default function StoreUpgradeModal({
 
                   <div>
                     <h3 className="text-base font-display font-bold text-slate-900">
-                      Confirm {PLAN_DETAILS[selectedStorePlan].name}
+                      {isExistingMerchant
+                        ? `Confirm Renewal: ${PLAN_DETAILS[selectedStorePlan].name}`
+                        : `Confirm ${PLAN_DETAILS[selectedStorePlan].name}`}
                     </h3>
                     <p className="text-xs font-sans text-slate-500 mt-0.5">
-                      Choose duration & confirm activation from your wallet balance.
+                      {isExistingMerchant
+                        ? 'Confirm subscription renewal from your wallet balance.'
+                        : 'Choose duration & confirm activation from your wallet balance.'}
                     </p>
                   </div>
 
@@ -421,7 +479,9 @@ export default function StoreUpgradeModal({
                       className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-sans font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
                     >
                       {activating && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                      {activating ? 'Activating...' : 'Pay & Activate'}
+                      {activating
+                        ? (isExistingMerchant ? 'Renewing...' : 'Activating...')
+                        : (isExistingMerchant ? 'Pay & Renew Plan' : 'Pay & Activate')}
                     </button>
                   </div>
                 </motion.div>
