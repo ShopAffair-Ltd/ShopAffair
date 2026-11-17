@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowLeft, Image as ImageIcon, Trash2, ShieldCheck, MapPin, Truck, Sparkles, Upload, X, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Trash2, ShieldCheck, MapPin, Truck, Sparkles, Upload, X, CheckCircle2, Lock } from 'lucide-react';
 import { TradeType, TradeCategory, TradeVisibility, TradeItem } from '../types';
 import * as tradeService from '../services/TradeService';
 import { uploadImage } from '../services/UploadService';
+import { useAuth } from '../context/AuthContext';
+import SellerProRequiredModal from './community/SellerProRequiredModal';
 
 interface TradeCreateViewProps {
   onCancel: () => void;
@@ -14,11 +17,16 @@ interface TradeCreateViewProps {
 }
 
 export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTrade, onEditSubmit }: TradeCreateViewProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const isSellerPro = Boolean(user?.isPro);
   const isEditMode = !!initialTrade;
 
   const [tradeType, setTradeType] = useState<TradeType>(initialTrade?.type ?? TradeType.SUPPLY);
   const [tradeCategory, setTradeCategory] = useState<TradeCategory>(initialTrade?.category ?? TradeCategory.PHYSICAL);
-  const [visibility, setVisibility] = useState<TradeVisibility>(initialTrade?.visibility ?? TradeVisibility.MARKET);
+  const defaultVisibility = initialTrade?.visibility ?? (isSellerPro ? TradeVisibility.MARKET : TradeVisibility.STORE);
+  const [visibility, setVisibility] = useState<TradeVisibility>(defaultVisibility);
+  const [showProRequiredModal, setShowProRequiredModal] = useState(false);
   const [title, setTitle] = useState(initialTrade?.title ?? '');
   const [description, setDescription] = useState(initialTrade?.description ?? '');
   const [amount, setAmount] = useState(initialTrade ? String(initialTrade.amount) : '');
@@ -115,6 +123,11 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
     const hasIncompleteSpec = specs.some((item) => !item.key.trim() || !item.value.trim());
     if (hasIncompleteSpec) {
       setSubmitError('Please fill in all spec fields or remove unused spec rows.');
+      return;
+    }
+
+    if (visibility === TradeVisibility.MARKET && !isSellerPro) {
+      setShowProRequiredModal(true);
       return;
     }
 
@@ -495,7 +508,8 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               {
                 id: TradeVisibility.MARKET,
                 title: 'Open Market',
-                desc: 'Anyone browsing the market can see and trade this'
+                desc: 'Anyone browsing the market can see and trade this',
+                requiresPro: true
               },
               {
                 id: TradeVisibility.STORE,
@@ -509,14 +523,23 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               }
             ].map((option) => {
               const isSelected = visibility === option.id;
+              const isLocked = option.requiresPro && !isSellerPro;
               return (
                 <div
                   key={option.id}
-                  onClick={() => setVisibility(option.id)}
+                  onClick={() => {
+                    if (isLocked) {
+                      setShowProRequiredModal(true);
+                      return;
+                    }
+                    setVisibility(option.id);
+                  }}
                   className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
                     isSelected
                       ? 'border-purple-600 bg-purple-50/40 shadow-xs'
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                      : isLocked
+                        ? 'border-slate-200 bg-slate-50/70 hover:border-slate-300'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
                   }`}
                 >
                   <div
@@ -527,9 +550,17 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
                     {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
                   <div className="flex-1">
-                    <p className={`text-xs font-sans font-bold ${isSelected ? 'text-purple-900' : 'text-slate-800'}`}>
-                      {option.title}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-xs font-sans font-bold ${isSelected ? 'text-purple-900' : 'text-slate-800'}`}>
+                        {option.title}
+                      </p>
+                      {isLocked && (
+                        <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase">
+                          <Lock className="w-2.5 h-2.5" />
+                          Store Plan Required
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[10px] font-sans text-slate-400">{option.desc}</p>
                   </div>
                 </div>
@@ -592,6 +623,16 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
           </motion.div>
         </div>
       )}
+
+      <SellerProRequiredModal
+        isOpen={showProRequiredModal}
+        onClose={() => setShowProRequiredModal(false)}
+        reason="not-pro"
+        onSubscribe={() => {
+          setShowProRequiredModal(false);
+          navigate('/account?tab=subscription');
+        }}
+      />
     </form>
   );
 }

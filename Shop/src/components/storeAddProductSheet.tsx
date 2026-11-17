@@ -6,10 +6,12 @@ import {
   ChevronDown,
   Globe,
   Store,
-  EyeOff
+  EyeOff,
+  Lock
 } from 'lucide-react';
 import { MarketProduct } from '../types';
 import { CATEGORIES, CONDITIONS } from './storeConstants';
+import { useAuth } from '../context/AuthContext';
 
 interface AddProductSheetProps {
   onClose: () => void;
@@ -36,9 +38,14 @@ export default function AddProductSheet({
   const [size, setSize] = useState(editingProduct?.specs?.Size || '');
   const [color, setColor] = useState(editingProduct?.specs?.Color || '');
   const [qty, setQty] = useState(editingProduct?.specs?.Qty || '1');
+  const { user } = useAuth();
+  const isPro = Boolean(user?.isPro);
+
   const [deliveryFee, setDeliveryFee] = useState('');
   const [takeOffLocation, setTakeOffLocation] = useState('');
-  const [publishOpenMarket, setPublishOpenMarket] = useState(editingProduct ? editingProduct.visibility !== 'PRIVATE' : !keepPrivate);
+  const [publishOpenMarket, setPublishOpenMarket] = useState(
+    isPro ? (editingProduct ? editingProduct.visibility !== 'PRIVATE' : !keepPrivate) : false
+  );
   const [publishMyStore, setPublishMyStore] = useState(editingProduct ? editingProduct.visibility !== 'PRIVATE' : !keepPrivate);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [conditionOpen, setConditionOpen] = useState(false);
@@ -232,11 +239,15 @@ export default function AddProductSheet({
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Publish to</label>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 p-2.5 border border-slate-200 rounded-xl cursor-pointer">
+              <label className={`flex items-center gap-2 p-2.5 border rounded-xl transition-all ${
+                isPro ? 'border-slate-200 cursor-pointer' : 'border-slate-200 bg-slate-50 opacity-70 cursor-not-allowed'
+              }`}>
                 <input
                   type="checkbox"
+                  disabled={!isPro}
                   checked={publishOpenMarket}
                   onChange={(e) => {
+                    if (!isPro) return;
                     const next = e.target.checked;
                     setPublishOpenMarket(next);
                     if (next) setKeepPrivate(false);
@@ -246,6 +257,12 @@ export default function AddProductSheet({
                 />
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
                 <span className="text-xs text-slate-700">Open Market</span>
+                {!isPro && (
+                  <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase ml-auto">
+                    <Lock className="w-2.5 h-2.5" />
+                    Store Plan Required
+                  </span>
+                )}
               </label>
               <label className="flex items-center gap-2 p-2.5 border border-slate-200 rounded-xl cursor-pointer">
                 <input

@@ -20,12 +20,14 @@ import {
   Camera,
   Check,
   Loader2,
-  EyeOff
+  EyeOff,
+  Sparkles
 } from 'lucide-react';
 import { UserProfile, MarketProduct, TradeVisibility } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useTrades } from '../context/TradeContext';
 import { useMarket } from '../context/MarketContext';
+import { useStore } from '../context/StoreContext';
 import QrShareModal from './modals/QrShareModal';
 import {
   StoreTab,
@@ -64,6 +66,7 @@ export default function MyStoreView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user: activeProfile, updateUser } = useAuth();
+  const { openStoreUpgrade } = useStore();
   const { deleteTrade, editTrade } = useTrades();
   const { products, addProduct, editProduct, deleteProduct, refresh: refreshMarket } = useMarket();
   const onBack = () => navigate('/');
@@ -501,9 +504,14 @@ export default function MyStoreView() {
                 <span>{activeProfile.location || 'Nigeria'}</span>
                 <span className="w-1 h-1 rounded-full bg-slate-300" />
                 <span>{activeProfile.storeCategory || 'Electronics'}</span>
-                <span className="px-2 py-0.5 rounded-full bg-orange-50 text-orange-500 border border-orange-100 font-bold flex items-center gap-1 text-[10px]">
-                  {activeProfile.isPro ? 'Pro Plan' : 'Free Plan'}
-                </span>
+                <button
+                  type="button"
+                  onClick={openStoreUpgrade}
+                  className="px-2.5 py-0.5 rounded-full bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 font-bold flex items-center gap-1 text-[10px] cursor-pointer transition-colors active:scale-95"
+                >
+                  <Sparkles className="w-2.5 h-2.5 text-orange-500" />
+                  {activeProfile.isPro ? 'Pro Plan' : 'Free Plan'} • Upgrade
+                </button>
               </div>
 
               <p className="text-[12px] font-sans text-slate-500 mt-2 leading-relaxed">
@@ -540,19 +548,32 @@ export default function MyStoreView() {
           {/* STORE WALL */}
           {activeTab === 'wall' && (
             <motion.div key="wall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 mt-3">
-              <div className="flex items-center gap-2.5 mb-4">
-                <Avatar profile={activeProfile} size={36} />
-                <input
+              <div className="flex items-end gap-2.5 mb-4">
+                <div className="mb-1">
+                  <Avatar profile={activeProfile} size={36} />
+                </div>
+                <textarea
+                  rows={1}
                   value={postDraft}
-                  onChange={(e) => setPostDraft(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendPost()}
+                  onChange={(e) => {
+                    setPostDraft(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                  }}
+                  onKeyDown={(e) => {
+                    // Enter inserts newline by default! Ctrl+Enter or Cmd+Enter submits
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                      e.preventDefault();
+                      handleSendPost();
+                    }
+                  }}
                   placeholder="Share an update with your customers…"
-                  className="flex-1 text-[12px] font-sans px-3.5 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400"
+                  className="flex-1 text-[12px] font-sans px-3.5 py-2.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400 resize-none max-h-28 overflow-y-auto leading-relaxed"
                 />
                 <button
                   onClick={handleSendPost}
                   disabled={!postDraft.trim()}
-                  className="w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white flex items-center justify-center shrink-0 cursor-pointer transition-colors outline-none shadow-sm shadow-orange-200 disabled:shadow-none"
+                  className="w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white flex items-center justify-center shrink-0 cursor-pointer transition-colors outline-none shadow-sm shadow-orange-200 disabled:shadow-none mb-0.5"
                 >
                   <Send className="w-4 h-4 -ml-0.5" />
                 </button>
@@ -809,6 +830,35 @@ export default function MyStoreView() {
                   {storeProfileSaving ? 'Saving Store Settings...' : 'Save Store Profile'}
                 </button>
               </form>
+
+              {/* STORE PLAN CARD */}
+              <div className="p-4 bg-gradient-to-br from-purple-50/70 to-indigo-50/40 border border-purple-100 rounded-2xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-200">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900">Store Plan</span>
+                      <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-extrabold text-[9px] uppercase">
+                        {activeProfile.isPro ? (activeProfile.storePlan || 'Pro Plan') : 'Free Plan'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {activeProfile.isPro
+                        ? 'Active store subscription • Open Market enabled'
+                        : 'Upgrade to publish items directly to the Open Market'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={openStoreUpgrade}
+                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
+                >
+                  {activeProfile.isPro ? 'Manage Plan' : 'Upgrade Plan'}
+                </button>
+              </div>
 
               <button
                 onClick={openAddProduct}

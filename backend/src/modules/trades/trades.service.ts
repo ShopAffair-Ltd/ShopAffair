@@ -9,6 +9,19 @@ import type { CreateTradeInput, ListTradesQuery } from './trades.validation';
 const generatePickupCode = () => crypto.randomInt(100000, 999999).toString();
 
 export const createTrade = async (creatorId: string, input: CreateTradeInput) => {
+  const creator = await prisma.user.findUnique({
+    where: { id: creatorId },
+    select: { id: true, isPro: true }
+  });
+  if (!creator) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  // Trades can only be posted to the Open Market if creator has an active Store Plan (Seller Pro)
+  if (input.visibility === 'MARKET' && !creator.isPro) {
+    throw new ApiError(403, 'Posting trades to the Open Market requires an active Store Plan subscription.');
+  }
+
   return prisma.trade.create({
     data: {
       title: input.title,
@@ -29,7 +42,7 @@ export const createTrade = async (creatorId: string, input: CreateTradeInput) =>
       status: 'PENDING'
     },
     include: {
-      creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+      creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
       buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
     }
   });
@@ -68,9 +81,15 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
       where.visibility = { in: ['MARKET', 'STORE'] };
     }
   } else if (userId) {
-    where.OR = [{ visibility: 'MARKET' }, { creatorId: userId }, { buyerId: userId }];
+    // Only trades whose creator has an active store plan appear on Open Market
+    where.OR = [
+      { visibility: 'MARKET', creator: { isPro: true } },
+      { creatorId: userId },
+      { buyerId: userId }
+    ];
   } else {
     where.visibility = 'MARKET';
+    where.creator = { isPro: true };
   }
 
   const [items, total] = await Promise.all([
@@ -80,7 +99,7 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
         buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
       }
     }),
@@ -106,6 +125,16 @@ export const editTrade = async (tradeId: string, userId: string, input: Partial<
     throw new ApiError(409, 'This trade can no longer be edited because it has already been accepted by a buyer');
   }
 
+  if (input.visibility === 'MARKET') {
+    const creator = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, isPro: true }
+    });
+    if (!creator?.isPro) {
+      throw new ApiError(403, 'Posting trades to the Open Market requires an active Store Plan subscription.');
+    }
+  }
+
   return prisma.trade.update({
     where: { id: tradeId },
     data: {
@@ -123,7 +152,7 @@ export const editTrade = async (tradeId: string, userId: string, input: Partial<
       description: input.description
     },
     include: {
-      creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+      creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
       buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
     }
   });
@@ -205,7 +234,7 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
     const trade = await tx.trade.findUnique({
       where: { id: tradeId },
       include: {
-        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
         buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
       }
     });
@@ -288,7 +317,7 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
           pickupAttempts: 0
         },
         include: {
-          creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+          creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
           buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
         }
       });
@@ -327,7 +356,7 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
         pickupAttempts: 0
       },
       include: {
-        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
         buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
       }
     });
@@ -417,7 +446,7 @@ export const buyAgainTrade = async (tradeId: string, buyerId: string, deliveryLo
         pickupAttempts: 0
       },
       include: {
-        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
         buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
       }
     });
@@ -554,7 +583,7 @@ export const verifyPickupCode = async (tradeId: string, sellerId: string, code: 
       where: { id: tradeId },
       data: { status: 'COMPLETED' },
       include: {
-        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        creator: { select: { id: true, username: true, name: true, avatarColor: true, isPro: true } },
         buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
       }
     });

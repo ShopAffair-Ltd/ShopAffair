@@ -4,6 +4,15 @@ import { ApiError } from '../../utils/ApiError';
 import type { CreateProductInput, UpdateProductInput, ListProductsQuery } from './products.validation';
 
 export const createProduct = async (sellerId: string, input: CreateProductInput) => {
+  const seller = await prisma.user.findUnique({
+    where: { id: sellerId },
+    select: { id: true, isPro: true }
+  });
+  if (!seller) {
+    throw new ApiError(404, 'Seller not found');
+  }
+  const visibility = input.visibility === 'MARKET' && !seller.isPro ? 'PRIVATE' : (input.visibility || 'MARKET');
+
   return prisma.product.create({
     data: {
       title: input.title,
@@ -14,7 +23,7 @@ export const createProduct = async (sellerId: string, input: CreateProductInput)
       location: input.location,
       specs: input.specs as Prisma.InputJsonValue | undefined,
       description: input.description,
-      ...(input.visibility ? { visibility: input.visibility } : {}),
+      visibility,
       sellerId
     },
     include: {
@@ -31,8 +40,8 @@ export const listProducts = async (query: ListProductsQuery, userId: string | nu
   const where: Prisma.ProductWhereInput = {
     isListed: true,
     ...(userId
-      ? { OR: [{ visibility: 'MARKET' }, { sellerId: userId }] }
-      : { visibility: 'MARKET' }),
+      ? { OR: [{ visibility: 'MARKET', seller: { isPro: true } }, { sellerId: userId }] }
+      : { visibility: 'MARKET', seller: { isPro: true } }),
     ...(category ? { category } : {}),
     ...(condition ? { condition } : {}),
     ...(sellerId ? { sellerId } : {}),

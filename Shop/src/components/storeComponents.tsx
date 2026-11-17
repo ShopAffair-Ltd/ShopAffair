@@ -203,25 +203,35 @@ export function WallPostComponent({
                           </button>
                         )}
                       </div>
-                      <p className="text-[11px] font-sans text-slate-600 mt-0.5 leading-snug break-words">{c.content}</p>
+                      <p className="text-[11px] font-sans text-slate-600 mt-0.5 leading-snug break-words whitespace-pre-wrap">{c.content}</p>
                     </div>
                   </div>
                 );
               })}
 
-              <div className="flex items-center gap-2 pt-0.5">
-                <input
+              <div className="flex items-end gap-2 pt-0.5">
+                <textarea
+                  rows={1}
                   value={commentDrafts[post.id] || ''}
-                  onChange={(e) =>
-                    setCommentDrafts({ ...commentDrafts, [post.id]: e.target.value })
-                  }
-                  onKeyDown={(e) => e.key === 'Enter' && onSendComment(post.id)}
+                  onChange={(e) => {
+                    setCommentDrafts({ ...commentDrafts, [post.id]: e.target.value });
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 90)}px`;
+                  }}
+                  onKeyDown={(e) => {
+                    // Enter inserts newline by default! Ctrl+Enter or Cmd+Enter submits
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                      e.preventDefault();
+                      onSendComment(post.id);
+                    }
+                  }}
                   placeholder={canManage ? "Reply as seller…" : "Write a comment…"}
+                  className="flex-1 text-[11px] font-sans px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-purple-300 focus:bg-white transition-colors placeholder:text-slate-400 resize-none max-h-24 overflow-y-auto leading-relaxed"
                 />
                 <button
                   onClick={() => onSendComment(post.id)}
                   disabled={!(commentDrafts[post.id] || '').trim()}
-                  className="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white flex items-center justify-center shrink-0 cursor-pointer transition-colors outline-none"
+                  className="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 text-white flex items-center justify-center shrink-0 cursor-pointer transition-colors outline-none mb-0.5"
                 >
                   <Send className="w-3.5 h-3.5 -ml-0.5" />
                 </button>

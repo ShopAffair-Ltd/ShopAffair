@@ -51,4 +51,5 @@ export interface TradeItem {
   pickupCode?: string;
   pickupAttempts?: number;
   buyerUsername?: string;
+  creatorIsPro?: boolean;
 }

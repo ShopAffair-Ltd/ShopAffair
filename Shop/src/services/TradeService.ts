@@ -25,6 +25,7 @@ interface RawParticipant {
   id: string;
   username: string;
   name: string;
+  isPro?: boolean;
 }
 
 interface RawTrade {
@@ -77,7 +78,8 @@ const mapToTradeItem = (raw: RawTrade): TradeItem => ({
   updatedAt: raw.updatedAt,
   pickupCode: raw.pickupCode ?? undefined,
   pickupAttempts: raw.pickupAttempts,
-  buyerUsername: raw.buyer?.username
+  buyerUsername: raw.buyer?.username,
+  creatorIsPro: raw.creator?.isPro
 });
 
 // Centralized so every function below strips consistently. A TradeItem's
@@ -230,6 +232,9 @@ const mapConditionToMarketLabel = (condition: string | undefined): 'New' | 'Like
 
 export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null => {
   if (trade.status !== EscrowStatus.PENDING) return null;
+  // Trades can only appear on Open Market if visibility is MARKET and creator has paid for store
+  if (trade.visibility !== TradeVisibility.MARKET) return null;
+  if (trade.creatorIsPro === false) return null;
 
   return {
     id: `trade:${trade.id}`,

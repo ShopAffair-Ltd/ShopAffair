@@ -73,7 +73,14 @@ export default function ChatWindow({
   enquiryTrade
 }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!messageText && textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  }, [messageText]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -573,24 +580,20 @@ export default function ChatWindow({
         // on-screen nav bar - env() falls back to 0 on devices that don't
         // need it.
         style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}
-        className="shrink-0 p-3 bg-white border-t border-slate-100 flex items-center gap-2"
+        className="shrink-0 p-3 bg-white border-t border-slate-100 flex items-end gap-2"
       >
-        <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2.5">
+        <div className="flex-1 flex items-end gap-2 bg-white border border-slate-200 rounded-2xl px-3.5 py-2 transition-all focus-within:border-purple-600 focus-within:ring-1 focus-within:ring-purple-600/20">
           <button
             type="button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             aria-label="Emoji"
-            className="shrink-0"
+            className="shrink-0 mb-1 text-slate-400 hover:text-slate-600 transition-colors"
           >
-            <Smile className="w-5 h-5 text-slate-400" />
+            <Smile className="w-5 h-5" />
           </button>
-          <input
-            type="text"
-            // Tells Safari explicitly this is a plain chat message field,
-            // not a credential - without this, iOS Safari can misjudge a
-            // plain text input and attach its password/autofill accessory
-            // bar above the keyboard, which eats extra vertical space and
-            // pushes the rest of the layout further off-screen.
+          <textarea
+            ref={textareaRef}
+            rows={1}
             name="chat-message"
             autoComplete="off"
             autoCorrect="on"
@@ -599,24 +602,34 @@ export default function ChatWindow({
             value={messageText}
             onChange={(e) => {
               setMessageText(e.target.value);
+              e.target.style.height = 'auto';
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 140)}px`;
               if (e.target.value.length > 0) {
                 onTypingStart?.();
               } else {
                 onTypingStop?.();
               }
             }}
+            onKeyDown={(e) => {
+              // Pressing Enter will create a new line (standard textarea behavior).
+              // Ctrl+Enter or Cmd+Enter allows quick desktop sending if desired.
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                onSend(e as unknown as React.FormEvent);
+              }
+            }}
             onFocus={onTypingStart}
             onBlur={onTypingStop}
             placeholder={isAIChat ? "Ask Micha AI anything..." : "Message"}
-            className="flex-1 bg-transparent font-sans text-sm text-slate-800 placeholder-slate-400 focus:outline-none min-w-0"
+            className="flex-1 bg-transparent font-sans text-sm text-slate-800 placeholder-slate-400 focus:outline-none min-w-0 resize-none max-h-32 overflow-y-auto py-1 leading-relaxed"
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             aria-label="Attach file"
-            className="shrink-0"
+            className="shrink-0 mb-1 text-slate-400 hover:text-slate-600 transition-colors"
           >
-            <Paperclip className="w-4.5 h-4.5 text-slate-400" />
+            <Paperclip className="w-4.5 h-4.5" />
           </button>
           <input
             ref={fileInputRef}
@@ -628,7 +641,7 @@ export default function ChatWindow({
         </div>
         <button
           type="submit"
-          className={`p-3 rounded-full shadow-sm transition-colors shrink-0 ${isAIChat
+          className={`p-3 rounded-full shadow-sm transition-colors shrink-0 mb-0.5 ${isAIChat
             ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
             : 'bg-purple-600 hover:bg-purple-700 text-white'
             }`}

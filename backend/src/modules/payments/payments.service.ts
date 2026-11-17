@@ -491,7 +491,18 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
   if (user.role !== 'seller') {
     throw new ApiError(403, `Only sellers can subscribe to the ${plan.name}`);
   }
-  if (user.storePlan === plan.id) {
+
+  const activeSub = await prisma.subscription.findFirst({
+    where: { userId, active: true },
+    orderBy: { createdAt: 'desc' }
+  });
+  const hasActivePlan = Boolean(
+    activeSub &&
+    activeSub.expiresAt &&
+    activeSub.expiresAt.getTime() > Date.now()
+  );
+
+  if (user.storePlan === plan.id && hasActivePlan) {
     throw new ApiError(409, `You already have an active ${plan.name} subscription`);
   }
 
@@ -508,7 +519,17 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
 
   const subscription = await prisma.$transaction(async (tx) => {
     const fresh = await tx.user.findUnique({ where: { id: userId } });
-    if (!fresh || fresh.storePlan === plan.id) {
+    const txActiveSub = await tx.subscription.findFirst({
+      where: { userId, active: true },
+      orderBy: { createdAt: 'desc' }
+    });
+    const txHasActivePlan = Boolean(
+      txActiveSub &&
+      txActiveSub.expiresAt &&
+      txActiveSub.expiresAt.getTime() > Date.now()
+    );
+
+    if (!fresh || (fresh.storePlan === plan.id && txHasActivePlan)) {
       throw new ApiError(409, `You already have an active ${plan.name} subscription`);
     }
 
@@ -550,6 +571,11 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
     await tx.product.updateMany({
       where: { sellerId: userId },
       data: { isListed: true }
+    });
+
+    await tx.subscription.updateMany({
+      where: { userId, active: true },
+      data: { active: false }
     });
 
     return tx.subscription.create({
