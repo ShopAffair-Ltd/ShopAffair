@@ -361,6 +361,110 @@ export const fundTrade = async (tradeId: string, buyerId: string) => {
   return updatedTrade;
 };
 
+export const buyAgainTrade = async (tradeId: string, buyerId: string, deliveryLocation?: string) => {
+  const newTrade = await prisma.$transaction(async (tx) => {
+    const trade = await tx.trade.findUnique({
+      where: { id: tradeId },
+      include: {
+        creator: { select: { id: true, username: true, name: true, avatarColor: true } }
+      }
+    });
+
+    if (!trade) {
+      throw new ApiError(404, 'Trade not found');
+    }
+    if (trade.creatorId === buyerId) {
+      throw new ApiError(400, 'You cannot buy your own trade listing');
+    }
+
+    const totalDue = new Prisma.Decimal(trade.amount).plus(trade.deliveryFee);
+
+    const buyer = await tx.user.findUnique({ where: { id: buyerId } });
+    if (!buyer) {
+      throw new ApiError(404, 'Buyer not found');
+    }
+    if (new Prisma.Decimal(buyer.walletBalance).lessThan(totalDue)) {
+      throw new ApiError(402, 'Insufficient wallet balance. Please fund your wallet first.');
+    }
+
+    await tx.user.update({
+      where: { id: buyerId },
+      data: { walletBalance: { decrement: totalDue } }
+    });
+
+    const pickupCode = generatePickupCode();
+
+    const createdTrade = await tx.trade.create({
+      data: {
+        title: trade.title,
+        creatorId: trade.creatorId,
+        buyerId,
+        amount: trade.amount,
+        status: 'FUNDED',
+        type: trade.type,
+        category: trade.category,
+        visibility: 'PRIVATE',
+        condition: trade.condition,
+        specs: trade.specs as Prisma.InputJsonValue | undefined,
+        accountNumber: trade.accountNumber,
+        deliveryFee: trade.deliveryFee,
+        deliveryTime: trade.deliveryTime,
+        takeOffLocation: trade.takeOffLocation,
+        deliveryLocation: deliveryLocation || trade.deliveryLocation || 'To be specified by buyer',
+        image: trade.image,
+        description: trade.description,
+        pickupCode,
+        pickupAttempts: 0
+      },
+      include: {
+        creator: { select: { id: true, username: true, name: true, avatarColor: true } },
+        buyer: { select: { id: true, username: true, name: true, avatarColor: true } }
+      }
+    });
+
+    await tx.walletTransaction.create({
+      data: {
+        userId: buyerId,
+        type: 'ESCROW_LOCK',
+        provider: 'MANUAL',
+        amount: totalDue,
+        status: 'SUCCESS',
+        tradeId: createdTrade.id
+      }
+    });
+
+    return createdTrade;
+  });
+
+  try {
+    await Promise.all([
+      notify({
+        userId: newTrade.creatorId,
+        title: 'New order received!',
+        message: `Your item "${newTrade.title}" was re-ordered by @${newTrade.buyer?.username}. Escrow is funded.`,
+        type: 'SUCCESS'
+      }),
+      notify({
+        userId: buyerId,
+        title: 'Order placed & funded',
+        message: `You successfully bought "${newTrade.title}". ₦${Number(newTrade.amount).toLocaleString()} is held in escrow. Your pickup code is ${newTrade.pickupCode}.`,
+        type: 'SUCCESS'
+      })
+    ]);
+    if (newTrade.buyerId) {
+      await getOrCreateTradeChat(newTrade.id, newTrade.creatorId, newTrade.buyerId);
+      await postTradeSystemMessage(
+        newTrade.id,
+        `Escrow funded. ₦${Number(newTrade.amount) + Number(newTrade.deliveryFee)} is now locked. The seller will release it once you share your pickup code.`
+      );
+    }
+  } catch (postErr) {
+    console.error('Non-fatal post-reorder notification/chat error:', postErr);
+  }
+
+  return newTrade;
+};
+
 const MAX_PICKUP_ATTEMPTS = 5;
 export const PLATFORM_FEE_RATE = 0.013;
 

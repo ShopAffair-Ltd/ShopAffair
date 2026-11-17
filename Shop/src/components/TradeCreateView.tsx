@@ -504,7 +504,7 @@ export default function TradeCreateView({ onCancel, onSubmit, onDone, initialTra
               },
               {
                 id: TradeVisibility.PRIVATE,
-                title: 'Keep Private',
+                title: 'Private',
                 desc: 'Only visible to you'
               }
             ].map((option) => {

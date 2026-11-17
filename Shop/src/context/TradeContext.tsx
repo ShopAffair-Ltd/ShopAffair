@@ -15,6 +15,7 @@ interface TradeContextType {
   cancelTrade: (tradeId: string) => Promise<TradeItem>;
   deleteTrade: (tradeId: string) => Promise<void>;
   fundTrade: (tradeId: string) => Promise<TradeItem>;
+  buyAgainTrade: (tradeId: string, deliveryLocation?: string) => Promise<TradeItem>;
   verifyPickupCode: (tradeId: string, code: string) => Promise<TradeItem>;
   updateTradeStatus: (id: string, status: EscrowStatus) => Promise<TradeItem>;
   forceCancelTrade: (tradeId: string) => Promise<TradeItem>;
@@ -80,6 +81,12 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
     return updated;
   };
 
+  const buyAgainTrade: TradeContextType['buyAgainTrade'] = async (tradeId, deliveryLocation) => {
+    const created = await tradeService.buyAgainTrade(tradeId, deliveryLocation);
+    setTrades((prev) => [created, ...prev]);
+    return created;
+  };
+
   const verifyPickupCode: TradeContextType['verifyPickupCode'] = async (tradeId, code) => {
     const updated = await tradeService.verifyPickupCode(tradeId, code);
     setTrades((prev) => prev.map((t) => (t.id === tradeId ? updated : t)));
@@ -121,6 +128,7 @@ export function TradeProvider({ children }: { children: React.ReactNode }) {
         cancelTrade,
         deleteTrade,
         fundTrade,
+        buyAgainTrade,
         verifyPickupCode,
         updateTradeStatus,
         forceCancelTrade,

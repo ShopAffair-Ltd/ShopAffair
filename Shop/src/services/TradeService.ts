@@ -186,6 +186,14 @@ export const fundTrade = async (tradeId: string): Promise<TradeItem> => {
   return mapToTradeItem(data.trade);
 };
 
+export const buyAgainTrade = async (tradeId: string, deliveryLocation?: string): Promise<TradeItem> => {
+  const { data } = await api.post<{ trade: RawTrade }>(
+    `/trades/${stripTradeIdPrefix(tradeId)}/buy-again`,
+    { deliveryLocation }
+  );
+  return mapToTradeItem(data.trade);
+};
+
 export const verifyPickupCode = async (tradeId: string, code: string): Promise<TradeItem> => {
   const { data } = await api.post<{ trade: RawTrade }>(
     `/trades/${stripTradeIdPrefix(tradeId)}/verify-pickup`,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, CheckCircle2, Share2, Copy, Image as ImageIcon, ZoomIn, X, RefreshCw } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Share2, Copy, Image as ImageIcon, ZoomIn, X, RefreshCw, MapPin, Wallet, AlertCircle, Loader2 } from 'lucide-react';
 import ShareToGroupModal from './community/ShareToGroupModal';
 import QrShareModal from './modals/QrShareModal';
 import { TradeItem, EscrowStatus } from '../types';
@@ -9,6 +9,7 @@ import { BuyerPickupCodeDisplay, SellerPickupCodeEntry, MAX_ATTEMPTS } from './E
 import { useAuth } from '../context/AuthContext';
 import { useWallet } from '../context/WalletContext';
 import { useAuthModal } from '../context/AuthModalContext';
+import { useTrades } from '../context/TradeContext';
 
 interface TradeDetailViewProps {
   trade: TradeItem;
@@ -51,6 +52,7 @@ export default function TradeDetailView({
   const { user } = useAuth();
   const { openDeposit } = useWallet();
   const { openLogin } = useAuthModal();
+  const { buyAgainTrade } = useTrades();
   const [actionError, setActionError] = useState<string | null>(null);
   const [isFunding, setIsFunding] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -60,6 +62,14 @@ export default function TradeDetailView({
   const [copyToast, setCopyToast] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showFullImage, setShowFullImage] = useState(false);
+
+  // Buy Again checkout modal state
+  const [showBuyAgainModal, setShowBuyAgainModal] = useState(false);
+  const [buyAgainDestination, setBuyAgainDestination] = useState(
+    trade.deliveryLocation || user?.deliveryAddress || ''
+  );
+  const [isBuyingAgain, setIsBuyingAgain] = useState(false);
+  const [buyAgainError, setBuyAgainError] = useState<string | null>(null);
 
   const productImages: string[] = trade.image
     ? (() => {
@@ -133,6 +143,40 @@ export default function TradeDetailView({
       setShowCancelConfirm(false);
     } finally {
       setIsCancelling(false);
+    }
+  };
+
+  const handleOpenBuyAgain = () => {
+    if (!user) {
+      openLogin();
+      return;
+    }
+    setBuyAgainDestination(trade.deliveryLocation || user.deliveryAddress || '');
+    setBuyAgainError(null);
+    setShowBuyAgainModal(true);
+  };
+
+  const handleConfirmBuyAgain = async () => {
+    if (!buyAgainDestination.trim()) {
+      setBuyAgainError('Please provide your delivery destination.');
+      return;
+    }
+    if (user && user.walletBalance < escrowTotal) {
+      setBuyAgainError('Insufficient wallet balance. Please top up your wallet first.');
+      return;
+    }
+    setBuyAgainError(null);
+    setIsBuyingAgain(true);
+    try {
+      const newTrade = await buyAgainTrade(trade.id, buyAgainDestination.trim());
+      setShowBuyAgainModal(false);
+      navigate(`/trade/${newTrade.id}`);
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setBuyAgainError(msg || 'Failed to place re-order. Please try again.');
+    } finally {
+      setIsBuyingAgain(false);
     }
   };
 
@@ -549,7 +593,7 @@ export default function TradeDetailView({
 
               {!isSeller && (
                 <button
-                  onClick={() => navigate(`/trade/new?reorder=${trade.id}`)}
+                  onClick={handleOpenBuyAgain}
                   className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-sans font-bold text-xs rounded-lg shadow-md cursor-pointer flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -571,6 +615,164 @@ export default function TradeDetailView({
         imageUrl={productImages[0] || trade.image}
         badgeText="ESCROW TRADE"
       />
+
+      {/* Buy Again Checkout Modal */}
+      <AnimatePresence>
+        {showBuyAgainModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => !isBuyingAgain && setShowBuyAgainModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh]"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+                    <RefreshCw className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Buy Again</h3>
+                    <p className="text-[11px] text-gray-500">Re-order directly via Escrow</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowBuyAgainModal(false)}
+                  disabled={isBuyingAgain}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 overflow-y-auto space-y-4">
+                {/* Product Summary */}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="w-14 h-14 rounded-lg bg-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                    {productImages[0] ? (
+                      <img src={productImages[0]} alt={trade.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="w-6 h-6 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs font-bold text-gray-900 truncate">{trade.title}</h4>
+                    <p className="text-[11px] text-purple-600 font-medium">@{trade.creatorUsername}</p>
+                    <p className="text-xs font-extrabold text-gray-900 mt-0.5">₦{trade.amount.toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {/* Delivery Destination Input */}
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-purple-600" />
+                    Delivery Destination <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={buyAgainDestination}
+                    onChange={(e) => setBuyAgainDestination(e.target.value)}
+                    placeholder="e.g. 12 Broad Street, Marina, Lagos"
+                    disabled={isBuyingAgain}
+                    className="w-full px-3.5 py-2.5 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">Specify where the seller should deliver this new order.</p>
+                </div>
+
+                {/* Pricing Breakdown */}
+                <div className="bg-gray-50 rounded-xl p-3.5 border border-gray-100 space-y-2 text-xs">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Item Price</span>
+                    <span className="font-semibold text-gray-900">₦{trade.amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Delivery Fee</span>
+                    <span className="font-semibold text-gray-900">₦{(trade.deliveryFee || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-sm text-gray-900">
+                    <span>Total Escrow Amount</span>
+                    <span className="text-purple-600">₦{escrowTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Wallet Balance Info */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-purple-50/60 border border-purple-100">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-purple-600" />
+                    <div>
+                      <p className="text-[10px] font-medium text-gray-500">Your Wallet Balance</p>
+                      <p className="text-xs font-bold text-gray-900">₦{(user?.walletBalance || 0).toLocaleString()}</p>
+                    </div>
+                  </div>
+                  {user && user.walletBalance < escrowTotal && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowBuyAgainModal(false);
+                        openDeposit();
+                      }}
+                      className="px-2.5 py-1 text-[11px] font-bold text-purple-700 bg-white border border-purple-200 rounded-lg hover:bg-purple-100"
+                    >
+                      Top Up
+                    </button>
+                  )}
+                </div>
+
+                {/* Insufficient balance / errors */}
+                {user && user.walletBalance < escrowTotal && (
+                  <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 text-amber-800 text-[11px]">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Your wallet balance is insufficient for this trade. Please top up your wallet to continue.</span>
+                  </div>
+                )}
+
+                {buyAgainError && (
+                  <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 text-red-700 text-[11px]">
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                    <span>{buyAgainError}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowBuyAgainModal(false)}
+                  disabled={isBuyingAgain}
+                  className="flex-1 py-2.5 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmBuyAgain}
+                  disabled={isBuyingAgain || (!!user && user.walletBalance < escrowTotal)}
+                  className="flex-1 py-2.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  {isBuyingAgain ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Creating Order...
+                    </>
+                  ) : (
+                    'Confirm & Pay via Escrow'
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Full-Screen Image Lightbox Modal */}
       <AnimatePresence>

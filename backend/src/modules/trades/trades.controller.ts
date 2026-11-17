@@ -17,6 +17,7 @@ import {
   listTrades,
   getTradeById,
   fundTrade,
+  buyAgainTrade,
   verifyPickupCode,
   updateTradeStatus,
   forceCancelTrade,
@@ -76,6 +77,14 @@ export const fund = asyncHandler(async (req: Request, res: Response) => {
   const { id } = tradeIdParamSchema.parse(req.params);
   const trade = await fundTrade(id, user.id);
   res.status(200).json({ trade });
+});
+
+export const buyAgain = asyncHandler(async (req: Request, res: Response) => {
+  const user = requireUser(req);
+  const { id } = tradeIdParamSchema.parse(req.params);
+  const deliveryLocation = typeof req.body.deliveryLocation === 'string' ? req.body.deliveryLocation.trim() : undefined;
+  const trade = await buyAgainTrade(id, user.id, deliveryLocation);
+  res.status(201).json({ trade });
 });
 
 export const verifyPickup = asyncHandler(async (req: Request, res: Response) => {

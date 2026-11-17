@@ -585,7 +585,7 @@ export default function StoreProfile({
                         {product.visibility === 'PRIVATE' && (
                           <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase shadow-sm">
                             <EyeOff className="w-2.5 h-2.5" />
-                            Keep Private
+                            Private
                           </span>
                         )}
                         {product.tradeType === 'Request' ? (

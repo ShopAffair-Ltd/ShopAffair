@@ -230,7 +230,7 @@ export default function MyStoreView() {
     if (activeCategoryChip === 'All') return true;
     if (activeCategoryChip === 'Sales Offers') return p.tradeType === 'Supply' || !p.tradeType;
     if (activeCategoryChip === 'Purchase Offers') return p.tradeType === 'Request';
-    if (activeCategoryChip === 'Keep Private') return p.visibility === 'PRIVATE';
+    if (activeCategoryChip === 'Private') return p.visibility === 'PRIVATE';
     return p.category.toLowerCase() === activeCategoryChip.toLowerCase();
   });
 
@@ -596,7 +596,7 @@ export default function MyStoreView() {
           {activeTab === 'catalogue' && (
             <motion.div key="catalogue" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-3">
               <div className="px-4 flex items-center gap-2 overflow-x-auto no-scrollbar pb-3">
-                {['All', 'Sales Offers', 'Purchase Offers', 'Keep Private', ...CATEGORY_CHIPS.filter((c) => c !== 'All')].map((chip) => (
+                {['All', 'Sales Offers', 'Purchase Offers', 'Private', ...CATEGORY_CHIPS.filter((c) => c !== 'All')].map((chip) => (
                   <button
                     key={chip}
                     onClick={() => setActiveCategoryChip(chip)}
@@ -632,9 +632,9 @@ export default function MyStoreView() {
                       <img src={prod.image} alt={prod.title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 items-start">
                         {prod.visibility === 'PRIVATE' && (
-                          <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[8px] font-sans font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[8px] font-sans font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-sm shrink-0">
                             <EyeOff className="w-2.5 h-2.5" />
-                            Keep Private
+                            Private
                           </span>
                         )}
                         {prod.visibility === 'STORE' && (
@@ -841,7 +841,7 @@ export default function MyStoreView() {
                           <span className="text-[11px] font-sans font-bold text-slate-800 truncate">{prod.title}</span>
                           {prod.visibility === 'PRIVATE' && (
                             <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 text-[8px] font-sans font-extrabold uppercase flex items-center gap-0.5 shrink-0">
-                              <EyeOff className="w-2.5 h-2.5" /> Keep Private
+                              <EyeOff className="w-2.5 h-2.5" /> Private
                             </span>
                           )}
                           {prod.visibility === 'STORE' && (

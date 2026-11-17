@@ -280,7 +280,7 @@ export default function AddProductSheet({
                   className="accent-purple-600 w-3.5 h-3.5"
                 />
                 <EyeOff className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-xs text-slate-700">Keep Private</span>
+                <span className="text-xs text-slate-700">Private</span>
               </label>
             </div>
           </div>

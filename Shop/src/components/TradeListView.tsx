@@ -253,8 +253,8 @@ export default function TradeListView({
                     {trade.type === TradeType.SUPPLY ? 'Sales Offer' : 'Purchase Offer'}
                   </span>
                   {trade.visibility === TradeVisibility.PRIVATE && (
-                    <span className="text-[9px] font-sans font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 flex items-center gap-0.5">
-                      <EyeOff className="w-2.5 h-2.5" /> Keep Private
+                    <span className="text-[9px] font-sans font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 flex items-center gap-0.5 shrink-0">
+                      <EyeOff className="w-2.5 h-2.5" /> Private
                     </span>
                   )}
                   {trade.visibility === TradeVisibility.STORE && (

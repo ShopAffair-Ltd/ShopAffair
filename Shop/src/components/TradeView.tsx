@@ -109,21 +109,16 @@ export default function TradeView() {
         />
       )}
 
-      {isNew && (() => {
-        const reorderId = searchParams.get('reorder');
-        const reorderTrade = reorderId ? trades.find((t) => t.id === reorderId) || fetchedTrade : undefined;
-        return (
-          <TradeCreateView
-            initialTrade={reorderTrade ?? undefined}
-            onCancel={() => navigate('/trade')}
-            onSubmit={async (payload) => {
-              await createTrade(payload);
-              await refreshMarket();
-            }}
-            onDone={() => navigate('/trade')}
-          />
-        );
-      })()}
+      {isNew && (
+        <TradeCreateView
+          onCancel={() => navigate('/trade')}
+          onSubmit={async (payload) => {
+            await createTrade(payload);
+            await refreshMarket();
+          }}
+          onDone={() => navigate('/trade')}
+        />
+      )}
 
       {selectedTrade && isEdit && (
         <TradeCreateView
