@@ -147,13 +147,20 @@ export const withdraw = async (params: {
 export type StorePlanId = 'TRIAL' | 'STARTER' | 'GROWTH' | 'ENTERPRISE';
 
 export const TRIAL_PLAN_PRICE = 499.9;
-export const TRIAL_PLAN_PRICE_DISPLAY = `₦${TRIAL_PLAN_PRICE.toLocaleString()}`;
-export const STARTER_PLAN_PRICE = 5000;
-export const STARTER_PLAN_PRICE_DISPLAY = `₦${STARTER_PLAN_PRICE.toLocaleString()}`;
+export const TRIAL_PLAN_ORIGINAL_PRICE = 1000;
+export const TRIAL_PLAN_PRICE_DISPLAY = '₦499.9';
+
+export const STARTER_PLAN_PRICE = 3500;
+export const STARTER_PLAN_ORIGINAL_PRICE = 5000;
+export const STARTER_PLAN_PRICE_DISPLAY = '₦3,500';
+
 export const GROWTH_PLAN_PRICE = 12000;
-export const GROWTH_PLAN_PRICE_DISPLAY = `₦${GROWTH_PLAN_PRICE.toLocaleString()}`;
+export const GROWTH_PLAN_ORIGINAL_PRICE = 18000;
+export const GROWTH_PLAN_PRICE_DISPLAY = '₦12,000';
+
 export const ENTERPRISE_PLAN_PRICE = 25000;
-export const ENTERPRISE_PLAN_PRICE_DISPLAY = `₦${ENTERPRISE_PLAN_PRICE.toLocaleString()}`;
+export const ENTERPRISE_PLAN_ORIGINAL_PRICE = 35000;
+export const ENTERPRISE_PLAN_PRICE_DISPLAY = '₦25,000';
 
 export interface StorePlan {
   id: StorePlanId;

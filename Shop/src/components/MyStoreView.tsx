@@ -725,7 +725,7 @@ export default function MyStoreView() {
                         </span>
                       </div>
                       <p className="text-[11px] font-sans text-purple-900/80 mt-0.5 font-medium truncate">
-                        {activeProfile.isPro
+                        {activeProfile.isPro && activeProfile.storePlan !== 'TRIAL'
                           ? 'Capacity: 1,000–50,000 items • Open Market enabled'
                           : 'Store Capacity: 5 items (Trial) • Upgrade for 1,000–50,000 items'}
                       </p>
@@ -737,11 +737,11 @@ export default function MyStoreView() {
                     className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer flex items-center gap-1.5"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    Upgrade
+                    Upgrade Plan
                   </button>
                 </div>
                 <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-[10px] text-slate-500 font-sans">
-                  <span>Pay 1, 3, 6, or 12 months ahead with up to 15% discount.</span>
+                  <span>Starter (₦3,500/mo), Trial (₦499.9/mo • 3 mos min), Growth, or Enterprise.</span>
                 </div>
               </div>
 

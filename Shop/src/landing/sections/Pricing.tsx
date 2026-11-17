@@ -79,11 +79,12 @@ export const Pricing: React.FC<PricingProps> = ({ onEnterPlatform, onRegister })
               <span className="text-[9px] font-bold bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full uppercase">Starter Store</span>
               <div>
                 <div className="flex items-baseline gap-1.5">
+                  <span className="text-xs text-slate-400 line-through">~₦5,000/month~</span>
                   <h3 className="text-2xl font-sans font-bold text-slate-900">{STARTER_PLAN_PRICE_DISPLAY}</h3>
                   <span className="text-[10px] text-slate-400">/ month</span>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Or start with Trial Plan at {TRIAL_PLAN_PRICE_DISPLAY}/month.
+                  Or start with Trial Plan at {TRIAL_PLAN_PRICE_DISPLAY}/month (₦1,499.7 for 3 months min).
                 </p>
               </div>
               <div className="space-y-2.5 border-t border-purple-100 pt-5 text-xs text-slate-600">

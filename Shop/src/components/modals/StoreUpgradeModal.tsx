@@ -19,62 +19,89 @@ interface StoreUpgradeModalProps {
 interface PlanInfo {
   name: string;
   monthlyPrice: number;
+  originalMonthlyPrice: number;
+  minMonths: number;
   capacityLabel: string;
   listingLimitLabel: string;
   badge?: string;
   icon: typeof Store;
   color: string;
   bullets: string[];
+  discountLabel: string;
+  subLabel: string;
 }
 
 const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
   TRIAL: {
     name: 'Trial Plan',
+    originalMonthlyPrice: 1000,
     monthlyPrice: 499.9,
+    minMonths: 3,
     capacityLabel: '5 items',
-    listingLimitLabel: '5 products',
+    listingLimitLabel: '5 items',
     icon: Store,
-    color: 'from-slate-500 to-slate-700',
-    bullets: ['Trial badge', 'Store capacity: 5 items', 'Product listing limit: 5 items', 'Basic store wall']
+    color: 'from-slate-600 to-slate-800',
+    bullets: ['Trial plan badge', 'Store capacity: 5 items', 'Product listing limit: 5 items', 'Basic store wall & catalogue'],
+    discountLabel: 'Discount ₦499.9/month',
+    subLabel: '(₦1,499.7 for full 3 months)'
   },
   STARTER: {
     name: 'Starter Plan',
-    monthlyPrice: 5000,
+    originalMonthlyPrice: 5000,
+    monthlyPrice: 3500,
+    minMonths: 1,
     capacityLabel: '1,000 items',
-    listingLimitLabel: '250 products',
-    badge: 'Popular',
+    listingLimitLabel: '250 items',
+    badge: 'Recommended',
     icon: Sparkles,
-    color: 'from-purple-500 to-indigo-600',
-    bullets: ['Merchant badge', 'Open Market publishing', 'Store capacity: 1,000 items', 'Product listing limit: 250 items', 'Full store wall & comments']
+    color: 'from-purple-600 to-indigo-600',
+    bullets: ['Merchant badge', 'Open Market publishing', 'Store capacity: 1,000 items', 'Product listing limit: 250 items', 'Full store wall & comments'],
+    discountLabel: 'Discount ₦3,500/month',
+    subLabel: '(People can still pay per month or for 3 months)'
   },
   GROWTH: {
     name: 'Growth Plan',
+    originalMonthlyPrice: 18000,
     monthlyPrice: 12000,
+    minMonths: 1,
     capacityLabel: '5,000 items',
-    listingLimitLabel: '1,000 products',
+    listingLimitLabel: '1,000 items',
     badge: 'High Capacity',
     icon: Zap,
     color: 'from-blue-600 to-cyan-600',
-    bullets: ['Verified Gold badge', 'Open Market priority', 'Store capacity: 5,000 items', 'Product listing limit: 1,000 items', 'Fast-track customer support']
+    bullets: ['Verified Gold badge', 'Open Market priority', 'Store capacity: 5,000 items', 'Product listing limit: 1,000 items', 'Fast-track customer support'],
+    discountLabel: 'Discount ₦12,000/month',
+    subLabel: '(Ideal for expanding wholesale merchants)'
   },
   ENTERPRISE: {
     name: 'Enterprise Plan',
+    originalMonthlyPrice: 35000,
     monthlyPrice: 25000,
-    capacityLabel: '50,000 items (Unlimited)',
-    listingLimitLabel: '10,000 products',
+    minMonths: 1,
+    capacityLabel: '50,000+ items (Unlimited)',
+    listingLimitLabel: '10,000 items',
     badge: 'Max Capacity',
     icon: Crown,
     color: 'from-amber-500 to-orange-600',
-    bullets: ['VIP Merchant status', 'Featured on Open Market', 'Store capacity: 50,000+ items (Unlimited)', 'Product listing limit: 10,000 items', 'Dedicated account manager']
+    bullets: ['VIP Merchant status', 'Featured on Open Market', 'Store capacity: 50,000+ items (Unlimited)', 'Product listing limit: 10,000 items', 'Dedicated account manager'],
+    discountLabel: 'Discount ₦25,000/month',
+    subLabel: '(Full high-volume catalog & store power)'
   }
 };
 
 const DURATION_OPTIONS = [
-  { months: 1, label: '1 Month', discountRate: 0, tag: '' },
-  { months: 3, label: '3 Months', discountRate: 0.05, tag: '5% OFF' },
-  { months: 6, label: '6 Months', discountRate: 0.10, tag: '10% OFF' },
-  { months: 12, label: '1 Year', discountRate: 0.15, tag: '15% OFF' }
+  { months: 1, label: '1 Month' },
+  { months: 3, label: '3 Months' },
+  { months: 6, label: '6 Months' },
+  { months: 12, label: '1 Year' }
 ];
+
+const formatNaira = (amount: number): string => {
+  return amount.toLocaleString(undefined, {
+    minimumFractionDigits: amount % 1 !== 0 ? 1 : 0,
+    maximumFractionDigits: 2
+  });
+};
 
 export default function StoreUpgradeModal({
   isOpen,
@@ -90,20 +117,31 @@ export default function StoreUpgradeModal({
 }: StoreUpgradeModalProps) {
   const [selectedMonths, setSelectedMonths] = useState<number>(1);
 
-  const calculatePrice = (baseMonthly: number, months: number) => {
-    const option = DURATION_OPTIONS.find((d) => d.months === months) || DURATION_OPTIONS[0];
-    const rawTotal = baseMonthly * months * (1 - option.discountRate);
-    return Math.round(rawTotal);
+  const calculateTotalPrice = (planId: StorePlanId, months: number): { total: number; validMonths: number } => {
+    const plan = PLAN_DETAILS[planId];
+    const validMonths = Math.max(plan.minMonths, months);
+    const rawTotal = plan.monthlyPrice * validMonths;
+    const total = Math.round(rawTotal * 100) / 100;
+    return { total, validMonths };
+  };
+
+  const handleChoosePlan = (planId: StorePlanId) => {
+    const plan = PLAN_DETAILS[planId];
+    if (selectedMonths < plan.minMonths) {
+      setSelectedMonths(plan.minMonths);
+    }
+    onSelectPlan(planId);
   };
 
   const handleConfirm = async () => {
     if (!selectedStorePlan) return;
     const plan = PLAN_DETAILS[selectedStorePlan];
-    const success = await onActivatePlan(selectedStorePlan, selectedMonths);
+    const { validMonths } = calculateTotalPrice(selectedStorePlan, selectedMonths);
+    const success = await onActivatePlan(selectedStorePlan, validMonths);
     if (success) {
       onAddAuditLog(
         `SUBSCRIBE_${selectedStorePlan}`,
-        `Activated ${plan.name} for ${selectedMonths} month(s).`,
+        `Activated ${plan.name} for ${validMonths} month(s).`,
         activeUsername
       );
       onNavigateToMyStore();
@@ -123,6 +161,7 @@ export default function StoreUpgradeModal({
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors z-10"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -141,10 +180,10 @@ export default function StoreUpgradeModal({
                       🏪
                     </div>
                     <h3 className="text-base sm:text-lg font-display font-bold text-slate-900">
-                      Store Plan & Capacity Upgrade
+                      Open a Merchant Store
                     </h3>
                     <p className="text-[11px] font-sans text-slate-500">
-                      Upgrade your store capacity, product limits, and Open Market visibility.
+                      Choose a plan to activate your store dashboard, catalogue, and store wall.
                     </p>
                   </div>
 
@@ -161,22 +200,13 @@ export default function StoreUpgradeModal({
                             key={d.months}
                             type="button"
                             onClick={() => setSelectedMonths(d.months)}
-                            className={`py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer relative ${
+                            className={`py-2 px-1 rounded-lg text-center transition-all cursor-pointer relative ${
                               isSelected
                                 ? 'bg-white text-purple-700 font-bold shadow-xs'
                                 : 'text-slate-600 hover:text-slate-900 font-medium'
                             }`}
                           >
                             <span className="block text-xs leading-none">{d.label}</span>
-                            {d.tag && (
-                              <span
-                                className={`block text-[8px] font-extrabold mt-0.5 leading-none ${
-                                  isSelected ? 'text-green-600' : 'text-green-700'
-                                }`}
-                              >
-                                {d.tag}
-                              </span>
-                            )}
                           </button>
                         );
                       })}
@@ -185,19 +215,20 @@ export default function StoreUpgradeModal({
 
                   {/* Plan Cards */}
                   <div className="space-y-2.5">
-                    {(['STARTER', 'GROWTH', 'ENTERPRISE', 'TRIAL'] as StorePlanId[]).map((planId) => {
+                    {(['TRIAL', 'STARTER', 'GROWTH', 'ENTERPRISE'] as StorePlanId[]).map((planId) => {
                       const plan = PLAN_DETAILS[planId];
-                      const totalPrice = calculatePrice(plan.monthlyPrice, selectedMonths);
-                      const isPopular = plan.badge === 'Popular';
+                      const { total, validMonths } = calculateTotalPrice(planId, selectedMonths);
+                      const isPopular = plan.badge === 'Recommended' || plan.badge === 'Popular';
+                      const isTrial = planId === 'TRIAL';
 
                       return (
                         <button
                           key={planId}
                           type="button"
-                          onClick={() => onSelectPlan(planId)}
+                          onClick={() => handleChoosePlan(planId)}
                           className={`w-full p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
                             isPopular
-                              ? 'border-purple-300 bg-purple-50/50 hover:bg-purple-50 hover:border-purple-400 shadow-xs'
+                              ? 'border-purple-300 bg-purple-50/40 hover:bg-purple-50 hover:border-purple-400 shadow-xs ring-1 ring-purple-200'
                               : 'border-slate-200 bg-white hover:border-purple-200 hover:bg-slate-50/70'
                           }`}
                         >
@@ -211,33 +242,53 @@ export default function StoreUpgradeModal({
                             </span>
                           )}
 
-                          <div className="flex items-start gap-2.5">
-                            <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${plan.color} text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs`}>
+                          <div className="flex items-start gap-3">
+                            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${plan.color} text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs`}>
                               <plan.icon className="w-4 h-4" />
                             </div>
 
-                            <div className="flex-1 min-w-0 pr-12">
+                            <div className="flex-1 min-w-0 pr-8">
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-slate-900">{plan.name}</span>
+                                <span className="text-sm font-bold text-slate-900">{plan.name}</span>
                               </div>
-                              <p className="text-[10px] text-purple-700 font-bold mt-0.5">
-                                Capacity: {plan.capacityLabel} • {plan.listingLimitLabel}
+
+                              {/* Pricing with strikethrough & discount */}
+                              <div className="flex items-baseline flex-wrap gap-x-2 gap-y-0.5 mt-1">
+                                <span className="text-[11px] text-slate-400 line-through font-medium">
+                                  ~₦{formatNaira(plan.originalMonthlyPrice)}/month~
+                                </span>
+                                <span className="text-xs font-bold text-purple-700 bg-purple-100/70 px-1.5 py-0.2 rounded">
+                                  {plan.discountLabel}
+                                </span>
+                              </div>
+
+                              {/* Note / Subtext */}
+                              <p className="text-[10px] text-slate-500 font-medium mt-1">
+                                {plan.subLabel}
                               </p>
-                              <div className="flex items-baseline gap-1 mt-1">
+
+                              {/* Total calculation for current duration */}
+                              <div className="mt-1.5 flex items-baseline gap-1 text-slate-800">
+                                <span className="text-xs text-slate-400">Total:</span>
                                 <span className="text-sm font-extrabold text-slate-900">
-                                  ₦{totalPrice.toLocaleString()}
+                                  ₦{formatNaira(total)}
                                 </span>
                                 <span className="text-[10px] text-slate-400">
-                                  / {selectedMonths === 1 ? 'month' : `${selectedMonths} months`}
+                                  for {validMonths} month{validMonths > 1 ? 's' : ''}
+                                  {isTrial && validMonths === 3 && selectedMonths < 3 ? ' (3 mos min)' : ''}
                                 </span>
                               </div>
+
+                              <p className="text-[10px] text-purple-700 font-semibold mt-1">
+                                Capacity: {plan.capacityLabel} • {plan.listingLimitLabel}
+                              </p>
                             </div>
                           </div>
 
-                          <ul className="text-[10px] font-sans text-slate-500 mt-2 space-y-0.5 border-t border-slate-100 pt-1.5">
-                            {plan.bullets.slice(0, 3).map((b) => (
+                          <ul className="text-[10px] font-sans text-slate-500 mt-2.5 space-y-0.5 border-t border-slate-100 pt-2">
+                            {plan.bullets.map((b) => (
                               <li key={b} className="flex items-center gap-1.5 text-slate-600">
-                                <Check className="w-2.5 h-2.5 text-green-600 shrink-0" />
+                                <Check className="w-3 h-3 text-green-600 shrink-0" />
                                 <span>{b}</span>
                               </li>
                             ))}
@@ -264,31 +315,89 @@ export default function StoreUpgradeModal({
                       Confirm {PLAN_DETAILS[selectedStorePlan].name}
                     </h3>
                     <p className="text-xs font-sans text-slate-500 mt-0.5">
-                      Duration: <span className="font-bold text-slate-800">{selectedMonths} Month{selectedMonths > 1 ? 's' : ''}</span>
+                      Choose duration & confirm activation from your wallet balance.
                     </p>
                   </div>
 
-                  {/* Summary Breakdown */}
-                  <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans space-y-2 text-left">
-                    <div className="flex justify-between text-slate-600">
-                      <span>Store Capacity</span>
-                      <span className="font-bold text-slate-800">{PLAN_DETAILS[selectedStorePlan].capacityLabel}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>Product Listing Limit</span>
-                      <span className="font-bold text-slate-800">{PLAN_DETAILS[selectedStorePlan].listingLimitLabel}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>Duration</span>
-                      <span className="font-bold text-slate-800">{selectedMonths} Month{selectedMonths > 1 ? 's' : ''}</span>
-                    </div>
-                    <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-sm font-bold text-slate-900">
-                      <span>Total Amount Due</span>
-                      <span className="text-purple-600 text-base">
-                        ₦{calculatePrice(PLAN_DETAILS[selectedStorePlan].monthlyPrice, selectedMonths).toLocaleString()}
-                      </span>
+                  {/* Duration switcher inside confirm view */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 text-center">
+                      Billing Duration
+                    </label>
+                    <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100/80 rounded-xl">
+                      {DURATION_OPTIONS.map((d) => {
+                        const plan = PLAN_DETAILS[selectedStorePlan];
+                        const isDisabled = d.months < plan.minMonths;
+                        const isSelected = Math.max(plan.minMonths, selectedMonths) === d.months;
+
+                        return (
+                          <button
+                            key={d.months}
+                            type="button"
+                            disabled={isDisabled}
+                            onClick={() => setSelectedMonths(d.months)}
+                            className={`py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer relative ${
+                              isDisabled
+                                ? 'opacity-30 cursor-not-allowed text-slate-400'
+                                : isSelected
+                                ? 'bg-white text-purple-700 font-bold shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 font-medium'
+                            }`}
+                          >
+                            <span className="block text-xs leading-none">{d.label}</span>
+                            {isDisabled && (
+                              <span className="block text-[8px] text-red-500 font-bold mt-0.5 leading-none">
+                                3m min
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
+
+                  {/* Summary Breakdown */}
+                  {(() => {
+                    const plan = PLAN_DETAILS[selectedStorePlan];
+                    const { total, validMonths } = calculateTotalPrice(selectedStorePlan, selectedMonths);
+
+                    return (
+                      <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans space-y-2 text-left">
+                        <div className="flex justify-between text-slate-600">
+                          <span>Monthly Rate</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="line-through text-slate-400 text-[10px]">
+                              ~₦{formatNaira(plan.originalMonthlyPrice)}/mo~
+                            </span>
+                            <span className="font-bold text-purple-700">
+                              ₦{formatNaira(plan.monthlyPrice)}/mo
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-slate-600">
+                          <span>Store Capacity</span>
+                          <span className="font-bold text-slate-800">{plan.capacityLabel}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-600">
+                          <span>Product Listing Limit</span>
+                          <span className="font-bold text-slate-800">{plan.listingLimitLabel}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-600">
+                          <span>Duration Selected</span>
+                          <span className="font-bold text-slate-800">
+                            {validMonths} Month{validMonths > 1 ? 's' : ''}
+                            {selectedStorePlan === 'TRIAL' ? ' (Minimum 3 months)' : ''}
+                          </span>
+                        </div>
+                        <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-sm font-bold text-slate-900">
+                          <span>Total Amount Due</span>
+                          <span className="text-purple-600 text-base">
+                            ₦{formatNaira(total)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {activateError && (
                     <div className="p-3 bg-red-50 text-red-700 rounded-xl border border-red-100 text-xs font-sans font-semibold text-left">

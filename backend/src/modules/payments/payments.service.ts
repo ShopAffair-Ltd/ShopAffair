@@ -459,15 +459,19 @@ export const STORE_PLANS = {
   TRIAL: {
     id: 'TRIAL',
     name: 'Trial Plan',
+    originalPrice: 1000,
     price: 499.9,
+    minMonths: 3,
     storeCapacity: 5,
     listingLimit: 5,
-    durationDays: 30
+    durationDays: 90
   },
   STARTER: {
     id: 'STARTER',
     name: 'Starter Plan',
-    price: 5000,
+    originalPrice: 5000,
+    price: 3500,
+    minMonths: 1,
     storeCapacity: 1000,
     listingLimit: 250,
     durationDays: 30
@@ -475,7 +479,9 @@ export const STORE_PLANS = {
   GROWTH: {
     id: 'GROWTH',
     name: 'Growth Plan',
+    originalPrice: 18000,
     price: 12000,
+    minMonths: 1,
     storeCapacity: 5000,
     listingLimit: 1000,
     durationDays: 30
@@ -483,7 +489,9 @@ export const STORE_PLANS = {
   ENTERPRISE: {
     id: 'ENTERPRISE',
     name: 'Enterprise Plan',
+    originalPrice: 35000,
     price: 25000,
+    minMonths: 1,
     storeCapacity: 50000,
     listingLimit: 10000,
     durationDays: 30
@@ -492,18 +500,17 @@ export const STORE_PLANS = {
 
 export type StorePlanId = keyof typeof STORE_PLANS;
 
-export const calculatePlanPriceAndDuration = (basePrice: number, months: number = 1) => {
-  const m = Math.max(1, Math.min(12, months));
-  let discountRate = 0;
-  if (m >= 12) discountRate = 0.15; // 15% discount for 1 year
-  else if (m >= 6) discountRate = 0.10; // 10% discount for 6 months
-  else if (m >= 3) discountRate = 0.05; // 5% discount for 3 months
+export const calculatePlanPriceAndDuration = (planId: StorePlanId, months: number = 1) => {
+  const plan = STORE_PLANS[planId];
+  if (!plan) throw new ApiError(400, 'Unknown store plan');
 
-  const rawTotal = basePrice * m * (1 - discountRate);
+  // Enforce minimum months: Trial is 3 months minimum
+  const m = Math.max(plan.minMonths, Math.min(12, months));
+  const rawTotal = plan.price * m;
   const finalPrice = Math.round(rawTotal * 100) / 100;
   const durationDays = m * 30;
 
-  return { finalPrice, durationDays, months: m, discountPercent: Math.round(discountRate * 100) };
+  return { finalPrice, durationDays, months: m };
 };
 
 const generateSubscriptionReference = () => `SF-SUB-${crypto.randomBytes(8).toString('hex')}`;
@@ -522,7 +529,9 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
     throw new ApiError(403, `Only sellers can subscribe to the ${plan.name}`);
   }
 
-  const { finalPrice, durationDays, months: validMonths } = calculatePlanPriceAndDuration(plan.price, months);
+  // Enforce 3-month minimum for Trial Plan
+  const targetMonths = planId === 'TRIAL' ? Math.max(3, months) : Math.max(1, months);
+  const { finalPrice, durationDays, months: validMonths } = calculatePlanPriceAndDuration(planId, targetMonths);
 
   const activeSub = await prisma.subscription.findFirst({
     where: { userId, active: true },

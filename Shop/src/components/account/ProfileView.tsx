@@ -963,10 +963,17 @@ export default function ProfileView() {
                   {/* Trial Plan */}
                   <div className="p-4 bg-white border border-purple-200 rounded-xl flex justify-between items-center shadow-xs">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800">Trial Store Plan</h4>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Up to 10 products • Public store showcase</p>
-                      <p className="text-[10px] text-purple-600 mt-1.5 font-bold">
-                        {TRIAL_PLAN_PRICE_DISPLAY} / 7 days
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="text-xs font-bold text-slate-800">Trial Store Plan</h4>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 bg-green-100 text-green-700 rounded-md">Discount</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Store capacity: 5 items • 5 products</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-[10px] text-slate-400 line-through">~₦1,000/month~</span>
+                        <span className="text-xs font-bold text-purple-700">₦499.9/month</span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 font-medium mt-0.5">
+                        ₦1,499.7 for full 3 months (3-month min)
                         {subscriptionStatus?.storePlan === 'TRIAL' ? ' • Active' : ''}
                       </p>
                     </div>
@@ -987,10 +994,17 @@ export default function ProfileView() {
                   {/* Starter Pro Plan */}
                   <div className="p-4 bg-white border border-slate-200 rounded-xl flex justify-between items-center shadow-xs">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800">Starter Store Plan</h4>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Expanded store capacity & marketplace listings</p>
-                      <p className="text-[10px] text-purple-600 mt-1.5 font-bold">
-                        {STARTER_PLAN_PRICE_DISPLAY} / month
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="text-xs font-bold text-slate-800">Starter Store Plan</h4>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-md">Popular</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Store capacity: 1,000 items • 250 products</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-[10px] text-slate-400 line-through">~₦5,000/month~</span>
+                        <span className="text-xs font-bold text-purple-700">₦3,500/month</span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 font-medium mt-0.5">
+                        Pay per month or for 3 months
                         {subscriptionStatus?.storePlan === 'STARTER' ? ' • Active' : ''}
                       </p>
                     </div>
