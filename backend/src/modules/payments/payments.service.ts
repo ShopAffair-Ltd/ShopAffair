@@ -533,16 +533,6 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
     throw new ApiError(403, `Only sellers can subscribe to the ${plan.name}`);
   }
 
-  // Trial Plan is for initial store activation; returning stores renew on Starter or above
-  if (planId === 'TRIAL') {
-    const priorSub = await prisma.subscription.findFirst({
-      where: { userId }
-    });
-    if (priorSub) {
-      throw new ApiError(400, 'Trial plan is only for first-time store activation. Please renew with the Starter Plan.');
-    }
-  }
-
   // Enforce 3-month minimum for Trial Plan
   const targetMonths = planId === 'TRIAL' ? Math.max(3, months) : Math.max(1, months);
   const { finalPrice, durationDays, months: validMonths } = calculatePlanPriceAndDuration(planId, targetMonths);
@@ -558,8 +548,19 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
   );
 
   const planPrice = new Prisma.Decimal(finalPrice);
-  const totalAvailable = new Prisma.Decimal(user.walletBalance).plus(user.promoBalance);
+  const userWallet = new Prisma.Decimal(user.walletBalance);
+  const userPromo = new Prisma.Decimal(user.promoBalance);
+  const isTrial = planId === 'TRIAL';
+
+  // Promo money cannot be used for Trial plans; applicable only to Standard (Starter) and above
+  const totalAvailable = isTrial ? userWallet : userWallet.plus(userPromo);
   if (totalAvailable.lessThan(planPrice)) {
+    if (isTrial) {
+      throw new ApiError(
+        402,
+        `Insufficient wallet balance. Promo credits cannot be applied to the Trial Plan. The Trial Plan (${validMonths} months) costs ₦${finalPrice.toLocaleString()}, but your wallet balance is ₦${userWallet.toFixed(2)}. Please fund your wallet.`
+      );
+    }
     throw new ApiError(
       402,
       `Insufficient balance. The ${plan.name} (${validMonths} month${validMonths > 1 ? 's' : ''}) costs ₦${finalPrice.toLocaleString()}, and your wallet + promo balance total ₦${totalAvailable.toFixed(2)}.`
@@ -574,24 +575,26 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
       throw new ApiError(404, 'User not found');
     }
 
-    const freshPromoBalance = new Prisma.Decimal(fresh.promoBalance);
+    const freshPromoBalance = isTrial ? new Prisma.Decimal(0) : new Prisma.Decimal(fresh.promoBalance);
     const freshWalletBalance = new Prisma.Decimal(fresh.walletBalance);
-    const freshTotal = freshWalletBalance.plus(freshPromoBalance);
+    const freshTotal = isTrial ? freshWalletBalance : freshWalletBalance.plus(freshPromoBalance);
 
     if (freshTotal.lessThan(planPrice)) {
-      throw new ApiError(402, 'Insufficient balance');
+      throw new ApiError(402, isTrial ? 'Insufficient wallet balance' : 'Insufficient balance');
     }
 
-    // Spend promo balance first, since it can ONLY be used for in-app
-    // services like this — falling back to regular wallet balance for
-    // whatever the promo balance doesn't cover.
-    const fromPromo = freshPromoBalance.lessThan(planPrice) ? freshPromoBalance : planPrice;
+    // Spend promo balance first (for non-trial plans only)
+    const fromPromo = isTrial
+      ? new Prisma.Decimal(0)
+      : freshPromoBalance.lessThan(planPrice)
+      ? freshPromoBalance
+      : planPrice;
     const fromWallet = planPrice.minus(fromPromo);
 
     await tx.user.update({
       where: { id: userId },
       data: {
-        promoBalance: { decrement: fromPromo },
+        ...(fromPromo.greaterThan(0) ? { promoBalance: { decrement: fromPromo } } : {}),
         walletBalance: { decrement: fromWallet },
         isPro: true,
         storePlan: plan.id

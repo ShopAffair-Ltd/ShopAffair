@@ -188,6 +188,11 @@ export function WallPostComponent({
                             Seller
                           </span>
                         )}
+                        {c.isPending && (
+                          <span className="text-[8px] font-sans font-semibold text-amber-700 bg-amber-100/90 rounded-full px-1.5 py-px">
+                            {canManage ? 'Pending (Limit Reached)' : 'Pending Review'}
+                          </span>
+                        )}
                         <span className="text-[9px] font-sans text-slate-400 ml-auto">{timeAgo(c.timestamp)}</span>
                         {canDeleteComment && (
                           <button

@@ -35,7 +35,8 @@ function mapApiPost(apiPost: ApiWallPost, sellerId: string): WallPost {
       authorName: c.author.name,
       isSeller: c.author.id === sellerId,
       content: c.content,
-      timestamp: c.createdAt
+      timestamp: c.createdAt,
+      isPending: c.isPending
     }))
   };
 }

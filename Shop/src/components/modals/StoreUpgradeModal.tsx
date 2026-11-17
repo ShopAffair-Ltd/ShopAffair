@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShieldCheck, Loader2, Sparkles, Check, Crown, Zap, Store, RefreshCw, AlertCircle } from 'lucide-react';
+import { X, ShieldCheck, Loader2, Sparkles, Check, Crown, Zap, Store, RefreshCw, AlertCircle, Wallet } from 'lucide-react';
 import { StorePlanId, fetchSubscriptionStatus, SubscriptionStatus } from '../../services/paymentService';
+import { useAuth } from '../../context/AuthContext';
 
 interface StoreUpgradeModalProps {
   isOpen: boolean;
@@ -40,16 +41,23 @@ const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
     originalMonthlyPrice: 1000,
     monthlyPrice: 499.9,
     minMonths: 3,
-    capacityLabel: '5 members',
+    capacityLabel: '5 people engagement limit',
     listingLimitLabel: '5 products',
+    badge: '5-Person Limit',
     icon: Store,
     color: 'from-slate-600 to-slate-800',
-    bullets: ['Trial plan badge', 'Member capacity: 5 members', 'Product listing limit: 5 products', 'Basic store wall & catalogue'],
+    bullets: [
+      'Trial plan badge',
+      '5 customer engagement slots',
+      'Product listing limit: 5 products',
+      'Basic store wall & catalogue',
+      'Wallet balance only (No promo credits)'
+    ],
     discountLabel: 'Discount ₦499.9/month',
     subLabel: '(₦1,499.7 for full 3 months)'
   },
   STARTER: {
-    name: 'Starter Plan',
+    name: 'Standard (Starter) Plan',
     originalMonthlyPrice: 5000,
     monthlyPrice: 3500,
     minMonths: 1,
@@ -58,9 +66,16 @@ const PLAN_DETAILS: Record<StorePlanId, PlanInfo> = {
     badge: 'Recommended',
     icon: Sparkles,
     color: 'from-purple-600 to-indigo-600',
-    bullets: ['Merchant badge', 'Open Market publishing', 'Member capacity: 1,000 members', 'Product listing limit: 250 products', 'Full store wall & comments'],
+    bullets: [
+      'Merchant badge',
+      'Open Market publishing',
+      'Member capacity: 1,000 members',
+      'Product listing limit: 250 products',
+      'Full store wall & customer engagements',
+      'Promo & bonus credits applicable!'
+    ],
     discountLabel: 'Discount ₦3,500/month',
-    subLabel: '(People can still pay per month or for 3 months)'
+    subLabel: '(Pay per month or for 3 months)'
   },
   GROWTH: {
     name: 'Growth Plan',
@@ -121,13 +136,12 @@ export default function StoreUpgradeModal({
   storePlan,
   isPro
 }: StoreUpgradeModalProps) {
+  const { user } = useAuth();
   const [selectedMonths, setSelectedMonths] = useState<number>(1);
   const [subStatus, setSubStatus] = useState<SubscriptionStatus | null>(null);
-  const [trialNotice, setTrialNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !activeUsername || activeUsername === 'guest') return;
-    setTrialNotice(null);
     fetchSubscriptionStatus()
       .then((status) => {
         setSubStatus(status);
@@ -152,11 +166,6 @@ export default function StoreUpgradeModal({
   };
 
   const handleChoosePlan = (planId: StorePlanId) => {
-    if (planId === 'TRIAL' && isExistingMerchant) {
-      setTrialNotice('The Trial Plan is strictly for first-time store activations. Returning merchants renew on Starter Plan or above.');
-      return;
-    }
-    setTrialNotice(null);
     const plan = PLAN_DETAILS[planId];
     if (selectedMonths < plan.minMonths) {
       setSelectedMonths(plan.minMonths);
@@ -222,13 +231,6 @@ export default function StoreUpgradeModal({
                     </p>
                   </div>
 
-                  {trialNotice && (
-                    <div className="p-3 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-[11px] font-sans flex items-start gap-2 text-left">
-                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <span>{trialNotice}</span>
-                    </div>
-                  )}
-
                   {/* Billing Duration Selector */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 text-center">
@@ -262,12 +264,8 @@ export default function StoreUpgradeModal({
                       const { total, validMonths } = calculateTotalPrice(planId, selectedMonths);
                       const isTrial = planId === 'TRIAL';
                       const isStarter = planId === 'STARTER';
-                      const badgeText = isTrial && isExistingMerchant
-                        ? 'First-Time Stores Only'
-                        : isStarter && isExistingMerchant
-                        ? 'Renew Your Store (Recommended)'
-                        : plan.badge;
-                      const isPopular = (isStarter && isExistingMerchant) || plan.badge === 'Recommended';
+                      const badgeText = isStarter ? 'Recommended' : plan.badge;
+                      const isPopular = isStarter;
 
                       return (
                         <button
@@ -275,9 +273,7 @@ export default function StoreUpgradeModal({
                           type="button"
                           onClick={() => handleChoosePlan(planId)}
                           className={`w-full p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
-                            isTrial && isExistingMerchant
-                              ? 'border-slate-200 bg-slate-50/60 opacity-80 hover:border-amber-300'
-                              : isPopular
+                            isPopular
                               ? 'border-purple-300 bg-purple-50/40 hover:bg-purple-50 hover:border-purple-400 shadow-xs ring-1 ring-purple-200'
                               : 'border-slate-200 bg-white hover:border-purple-200 hover:bg-slate-50/70'
                           }`}
@@ -285,11 +281,11 @@ export default function StoreUpgradeModal({
                           {badgeText && (
                             <span
                               className={`absolute top-2.5 right-3 text-[9px] font-sans font-bold px-2 py-0.5 rounded-full ${
-                                isTrial && isExistingMerchant
-                                  ? 'bg-slate-200 text-slate-700'
-                                  : isPopular
+                                isPopular
                                   ? 'bg-purple-600 text-white'
-                                  : 'bg-slate-800 text-white'
+                                  : isTrial
+                                  ? 'bg-slate-800 text-white'
+                                  : 'bg-indigo-600 text-white'
                               }`}
                             >
                               {badgeText}
@@ -418,6 +414,12 @@ export default function StoreUpgradeModal({
                   {(() => {
                     const plan = PLAN_DETAILS[selectedStorePlan];
                     const { total, validMonths } = calculateTotalPrice(selectedStorePlan, selectedMonths);
+                    const isTrial = selectedStorePlan === 'TRIAL';
+                    const userPromo = Number(user?.promoBalance || 0);
+                    const userWallet = Number(user?.walletBalance || 0);
+                    const promoApplicable = !isTrial && userPromo > 0;
+                    const promoDeduction = promoApplicable ? Math.min(userPromo, total) : 0;
+                    const walletDeduction = total - promoDeduction;
 
                     return (
                       <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-sans space-y-2 text-left">
@@ -447,11 +449,34 @@ export default function StoreUpgradeModal({
                             {selectedStorePlan === 'TRIAL' ? ' (Minimum 3 months)' : ''}
                           </span>
                         </div>
-                        <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-sm font-bold text-slate-900">
-                          <span>Total Amount Due</span>
-                          <span className="text-purple-600 text-base">
+                        <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-xs font-semibold text-slate-700">
+                          <span>Plan Total</span>
+                          <span className="text-slate-900 font-bold">
                             ₦{formatNaira(total)}
                           </span>
+                        </div>
+
+                        {isTrial ? (
+                          <div className="flex justify-between items-center text-[10px] text-amber-800 bg-amber-50/80 p-2 rounded-lg border border-amber-200/60">
+                            <span>Promo Credits:</span>
+                            <span className="font-semibold">Not applicable on Trial plan</span>
+                          </div>
+                        ) : promoDeduction > 0 ? (
+                          <div className="flex justify-between items-center text-[10px] text-emerald-800 bg-emerald-50/80 p-2 rounded-lg border border-emerald-200/60">
+                            <span>Promo Credit Applied:</span>
+                            <span className="font-bold">-₦{formatNaira(promoDeduction)}</span>
+                          </div>
+                        ) : null}
+
+                        <div className="flex justify-between items-center text-sm font-bold text-slate-900 pt-1">
+                          <span>Wallet Balance Due</span>
+                          <span className="text-purple-600 text-base">
+                            ₦{formatNaira(walletDeduction)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-400 pt-0.5">
+                          <span>Your Current Wallet Balance:</span>
+                          <span className="font-medium text-slate-600">₦{formatNaira(userWallet)}</span>
                         </div>
                       </div>
                     );

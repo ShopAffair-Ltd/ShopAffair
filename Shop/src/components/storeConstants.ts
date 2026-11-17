@@ -9,6 +9,7 @@ export interface WallComment {
   isSeller: boolean;
   content: string;
   timestamp: string;
+  isPending?: boolean;
 }
 
 export interface WallPost {

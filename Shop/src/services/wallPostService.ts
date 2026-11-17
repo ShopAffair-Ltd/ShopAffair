@@ -12,6 +12,7 @@ export interface WallPostComment {
   content: string;
   createdAt: string;
   author: WallPostAuthor;
+  isPending?: boolean;
 }
 
 export interface WallPost {
