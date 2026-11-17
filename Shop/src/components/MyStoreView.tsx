@@ -247,7 +247,7 @@ export default function MyStoreView() {
     if (activeCategoryChip === 'All') return true;
     if (activeCategoryChip === 'Sales Offers') return p.tradeType === 'Supply' || !p.tradeType;
     if (activeCategoryChip === 'Purchase Offers') return p.tradeType === 'Request';
-    if (activeCategoryChip === 'Private') return p.visibility === 'PRIVATE';
+    if (activeCategoryChip === 'Private') return p.visibility === 'PRIVATE' || !isStoreActive;
     return p.category.toLowerCase() === activeCategoryChip.toLowerCase();
   });
 
@@ -742,6 +742,28 @@ export default function MyStoreView() {
                 ))}
               </div>
 
+              {/* Notice for unrenewed stores whose catalog is automatically private */}
+              {!isStoreActive && storeProducts.length > 0 && (
+                <div className="mx-4 mb-3 p-3 bg-amber-50/90 border border-amber-200 rounded-xl flex items-center justify-between gap-3 text-left">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                      <EyeOff className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      Catalog Currently Private
+                    </p>
+                    <p className="text-[11px] font-sans text-amber-800/80 mt-0.5">
+                      Your store plan has expired. Your items are safe and kept private to you. Renew your plan to automatically relist your open market items.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openStoreUpgrade}
+                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-lg shrink-0 transition-all cursor-pointer shadow-xs"
+                  >
+                    Renew Plan
+                  </button>
+                </div>
+              )}
+
               <div className="px-4 grid grid-cols-2 gap-2">
                 <button
                   onClick={openAddProduct}
@@ -755,7 +777,7 @@ export default function MyStoreView() {
                   <div
                     key={prod.id}
                     className={`bg-white border rounded-xl overflow-hidden group relative ${
-                      prod.visibility === 'PRIVATE'
+                      prod.visibility === 'PRIVATE' || !isStoreActive
                         ? 'border-amber-300 ring-1 ring-amber-200/70'
                         : 'border-slate-100'
                     }`}
@@ -763,13 +785,18 @@ export default function MyStoreView() {
                     <div className="aspect-square w-full bg-slate-50 relative overflow-hidden">
                       <img src={prod.image} alt={prod.title} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       <div className="absolute top-1.5 left-1.5 flex flex-col gap-1 items-start">
-                        {prod.visibility === 'PRIVATE' && (
+                        {prod.visibility === 'PRIVATE' ? (
                           <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[8px] font-sans font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-sm shrink-0">
                             <EyeOff className="w-2.5 h-2.5" />
                             Private
                           </span>
-                        )}
-                        {prod.visibility === 'STORE' && (
+                        ) : !isStoreActive ? (
+                          <span className="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[8px] font-sans font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-sm shrink-0">
+                            <EyeOff className="w-2.5 h-2.5" />
+                            Private (Expired)
+                          </span>
+                        ) : null}
+                        {prod.visibility === 'STORE' && isStoreActive && (
                           <span className="px-1.5 py-0.5 rounded bg-indigo-600/90 text-white text-[8px] font-sans font-bold uppercase tracking-wider shadow-sm">
                             My Store Only
                           </span>
@@ -804,7 +831,13 @@ export default function MyStoreView() {
                       <h4 className="text-[10px] font-sans font-bold text-slate-800 line-clamp-1">{prod.title}</h4>
                       <div className="flex items-center gap-1 text-[9px] font-sans text-slate-400 mt-0.5">
                         <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
-                        {prod.rating} · {prod.visibility === 'PRIVATE' ? 'Private (only you)' : 'Your listing'}
+                        {prod.rating} · {
+                          prod.visibility === 'PRIVATE'
+                            ? 'Private (only you)'
+                            : !isStoreActive
+                            ? 'Private (renew to relist)'
+                            : 'Open Market'
+                        }
                       </div>
                       <p className="text-[10px] font-sans font-extrabold text-slate-800 mt-0.5">₦{prod.price.toLocaleString()}</p>
                     </div>

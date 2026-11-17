@@ -38,10 +38,6 @@ export const listProducts = async (query: ListProductsQuery, userId: string | nu
   const { page, limit, category, condition, sellerId, search, location, minPrice, maxPrice } = query;
 
   const where: Prisma.ProductWhereInput = {
-    isListed: true,
-    ...(userId
-      ? { OR: [{ visibility: 'MARKET', seller: { isPro: true } }, { sellerId: userId }] }
-      : { visibility: 'MARKET', seller: { isPro: true } }),
     ...(category ? { category } : {}),
     ...(condition ? { condition } : {}),
     ...(sellerId ? { sellerId } : {}),
@@ -51,6 +47,24 @@ export const listProducts = async (query: ListProductsQuery, userId: string | nu
       ? { price: { ...(minPrice !== undefined ? { gte: minPrice } : {}), ...(maxPrice !== undefined ? { lte: maxPrice } : {}) } }
       : {})
   };
+
+  if (userId) {
+    if (sellerId && sellerId === userId) {
+      // The store owner is viewing their own catalogue: they can see all their products (both active, expired/unlisted, and private)
+    } else {
+      where.OR = [
+        // Public open market items from active pro merchants
+        { isListed: true, visibility: 'MARKET', seller: { isPro: true } },
+        // The user's own products
+        { sellerId: userId }
+      ];
+    }
+  } else {
+    // Public/Guest: only products from active pro sellers that are listed for the market
+    where.isListed = true;
+    where.visibility = 'MARKET';
+    where.seller = { isPro: true };
+  }
 
   const [items, total] = await Promise.all([
     prisma.product.findMany({

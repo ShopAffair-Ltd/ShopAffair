@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { env } from '../../config/env';
+import { ApiError } from '../../utils/ApiError';
 
 const resend = new Resend(env.RESEND_API_KEY);
 console.log('RESEND KEY LOADED:', env.RESEND_API_KEY ? `yes, starts with ${env.RESEND_API_KEY.slice(0, 6)}` : 'MISSING');
@@ -11,6 +12,8 @@ export const sendOtpEmail = async (params: {
   purpose: 'signup' | 'reset';
 }) => {
   const { to, code, purpose } = params;
+
+  console.log(`[OTP] Generated ${purpose} verification code for ${to}: ${code}`);
 
   const subject =
     purpose === 'signup'
@@ -26,29 +29,43 @@ export const sendOtpEmail = async (params: {
     purpose === 'signup'
       ? 'Use the code below to verify your email and finish creating your ShopFair account.'
       : 'Use the code below to reset your ShopFair password.';
-  const { data, error } = await resend.emails.send({
-    from: FROM_EMAIL,
-    to,
-    subject,
-    html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2>${heading}</h2>
-        <p>${body}</p>
-        <p style="font-size: 32px; font-weight: bold; letter-spacing: 6px; margin: 24px 0;">
-          ${code}
-        </p>
-        <p style="color: #666; font-size: 13px;">
-          This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.
-        </p>
-      </div>
-    `
-  });
 
-  console.log('Resend response:', { data, error });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject,
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2>${heading}</h2>
+          <p>${body}</p>
+          <p style="font-size: 32px; font-weight: bold; letter-spacing: 6px; margin: 24px 0;">
+            ${code}
+          </p>
+          <p style="color: #666; font-size: 13px;">
+            This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.
+          </p>
+        </div>
+      `
+    });
 
-  if (error) {
-    throw new Error(error.message);
+    console.log('Resend response:', { data, error });
+
+    if (error) {
+      console.error('[Resend Error]', error);
+      throw new ApiError(
+        502,
+        `Verification email could not be sent: ${error.message}. Please check your email configuration or contact support.`
+      );
+    }
+
+    return data;
+  } catch (err: unknown) {
+    if (err instanceof ApiError) throw err;
+    console.error('[Resend Exception]', err);
+    throw new ApiError(
+      502,
+      `Verification email service error: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again later or contact support.`
+    );
   }
-
-  return data;
 };

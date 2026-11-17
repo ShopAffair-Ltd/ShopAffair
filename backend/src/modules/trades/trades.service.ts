@@ -68,7 +68,10 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
     }
     where.OR = [{ creatorId: userId }, { buyerId: userId }];
   } else if (storeOf) {
-    const storeOwner = await prisma.user.findUnique({ where: { username: storeOf }, select: { id: true } });
+    const storeOwner = await prisma.user.findUnique({
+      where: { username: storeOf },
+      select: { id: true, isPro: true }
+    });
     if (!storeOwner) {
       throw new ApiError(404, 'Store not found');
     }
@@ -76,9 +79,12 @@ export const listTrades = async (userId: string | null, query: ListTradesQuery) 
     where.creatorId = storeOwner.id;
 
     if (userId === storeOwner.id) {
-      // owner sees everything
-    } else {
+      // owner sees everything in their own store/catalog
+    } else if (storeOwner.isPro) {
       where.visibility = { in: ['MARKET', 'STORE'] };
+    } else {
+      // Unrenewed store: catalog is private to outsiders
+      where.id = 'NO_ACCESS';
     }
   } else if (userId) {
     // Only trades whose creator has an active store plan appear on Open Market

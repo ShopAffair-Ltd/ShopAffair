@@ -617,6 +617,12 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, 
       data: { isListed: true }
     });
 
+    // Restore any trades that were downgraded to STORE back to MARKET (PRIVATE trades remain PRIVATE)
+    await tx.trade.updateMany({
+      where: { creatorId: userId, visibility: 'STORE' },
+      data: { visibility: 'MARKET' }
+    });
+
     await tx.subscription.updateMany({
       where: { userId, active: true },
       data: { active: false }
