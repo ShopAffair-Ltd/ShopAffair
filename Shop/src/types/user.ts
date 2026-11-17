@@ -12,6 +12,7 @@ export interface UserProfile {
   walletBalance: number;
   promoBalance?: number;
   isPro: boolean;
+  storePlan?: string;
   avatarColor: string;
   bankName?: string;
   accountNumber?: string;

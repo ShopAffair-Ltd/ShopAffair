@@ -1,5 +1,6 @@
 export interface MarketProduct {
   id: string;
+  sellerId?: string;
   title: string;
   price: number;
   sellerUsername: string;
