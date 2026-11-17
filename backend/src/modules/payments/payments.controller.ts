@@ -111,8 +111,8 @@ export const getPlans = asyncHandler(async (_req: Request, res: Response) => {
 
 export const subscribe = asyncHandler(async (req: Request, res: Response) => {
   const user = requireUser(req);
-  const { planId } = subscribeSchema.parse(req.body);
-  const subscription = await subscribeToStorePlan(user.id, planId);
+  const { planId, months } = subscribeSchema.parse(req.body);
+  const subscription = await subscribeToStorePlan(user.id, planId, months);
   res.status(200).json({ subscription });
 });
 

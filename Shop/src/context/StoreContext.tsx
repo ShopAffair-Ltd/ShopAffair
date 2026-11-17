@@ -10,7 +10,7 @@ interface StoreContextType {
   openStoreUpgrade: () => void;
   closeStoreUpgrade: () => void;
   selectPlan: (plan: StorePlanId | null) => void;
-  activatePlan: (plan: StorePlanId) => Promise<boolean>;
+  activatePlan: (plan: StorePlanId, months?: number) => Promise<boolean>;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -33,15 +33,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setSelectedStorePlan(plan);
   };
 
-  const activatePlan = async (plan: StorePlanId): Promise<boolean> => {
+  const activatePlan = async (plan: StorePlanId, months: number = 1): Promise<boolean> => {
     if (!user) return false;
 
     setActivating(true);
     setActivateError(null);
 
     try {
-      await subscribeToStorePlan(plan);
-      updateUser({ ...user, isPro: true });
+      await subscribeToStorePlan(plan, months);
+      updateUser({ ...user, isPro: true, storePlan: plan });
       setStoreUpgradeOpen(false);
       setSelectedStorePlan(null);
       return true;

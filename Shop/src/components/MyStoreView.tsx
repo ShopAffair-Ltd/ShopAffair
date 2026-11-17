@@ -710,6 +710,41 @@ export default function MyStoreView() {
           {/* SETTINGS */}
           {activeTab === 'settings' && (
             <motion.div key="settings" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 mt-3 space-y-3">
+              {/* STORE PLAN & CAPACITY CARD (Prominently placed at top of Settings) */}
+              <div className="p-4 bg-gradient-to-br from-purple-50 via-indigo-50/50 to-purple-100/40 border border-purple-200/90 rounded-2xl shadow-xs space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-300">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-900">Store Capacity & Plan</span>
+                        <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white font-extrabold text-[9px] uppercase tracking-wider shrink-0">
+                          {activeProfile.isPro ? (activeProfile.storePlan || 'Pro Plan') : 'Free Plan'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-sans text-purple-900/80 mt-0.5 font-medium truncate">
+                        {activeProfile.isPro
+                          ? 'Capacity: 1,000–50,000 items • Open Market enabled'
+                          : 'Store Capacity: 5 items (Trial) • Upgrade for 1,000–50,000 items'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openStoreUpgrade}
+                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Upgrade
+                  </button>
+                </div>
+                <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-[10px] text-slate-500 font-sans">
+                  <span>Pay 1, 3, 6, or 12 months ahead with up to 15% discount.</span>
+                </div>
+              </div>
+
               {/* Store Profile & Branding */}
               <form onSubmit={handleSaveStoreProfile} className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 space-y-3">
                 <div className="flex items-center justify-between">
@@ -830,35 +865,6 @@ export default function MyStoreView() {
                   {storeProfileSaving ? 'Saving Store Settings...' : 'Save Store Profile'}
                 </button>
               </form>
-
-              {/* STORE PLAN CARD */}
-              <div className="p-4 bg-gradient-to-br from-purple-50/70 to-indigo-50/40 border border-purple-100 rounded-2xl flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-200">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-900">Store Plan</span>
-                      <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-extrabold text-[9px] uppercase">
-                        {activeProfile.isPro ? (activeProfile.storePlan || 'Pro Plan') : 'Free Plan'}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      {activeProfile.isPro
-                        ? 'Active store subscription • Open Market enabled'
-                        : 'Upgrade to publish items directly to the Open Market'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={openStoreUpgrade}
-                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer"
-                >
-                  {activeProfile.isPro ? 'Manage Plan' : 'Upgrade Plan'}
-                </button>
-              </div>
 
               <button
                 onClick={openAddProduct}

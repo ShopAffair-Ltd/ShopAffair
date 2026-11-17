@@ -33,7 +33,8 @@ export const withdrawSchema = z.object({
 });
 
 export const subscribeSchema = z.object({
-  planId: z.enum(['TRIAL', 'STARTER'])
+  planId: z.enum(['TRIAL', 'STARTER', 'GROWTH', 'ENTERPRISE']),
+  months: z.coerce.number().int().min(1).max(12).optional().default(1)
 });
 
 export const redeemSchema = z.object({

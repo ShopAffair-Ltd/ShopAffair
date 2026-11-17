@@ -144,12 +144,16 @@ export const withdraw = async (params: {
 };
 
 
-export type StorePlanId = 'TRIAL' | 'STARTER';
+export type StorePlanId = 'TRIAL' | 'STARTER' | 'GROWTH' | 'ENTERPRISE';
 
-export const STARTER_PLAN_PRICE = 5000;
-export const STARTER_PLAN_PRICE_DISPLAY = `₦${STARTER_PLAN_PRICE.toLocaleString()}`;
 export const TRIAL_PLAN_PRICE = 499.9;
 export const TRIAL_PLAN_PRICE_DISPLAY = `₦${TRIAL_PLAN_PRICE.toLocaleString()}`;
+export const STARTER_PLAN_PRICE = 5000;
+export const STARTER_PLAN_PRICE_DISPLAY = `₦${STARTER_PLAN_PRICE.toLocaleString()}`;
+export const GROWTH_PLAN_PRICE = 12000;
+export const GROWTH_PLAN_PRICE_DISPLAY = `₦${GROWTH_PLAN_PRICE.toLocaleString()}`;
+export const ENTERPRISE_PLAN_PRICE = 25000;
+export const ENTERPRISE_PLAN_PRICE_DISPLAY = `₦${ENTERPRISE_PLAN_PRICE.toLocaleString()}`;
 
 export interface StorePlan {
   id: StorePlanId;
@@ -182,8 +186,8 @@ export const fetchSubscriptionStatus = async (): Promise<SubscriptionStatus> => 
   return data;
 };
 
-export const subscribeToStorePlan = async (planId: StorePlanId): Promise<void> => {
-  await api.post('/payments/subscription', { planId });
+export const subscribeToStorePlan = async (planId: StorePlanId, months: number = 1): Promise<void> => {
+  await api.post('/payments/subscription', { planId, months });
 };
 
 export const redeemPromoCode = async (code: string): Promise<{ creditAmount: number }> => {

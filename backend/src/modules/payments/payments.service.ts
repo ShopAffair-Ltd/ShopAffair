@@ -471,14 +471,44 @@ export const STORE_PLANS = {
     storeCapacity: 1000,
     listingLimit: 250,
     durationDays: 30
+  },
+  GROWTH: {
+    id: 'GROWTH',
+    name: 'Growth Plan',
+    price: 12000,
+    storeCapacity: 5000,
+    listingLimit: 1000,
+    durationDays: 30
+  },
+  ENTERPRISE: {
+    id: 'ENTERPRISE',
+    name: 'Enterprise Plan',
+    price: 25000,
+    storeCapacity: 50000,
+    listingLimit: 10000,
+    durationDays: 30
   }
 } as const;
 
 export type StorePlanId = keyof typeof STORE_PLANS;
 
+export const calculatePlanPriceAndDuration = (basePrice: number, months: number = 1) => {
+  const m = Math.max(1, Math.min(12, months));
+  let discountRate = 0;
+  if (m >= 12) discountRate = 0.15; // 15% discount for 1 year
+  else if (m >= 6) discountRate = 0.10; // 10% discount for 6 months
+  else if (m >= 3) discountRate = 0.05; // 5% discount for 3 months
+
+  const rawTotal = basePrice * m * (1 - discountRate);
+  const finalPrice = Math.round(rawTotal * 100) / 100;
+  const durationDays = m * 30;
+
+  return { finalPrice, durationDays, months: m, discountPercent: Math.round(discountRate * 100) };
+};
+
 const generateSubscriptionReference = () => `SF-SUB-${crypto.randomBytes(8).toString('hex')}`;
 
-export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) => {
+export const subscribeToStorePlan = async (userId: string, planId: StorePlanId, months: number = 1) => {
   const plan = STORE_PLANS[planId];
   if (!plan) {
     throw new ApiError(400, 'Unknown store plan');
@@ -492,6 +522,8 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
     throw new ApiError(403, `Only sellers can subscribe to the ${plan.name}`);
   }
 
+  const { finalPrice, durationDays, months: validMonths } = calculatePlanPriceAndDuration(plan.price, months);
+
   const activeSub = await prisma.subscription.findFirst({
     where: { userId, active: true },
     orderBy: { createdAt: 'desc' }
@@ -502,16 +534,12 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
     activeSub.expiresAt.getTime() > Date.now()
   );
 
-  if (user.storePlan === plan.id && hasActivePlan) {
-    throw new ApiError(409, `You already have an active ${plan.name} subscription`);
-  }
-
-  const planPrice = new Prisma.Decimal(plan.price);
+  const planPrice = new Prisma.Decimal(finalPrice);
   const totalAvailable = new Prisma.Decimal(user.walletBalance).plus(user.promoBalance);
   if (totalAvailable.lessThan(planPrice)) {
     throw new ApiError(
       402,
-      `Insufficient balance. The ${plan.name} costs ₦${plan.price.toLocaleString()}, and your wallet + promo balance total ₦${totalAvailable.toFixed(2)}.`
+      `Insufficient balance. The ${plan.name} (${validMonths} month${validMonths > 1 ? 's' : ''}) costs ₦${finalPrice.toLocaleString()}, and your wallet + promo balance total ₦${totalAvailable.toFixed(2)}.`
     );
   }
 
@@ -519,18 +547,8 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
 
   const subscription = await prisma.$transaction(async (tx) => {
     const fresh = await tx.user.findUnique({ where: { id: userId } });
-    const txActiveSub = await tx.subscription.findFirst({
-      where: { userId, active: true },
-      orderBy: { createdAt: 'desc' }
-    });
-    const txHasActivePlan = Boolean(
-      txActiveSub &&
-      txActiveSub.expiresAt &&
-      txActiveSub.expiresAt.getTime() > Date.now()
-    );
-
-    if (!fresh || (fresh.storePlan === plan.id && txHasActivePlan)) {
-      throw new ApiError(409, `You already have an active ${plan.name} subscription`);
+    if (!fresh) {
+      throw new ApiError(404, 'User not found');
     }
 
     const freshPromoBalance = new Prisma.Decimal(fresh.promoBalance);
@@ -562,7 +580,7 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
         userId,
         type: 'SUBSCRIPTION',
         provider: 'MANUAL',
-        amount: plan.price,
+        amount: finalPrice,
         status: 'SUCCESS',
         reference
       }
@@ -578,13 +596,19 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
       data: { active: false }
     });
 
+    // If extending an already active plan, add on top of current expiry; otherwise start from now
+    const baseStartTime = (hasActivePlan && activeSub?.expiresAt && activeSub.expiresAt.getTime() > Date.now())
+      ? activeSub.expiresAt.getTime()
+      : Date.now();
+    const expiresAt = new Date(baseStartTime + durationDays * 24 * 60 * 60 * 1000);
+
     return tx.subscription.create({
       data: {
         userId,
-        plan: plan.id,
-        amount: plan.price,
+        plan: `${plan.id}_${validMonths}M`,
+        amount: finalPrice,
         reference,
-        expiresAt: new Date(Date.now() + plan.durationDays * 24 * 60 * 60 * 1000)
+        expiresAt
       }
     });
   });
@@ -592,7 +616,7 @@ export const subscribeToStorePlan = async (userId: string, planId: StorePlanId) 
   await notify({
     userId,
     title: `${plan.name} activated`,
-    message: `You're now on the ${plan.name}. You can list up to ${plan.listingLimit} products.`,
+    message: `You're now on the ${plan.name} for ${validMonths} month${validMonths > 1 ? 's' : ''}. You can list up to ${plan.listingLimit.toLocaleString()} products (capacity: ${plan.storeCapacity.toLocaleString()}).`,
     type: 'SUCCESS'
   });
 
