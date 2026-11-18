@@ -580,14 +580,23 @@ export default function StoreProfile({
           {activeTab === 'products' && (
             <div className="grid grid-cols-2 gap-3">
               {isStoreOwner && !isStoreActive && (
-                <div className="col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-left">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                    <EyeOff className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>Your Catalog is Currently Private to the Public</span>
+                <div className="col-span-2 p-3.5 bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 border border-amber-200/90 rounded-2xl flex items-center justify-between gap-3 text-left shadow-xs mb-1">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
+                      <EyeOff className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Your store catalog is only visible to you.</span>
+                    </div>
+                    <p className="text-[11px] font-sans text-amber-900/80 mt-1 font-medium leading-relaxed">
+                      Upgrade your account to make your products visible to customers and other users.
+                    </p>
                   </div>
-                  <p className="text-[11px] font-sans text-amber-800/80 mt-0.5">
-                    Your store subscription has expired. These items are only visible to you. Once you resubscribe, your open market items will automatically return to the open market.
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/my-store?tab=settings')}
+                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl shrink-0 transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                  >
+                    Upgrade Account
+                  </button>
                 </div>
               )}
 
@@ -610,17 +619,12 @@ export default function StoreProfile({
                         loading="lazy"
                       />
                       <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
-                        {product.visibility === 'PRIVATE' ? (
+                        {(product.visibility === 'PRIVATE' || !isStoreActive) && (
                           <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase shadow-sm">
                             <EyeOff className="w-2.5 h-2.5" />
                             Private
                           </span>
-                        ) : !isStoreActive ? (
-                          <span className="bg-amber-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase shadow-sm">
-                            <EyeOff className="w-2.5 h-2.5" />
-                            Private (Expired)
-                          </span>
-                        ) : null}
+                        )}
                         {product.tradeType === 'Request' ? (
                           <span className="bg-purple-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase shadow-sm">
                             Purchase Offer
@@ -638,12 +642,11 @@ export default function StoreProfile({
                     </div>
                     <div className="p-2.5">
                       <h4 className="text-[10px] font-sans font-bold text-slate-800 line-clamp-1">{product.title}</h4>
-                      {product.visibility === 'PRIVATE' && (
+                      {!isStoreActive ? (
+                        <p className="text-[9px] font-sans font-semibold text-amber-600 mt-0.5">Private (Only visible to you)</p>
+                      ) : product.visibility === 'PRIVATE' ? (
                         <p className="text-[9px] font-sans font-semibold text-amber-600 mt-0.5">Only visible to you</p>
-                      )}
-                      {!isStoreActive && isStoreOwner && product.visibility !== 'PRIVATE' && (
-                        <p className="text-[9px] font-sans font-semibold text-amber-700 mt-0.5">Private (renew to show on market)</p>
-                      )}
+                      ) : null}
                       <p className="text-[10px] font-sans font-extrabold text-purple-600 mt-0.5">₦{Number(product.price).toLocaleString()}</p>
                     </div>
                   </div>
