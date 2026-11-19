@@ -580,22 +580,22 @@ export default function StoreProfile({
           {activeTab === 'products' && (
             <div className="grid grid-cols-2 gap-3">
               {isStoreOwner && !isStoreActive && (
-                <div className="col-span-2 p-3.5 bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 border border-amber-200/90 rounded-2xl flex items-center justify-between gap-3 text-left shadow-xs mb-1">
+                <div className="col-span-2 p-2.5 sm:p-3 bg-gradient-to-r from-amber-50 via-orange-50/50 to-amber-50 border border-amber-200/90 rounded-xl flex items-center justify-between gap-2.5 text-left shadow-xs mb-1">
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
-                      <EyeOff className="w-4 h-4 text-amber-600 shrink-0" />
+                      <EyeOff className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                       <span>Your store catalog is only visible to you.</span>
                     </div>
-                    <p className="text-[11px] font-sans text-amber-900/80 mt-1 font-medium leading-relaxed">
+                    <p className="text-[10px] sm:text-[11px] font-sans text-amber-900/80 mt-0.5 font-medium leading-snug">
                       Upgrade your account to make your products visible to customers and other users.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => navigate('/my-store?tab=settings')}
-                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl shrink-0 transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                    className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[10px] sm:text-xs font-bold rounded-lg shrink-0 transition-all cursor-pointer shadow-xs whitespace-nowrap"
                   >
-                    Upgrade Account
+                    Upgrade
                   </button>
                 </div>
               )}

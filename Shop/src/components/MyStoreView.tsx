@@ -617,22 +617,22 @@ export default function MyStoreView() {
           {activeTab === 'wall' && (
             <motion.div key="wall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-4 mt-3">
               {pendingCommentsCount > 0 && (
-                <div className="mb-4 p-3 bg-gradient-to-r from-purple-50 via-indigo-50 to-purple-100/50 border border-purple-200 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+                <div className="mb-3 p-2.5 sm:p-3 bg-gradient-to-r from-purple-50 via-indigo-50/60 to-purple-100/40 border border-purple-200/90 rounded-xl flex items-center justify-between gap-2.5 shadow-xs">
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-purple-900">
                       <Sparkles className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                       <span>{pendingCommentsCount} Pending Customer Engagement{pendingCommentsCount > 1 ? 's' : ''}</span>
                     </div>
-                    <p className="text-[11px] font-sans text-purple-800/80 mt-0.5">
-                      Your Trial Plan has reached its 5-person engagement limit. Upgrade to the Standard Plan to unlock all pending comments and engage up to 1,000 members.
+                    <p className="text-[10px] sm:text-[11px] font-sans text-purple-800/80 mt-0.5 leading-snug">
+                      Your Trial Plan has reached its 5-person engagement limit. Upgrade to unlock all comments and engage up to 1,000 members.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={openStoreUpgrade}
-                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl shrink-0 transition-all cursor-pointer shadow-xs"
+                    className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[10px] sm:text-xs font-bold rounded-lg shrink-0 transition-all cursor-pointer shadow-xs whitespace-nowrap"
                   >
-                    Upgrade Plan
+                    Upgrade
                   </button>
                 </div>
               )}
@@ -744,22 +744,22 @@ export default function MyStoreView() {
 
               {/* Information card for store owners who haven't registered or upgraded */}
               {!isStoreActive && (
-                <div className="mx-4 mb-3 p-3.5 bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 border border-amber-200/90 rounded-2xl flex items-center justify-between gap-3 text-left shadow-xs">
+                <div className="mx-4 mb-2.5 p-2.5 sm:p-3 bg-gradient-to-r from-amber-50 via-orange-50/50 to-amber-50 border border-amber-200/90 rounded-xl flex items-center justify-between gap-2.5 text-left shadow-xs">
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
-                      <EyeOff className="w-4 h-4 text-amber-600 shrink-0" />
+                      <EyeOff className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                       Your store catalog is only visible to you.
                     </p>
-                    <p className="text-[11px] font-sans text-amber-900/80 mt-1 font-medium leading-relaxed">
+                    <p className="text-[10px] sm:text-[11px] font-sans text-amber-900/80 mt-0.5 font-medium leading-snug">
                       Upgrade your account to make your products visible to customers and other users.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={openStoreUpgrade}
-                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl shrink-0 transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                    className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[10px] sm:text-xs font-bold rounded-lg shrink-0 transition-all cursor-pointer shadow-xs whitespace-nowrap"
                   >
-                    Upgrade Account
+                    Upgrade
                   </button>
                 </div>
               )}
@@ -866,49 +866,72 @@ export default function MyStoreView() {
                   : '1,000 members (expandable to 50,000)';
 
                 return (
-                  <div className="p-4 bg-gradient-to-br from-purple-50 via-indigo-50/40 to-purple-100/30 border border-purple-200/90 rounded-2xl shadow-xs space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-purple-200">
-                          <Sparkles className="w-5 h-5" />
+                  <div className={`p-3 sm:p-3.5 border rounded-xl shadow-xs space-y-2.5 ${
+                    !isStoreActive
+                      ? 'bg-gradient-to-br from-amber-50 via-orange-50/50 to-amber-50 border-amber-200/90'
+                      : 'bg-gradient-to-br from-purple-50 via-indigo-50/40 to-purple-100/30 border-purple-200/90'
+                  }`}>
+                    {/* Header Row: Icon + Title + Status Badge + Action Button */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white flex items-center justify-center shrink-0 shadow-xs ${
+                          !isStoreActive ? 'bg-amber-500' : 'bg-purple-600'
+                        }`}>
+                          {!isStoreActive ? <AlertCircle className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
                         </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-slate-900">Store Plan & Capacity</span>
-                            <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white font-extrabold text-[9px] uppercase tracking-wider shrink-0">
-                              {planName}
-                            </span>
-                          </div>
-                          <p className="text-[11px] font-sans text-purple-900/80 mt-0.5 font-medium truncate">
-                            Capacity: {planCapacity}
-                          </p>
+                        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                          <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                            {!isStoreActive ? 'Store Plan Expired' : 'Store Plan & Capacity'}
+                          </span>
+                          <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-wide shrink-0 ${
+                            !isStoreActive ? 'bg-red-500 text-white' : 'bg-purple-600 text-white'
+                          }`}>
+                            {!isStoreActive ? 'Renewal Due' : planName}
+                          </span>
                         </div>
                       </div>
+
                       <button
                         type="button"
                         onClick={openStoreUpgrade}
-                        className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0 cursor-pointer flex items-center gap-1.5"
+                        className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white text-[11px] font-bold rounded-lg transition-all shadow-xs shrink-0 cursor-pointer flex items-center gap-1"
                       >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Upgrade / Change Plan
+                        {!isStoreActive ? (
+                          <>
+                            <RefreshCw className="w-3 h-3" />
+                            <span>Renew Plan</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3" />
+                            <span>Change Plan</span>
+                          </>
+                        )}
                       </button>
                     </div>
 
+                    {/* Explanatory Description full-width so it never wraps awkwardly */}
+                    <p className="text-[11px] font-sans text-slate-600 leading-snug">
+                      {!isStoreActive
+                        ? 'Your merchant subscription has expired. Renew your plan to restore member capacity and keep your items active on the Open Market.'
+                        : `Current Capacity: ${planCapacity}. Catalogue and store wall active on the Open Market.`}
+                    </p>
+
                     {pendingCommentsCount > 0 && (
-                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-[11px] text-amber-900">
-                        <span><strong>{pendingCommentsCount} pending customer engagement{pendingCommentsCount > 1 ? 's' : ''}</strong> waiting to be unlocked.</span>
+                      <div className="p-2 bg-amber-100/70 border border-amber-200 rounded-lg flex items-center justify-between text-[10px] text-amber-900 gap-2">
+                        <span className="truncate"><strong>{pendingCommentsCount} pending engagement{pendingCommentsCount > 1 ? 's' : ''}</strong> waiting to be unlocked.</span>
                         <button
                           type="button"
                           onClick={openStoreUpgrade}
-                          className="font-bold underline text-purple-700 hover:text-purple-900 cursor-pointer"
+                          className="font-bold underline text-purple-700 hover:text-purple-900 shrink-0 cursor-pointer"
                         >
                           Upgrade Now
                         </button>
                       </div>
                     )}
 
-                    <div className="pt-2 border-t border-purple-100/80 flex items-center justify-between text-[10px] text-slate-500 font-sans">
-                      <span>Standard Plan: ₦3,500/mo (1,000 members • Promo credits apply) • Trial: ₦499.9/mo (5 engagements)</span>
+                    <div className="pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[9px] text-slate-500 font-sans">
+                      <span>Standard: ₦3,500/mo (1,000 members • Promo credits apply) • Trial: ₦499.9/mo</span>
                     </div>
                   </div>
                 );
