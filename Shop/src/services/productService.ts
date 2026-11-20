@@ -41,10 +41,11 @@ interface RawProduct {
 
 const mapToMarketProduct = (raw: RawProduct): MarketProduct => ({
   id: raw.id,
+  sellerId: raw.seller?.id,
   title: raw.title,
   price: Number(raw.price),
-  sellerUsername: raw.seller.username,
-  sellerName: raw.seller.name,
+  sellerUsername: raw.seller?.username ?? '',
+  sellerName: raw.seller?.name ?? '',
   rating: raw.rating,
   salesCount: raw.salesCount,
   reviewsCount: raw.reviewsCount,

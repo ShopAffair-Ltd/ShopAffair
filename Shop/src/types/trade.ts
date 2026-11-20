@@ -27,6 +27,7 @@ export enum EscrowStatus {
 
 export interface TradeItem {
   id: string;
+  creatorId?: string;
   title: string;
   creatorUsername: string;
   creatorName: string;

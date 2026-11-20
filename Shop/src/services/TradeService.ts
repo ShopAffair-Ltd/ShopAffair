@@ -55,6 +55,7 @@ interface RawTrade {
 
 const mapToTradeItem = (raw: RawTrade): TradeItem => ({
   id: raw.id,
+  creatorId: raw.creator?.id,
   title: raw.title,
   creatorUsername: raw.creator?.username ?? '',
   creatorName: raw.creator?.name ?? 'Seller',
@@ -232,12 +233,10 @@ const mapConditionToMarketLabel = (condition: string | undefined): 'New' | 'Like
 
 export const mapTradeToMarketProduct = (trade: TradeItem): MarketProduct | null => {
   if (trade.status !== EscrowStatus.PENDING) return null;
-  // Trades can only appear on Open Market if visibility is MARKET and creator has paid for store
-  if (trade.visibility !== TradeVisibility.MARKET) return null;
-  if (trade.creatorIsPro === false) return null;
 
   return {
     id: `trade:${trade.id}`,
+    sellerId: trade.creatorId,
     title: trade.title,
     price: trade.amount,
     sellerUsername: trade.creatorUsername,

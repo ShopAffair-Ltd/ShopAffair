@@ -35,10 +35,11 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [productResult, tradeResult, myTradesResult, myProductsResult] = await Promise.all([
+      const [productResult, tradeResult, myTradesResult, myStoreTradesResult, myProductsResult] = await Promise.all([
         fetchProducts({ limit: 50 }),
         fetchTrades({ limit: 50 }),
         user?.id ? fetchTrades({ mine: true, limit: 50 }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
+        user?.username ? fetchTrades({ storeOf: user.username, limit: 50 }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] }),
         user?.id ? fetchProducts({ sellerId: user.id, limit: 50 }).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
       ]);
 
@@ -47,7 +48,7 @@ export function MarketProvider({ children }: { children: React.ReactNode }) {
         productMap.set(p.id, p);
       }
 
-      const allTrades = [...myTradesResult.items, ...tradeResult.items];
+      const allTrades = [...myStoreTradesResult.items, ...myTradesResult.items, ...tradeResult.items];
       const seenTradeIds = new Set<string>();
       const tradesAsProducts: MarketProduct[] = [];
       for (const t of allTrades) {

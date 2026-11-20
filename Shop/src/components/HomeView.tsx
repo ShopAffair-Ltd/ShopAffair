@@ -66,7 +66,7 @@ export default function HomeView() {
 
   if (!user) return null;
 
-  const trendingProducts = products.slice(0, 6);
+  const trendingProducts = products.filter((p) => p.visibility === 'MARKET').slice(0, 6);
   const recentTrades = trades.slice(0, 6);
   const isSeller = user.role === 'seller';
 

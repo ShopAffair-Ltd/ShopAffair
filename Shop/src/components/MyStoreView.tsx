@@ -83,6 +83,10 @@ export default function MyStoreView() {
   );
 
   useEffect(() => {
+    refreshMarket();
+  }, [refreshMarket]);
+
+  useEffect(() => {
     const param = searchParams.get('tab');
     if (param === 'wall' || param === 'catalogue' || param === 'settings') {
       setActiveTab(param);
@@ -239,7 +243,7 @@ export default function MyStoreView() {
   const storeProducts = activeProfile
     ? products.filter(
         (p) =>
-          (p.sellerUsername && activeProfile.username && p.sellerUsername.toLowerCase() === activeProfile.username.toLowerCase()) ||
+          (p.sellerUsername && activeProfile.username && p.sellerUsername.trim().toLowerCase() === activeProfile.username.trim().toLowerCase()) ||
           (p.sellerId && activeProfile.id && p.sellerId === activeProfile.id)
       )
     : [];
